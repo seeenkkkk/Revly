@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    return NextResponse.json({ sessionId: checkoutSession.id })
+    return NextResponse.json({ url: checkoutSession.url })
   } catch (err) {
     console.error('Error al crear sesión de Stripe:', err)
     return NextResponse.json({ error: 'Error al procesar el pago' }, { status: 500 })

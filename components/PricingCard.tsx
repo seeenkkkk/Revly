@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { loadStripe } from '@stripe/stripe-js'
 
 interface PricingCardProps {
   name: string
@@ -10,9 +9,6 @@ interface PricingCardProps {
   priceId: string | null | undefined
   highlighted?: boolean
 }
-
-// Inicializar Stripe en el cliente
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 export default function PricingCard({
   name,
@@ -38,11 +34,12 @@ export default function PricingCard({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ priceId }),
       })
-      const { sessionId, error } = await res.json()
-      if (error) throw new Error(error)
+      const data: { url?: string; error?: string } = await res.json()
+      if (data.error) throw new Error(data.error)
+      if (!data.url) throw new Error('No se recibió URL de pago')
 
-      const stripe = await stripePromise
-      await stripe?.redirectToCheckout({ sessionId })
+      // Redirigir directamente a la URL de Stripe Checkout
+      window.location.href = data.url
     } catch (err) {
       console.error('Error al iniciar el pago:', err)
     } finally {
