@@ -1,10 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// Creación lazy del cliente para evitar errores en build con env vars no configuradas
+export function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
-// Cliente simple (sin sesión) para uso en webhooks/API routes con service role
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Alias para compatibilidad — se evalúa en runtime, no en build
+export const supabase = {
+  from: (...args: Parameters<ReturnType<typeof getSupabase>['from']>) =>
+    getSupabase().from(...args),
+}
 
 // Tipos de las tablas de Supabase
 export type UserProfile = {
