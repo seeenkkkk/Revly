@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
-import { supabase } from '@/lib/supabase'
+import { stripe, getPlanFromPriceId, PLAN_LIMITS } from '@/lib/stripe'
+import { getServiceSupabase } from '@/lib/supabase'
 import Stripe from 'stripe'
 
-// Desactivar el body parser por defecto de Next.js (Stripe necesita el raw body)
+// Requiere el raw body — no usar edge runtime
 export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
@@ -15,8 +15,6 @@ export async function POST(req: NextRequest) {
   }
 
   let event: Stripe.Event
-
-  // Verificar que el webhook viene realmente de Stripe
   try {
     event = stripe.webhooks.constructEvent(
       body,
@@ -24,67 +22,100 @@ export async function POST(req: NextRequest) {
       process.env.STRIPE_WEBHOOK_SECRET!
     )
   } catch (err) {
-    console.error('Error al verificar webhook de Stripe:', err)
+    console.error('Webhook inválido:', err)
     return NextResponse.json({ error: 'Webhook inválido' }, { status: 400 })
   }
 
-  // Manejar el evento de pago completado
+  // Usar cliente con service role para bypassear RLS
+  const db = getServiceSupabase()
+
+  // ============================================================
+  // Pago completado → actualizar plan + crear agente
+  // ============================================================
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
 
     const userEmail = session.customer_email
     const customerId = session.customer as string
     const subscriptionId = session.subscription as string
-
-    // Obtener el plan según el Price ID de la suscripción
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-    const priceId = subscription.items.data[0]?.price.id
-
-    // Determinar el plan según el Price ID
-    let plan: 'pro' | 'business' = 'pro'
-    let conversationsLimit = 1000
-
-    if (priceId === process.env.STRIPE_PRICE_BUSINESS) {
-      plan = 'business'
-      conversationsLimit = 10000
-    }
+    const userId = session.metadata?.userId
 
     if (!userEmail) {
-      console.error('No se encontró email en la sesión de Stripe')
+      console.error('Email no encontrado en sesión de Stripe')
       return NextResponse.json({ error: 'Email no encontrado' }, { status: 400 })
     }
 
-    // Upsert del usuario en Supabase con los datos del plan
-    const { error } = await supabase.from('users').upsert(
-      {
-        email: userEmail,
-        plan,
-        conversations_limit: conversationsLimit,
-        conversations_used: 0,
-        // Guardar el ID de cliente de Stripe para futuras operaciones
-        stripe_customer_id: customerId,
-        stripe_subscription_id: subscriptionId,
-      },
-      {
-        onConflict: 'email', // Actualizar si el email ya existe
-      }
-    )
-
-    if (error) {
-      console.error('Error al guardar usuario en Supabase:', error)
-      return NextResponse.json({ error: 'Error de base de datos' }, { status: 500 })
+    // Obtener el priceId de la suscripción para determinar el plan
+    let plan: 'essential' | 'growth' | 'partner' = 'essential'
+    try {
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+      const priceId = subscription.items.data[0]?.price.id
+      if (priceId) plan = getPlanFromPriceId(priceId)
+    } catch (err) {
+      console.error('Error al obtener suscripción:', err)
     }
 
-    console.log(`Usuario ${userEmail} actualizado al plan ${plan}`)
+    const conversationsLimit = PLAN_LIMITS[plan] ?? 50
+
+    // Upsert del usuario con el nuevo plan
+    const { data: user, error: userError } = await db
+      .from('users')
+      .upsert(
+        {
+          email: userEmail,
+          plan,
+          conversations_limit: conversationsLimit,
+          conversations_used: 0,
+          stripe_customer_id: customerId,
+          stripe_subscription_id: subscriptionId,
+          ...(userId ? { id: userId } : {}),
+        },
+        { onConflict: 'email' }
+      )
+      .select('id')
+      .single()
+
+    if (userError) {
+      console.error('Error al actualizar usuario:', userError)
+      return NextResponse.json({ error: 'Error en base de datos' }, { status: 500 })
+    }
+
+    const finalUserId = user?.id ?? userId
+
+    // Crear el agente en Supabase para este usuario
+    if (finalUserId) {
+      const planNames: Record<string, string> = {
+        essential: 'Agente Essential',
+        growth: 'Agente Growth & Marketing',
+        partner: 'Partner AI',
+      }
+
+      const { error: agentError } = await db.from('agents').insert({
+        user_id: finalUserId,
+        name: planNames[plan] ?? 'Mi Agente',
+        plan_type: plan,
+        status: 'active',
+        system_prompt:
+          'Eres un asistente de ventas amable y profesional. Tu objetivo es ayudar al cliente a encontrar el producto ideal y guiarle al checkout de forma natural y sin presión.',
+      })
+
+      if (agentError) {
+        // No es fatal — el usuario tiene su plan, el agente se puede crear luego
+        console.error('Error al crear agente:', agentError)
+      }
+    }
+
+    console.log(`✓ Usuario ${userEmail} actualizado al plan ${plan}`)
   }
 
-  // Manejar cancelación de suscripción
+  // ============================================================
+  // Suscripción cancelada → degradar a free
+  // ============================================================
   if (event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object as Stripe.Subscription
     const customerId = subscription.customer as string
 
-    // Buscar usuario por stripe_customer_id y degradar al plan free
-    const { error } = await supabase
+    const { error } = await db
       .from('users')
       .update({
         plan: 'free',
@@ -94,7 +125,7 @@ export async function POST(req: NextRequest) {
       .eq('stripe_customer_id', customerId)
 
     if (error) {
-      console.error('Error al degradar usuario a free:', error)
+      console.error('Error al degradar usuario:', error)
     }
   }
 

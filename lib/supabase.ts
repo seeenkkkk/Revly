@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Creación lazy del cliente para evitar errores en build con env vars no configuradas
+// Cliente anon (lazy) — para uso general en server/client
 export function getSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,28 +8,46 @@ export function getSupabase() {
   )
 }
 
-// Alias para compatibilidad — se evalúa en runtime, no en build
+// Cliente con service role — solo en server (webhook, admin ops)
+// Bypasa Row Level Security para operaciones del sistema
+export function getServiceSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
+
+// Alias compatible con imports existentes
 export const supabase = {
   from: (...args: Parameters<ReturnType<typeof getSupabase>['from']>) =>
     getSupabase().from(...args),
 }
 
-// Tipos de las tablas de Supabase
+// ============================================================
+// Tipos de tablas Supabase
+// ============================================================
+
+export type Plan = 'free' | 'essential' | 'growth' | 'partner'
+
 export type UserProfile = {
   id: string
   email: string
-  google_id: string
-  plan: 'free' | 'pro' | 'business'
+  google_id: string | null
+  plan: Plan
   conversations_used: number
   conversations_limit: number
+  stripe_customer_id: string | null
+  stripe_subscription_id: string | null
   created_at: string
 }
 
 export type Agent = {
   id: string
   user_id: string
-  whatsapp_number: string
+  name: string
+  whatsapp_number: string | null
   system_prompt: string
   status: 'active' | 'inactive'
+  plan_type: string
   created_at: string
 }

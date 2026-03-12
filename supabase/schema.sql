@@ -1,14 +1,15 @@
 -- ============================================================
--- Schema de Supabase para revly
--- Ejecutar en el SQL Editor de tu proyecto de Supabase
+-- Schema de Supabase para Revly
+-- Ejecutar en: Supabase → SQL Editor → New Query
 -- ============================================================
 
--- Tabla de usuarios
+-- Tabla de usuarios (sincronizada con auth.users)
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
   google_id TEXT,
-  plan TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'pro', 'business')),
+  plan TEXT NOT NULL DEFAULT 'free'
+    CHECK (plan IN ('free', 'essential', 'growth', 'partner')),
   conversations_used INTEGER NOT NULL DEFAULT 0,
   conversations_limit INTEGER NOT NULL DEFAULT 50,
   stripe_customer_id TEXT,
@@ -16,13 +17,17 @@ CREATE TABLE IF NOT EXISTS public.users (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Tabla de agentes
+-- Tabla de agentes de WhatsApp
 CREATE TABLE IF NOT EXISTS public.agents (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL DEFAULT 'Mi Agente',
   whatsapp_number TEXT,
-  system_prompt TEXT DEFAULT 'Eres un asistente de ventas amable y profesional.',
-  status TEXT NOT NULL DEFAULT 'inactive' CHECK (status IN ('active', 'inactive')),
+  system_prompt TEXT NOT NULL DEFAULT
+    'Eres un asistente de ventas amable y profesional. Tu objetivo es ayudar al cliente a encontrar el producto ideal y guiarle al checkout de forma natural.',
+  status TEXT NOT NULL DEFAULT 'inactive'
+    CHECK (status IN ('active', 'inactive')),
+  plan_type TEXT NOT NULL DEFAULT 'essential',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -30,39 +35,31 @@ CREATE TABLE IF NOT EXISTS public.agents (
 -- Row Level Security (RLS)
 -- ============================================================
 
--- Activar RLS en ambas tablas
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.agents ENABLE ROW LEVEL SECURITY;
 
--- Políticas para la tabla users
-CREATE POLICY "Los usuarios pueden ver su propio perfil"
-  ON public.users FOR SELECT
-  USING (auth.uid() = id);
+-- Políticas de users
+CREATE POLICY "Usuarios ven su propio perfil"
+  ON public.users FOR SELECT USING (auth.uid() = id);
 
-CREATE POLICY "Los usuarios pueden actualizar su propio perfil"
-  ON public.users FOR UPDATE
-  USING (auth.uid() = id);
+CREATE POLICY "Usuarios actualizan su propio perfil"
+  ON public.users FOR UPDATE USING (auth.uid() = id);
 
--- Solo el backend puede insertar usuarios (via service role)
-CREATE POLICY "Service role puede insertar usuarios"
-  ON public.users FOR INSERT
-  WITH CHECK (true);
+CREATE POLICY "Inserción permitida"
+  ON public.users FOR INSERT WITH CHECK (true);
 
--- Políticas para la tabla agents
-CREATE POLICY "Los usuarios pueden ver su propio agente"
-  ON public.agents FOR SELECT
-  USING (auth.uid() = user_id);
+-- Políticas de agents
+CREATE POLICY "Usuarios ven sus agentes"
+  ON public.agents FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "Los usuarios pueden crear su propio agente"
-  ON public.agents FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Usuarios crean sus agentes"
+  ON public.agents FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Los usuarios pueden actualizar su propio agente"
-  ON public.agents FOR UPDATE
-  USING (auth.uid() = user_id);
+CREATE POLICY "Usuarios actualizan sus agentes"
+  ON public.agents FOR UPDATE USING (auth.uid() = user_id);
 
 -- ============================================================
--- Función para crear perfil automáticamente al registrarse
+-- Trigger: crear perfil al registrarse con Google OAuth
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -82,7 +79,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Trigger que llama a la función al crear un nuevo usuario en auth.users
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users

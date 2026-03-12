@@ -18,7 +18,7 @@ const AgentIconGrowth = () => (
   </svg>
 )
 
-// Icono Partner: busto de androide / cerebro IA
+// Icono Partner: busto de androide
 const AgentIconPartner = () => (
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="7" r="4" />
@@ -40,7 +40,7 @@ interface AgentCardProps {
   features: string[]
   badge?: string
   buttonLabel: string
-  onDeploy: (tier: AgentTier) => void
+  priceId: string | null
 }
 
 const iconMap: Record<AgentTier, React.ReactNode> = {
@@ -49,73 +49,68 @@ const iconMap: Record<AgentTier, React.ReactNode> = {
   partner: <AgentIconPartner />,
 }
 
-// Estilos diferenciados por tier
 const styles: Record<AgentTier, {
-  card: string
-  icon: string
-  title: string
-  price: string
-  desc: string
-  feature: string
-  btn: string
-  priceSub: string
+  card: string; icon: string; title: string; price: string
+  priceSub: string; desc: string; feature: string; btn: string
 }> = {
   essential: {
     card: 'bg-white border border-[#E5E7EB] shadow-sm hover:shadow-md',
     icon: 'bg-gray-100 text-gray-500',
-    title: 'text-[#0D1B2A]',
-    price: 'text-[#0D1B2A]',
-    priceSub: 'text-gray-400',
-    desc: 'text-gray-500',
-    feature: 'text-gray-600',
-    btn: 'bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#0D1B2A]',
+    title: 'text-[#0D1B2A]', price: 'text-[#0D1B2A]',
+    priceSub: 'text-gray-400', desc: 'text-gray-500',
+    feature: 'text-gray-600', btn: 'bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#0D1B2A]',
   },
   growth: {
     card: 'bg-white border-2 border-[#00C48C] shadow-lg shadow-[#00C48C]/10 hover:shadow-xl hover:shadow-[#00C48C]/15',
     icon: 'bg-[#00C48C]/10 text-[#00C48C]',
-    title: 'text-[#0D1B2A]',
-    price: 'text-[#0D1B2A]',
-    priceSub: 'text-gray-400',
-    desc: 'text-gray-500',
-    feature: 'text-gray-600',
-    btn: 'bg-[#00C48C] hover:bg-[#00b07e] text-[#0D1B2A]',
+    title: 'text-[#0D1B2A]', price: 'text-[#0D1B2A]',
+    priceSub: 'text-gray-400', desc: 'text-gray-500',
+    feature: 'text-gray-600', btn: 'bg-[#00C48C] hover:bg-[#00b07e] text-[#0D1B2A]',
   },
   partner: {
     card: 'bg-gradient-to-b from-[#0D1B2A] to-[#0f2337] border border-[#1E3A52] shadow-xl hover:shadow-2xl',
     icon: 'bg-white/10 text-[#00C48C]',
-    title: 'text-white',
-    price: 'text-white',
-    priceSub: 'text-white/40',
-    desc: 'text-white/50',
-    feature: 'text-white/60',
-    btn: 'bg-[#00C48C] hover:bg-[#00b07e] text-[#0D1B2A]',
+    title: 'text-white', price: 'text-white',
+    priceSub: 'text-white/40', desc: 'text-white/50',
+    feature: 'text-white/60', btn: 'bg-[#00C48C] hover:bg-[#00b07e] text-[#0D1B2A]',
   },
 }
 
 export default function AgentCard({
-  tier,
-  name,
-  price,
-  tagline,
-  description,
-  features,
-  badge,
-  buttonLabel,
-  onDeploy,
+  tier, name, price, tagline, description,
+  features, badge, buttonLabel, priceId,
 }: AgentCardProps) {
-  const [deploying, setDeploying] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const s = styles[tier]
 
-  const handleDeploy = async () => {
-    setDeploying(true)
-    await new Promise((r) => setTimeout(r, 900))
-    onDeploy(tier)
-    setDeploying(false)
+  // Iniciar Stripe Checkout para este plan
+  const handleCheckout = async () => {
+    if (!priceId) {
+      setError('Plan no disponible. Configura los precios de Stripe.')
+      return
+    }
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId, plan: tier }),
+      })
+      const data: { url?: string; error?: string } = await res.json()
+      if (data.error) throw new Error(data.error)
+      if (data.url) window.location.href = data.url
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al procesar el pago')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className={`relative flex flex-col rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1 ${s.card}`}>
-      {/* Badge "Más Rentable" */}
+      {/* Badge */}
       {badge && (
         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
           <span className="bg-[#00C48C] text-[#0D1B2A] text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm">
@@ -129,10 +124,8 @@ export default function AgentCard({
         {iconMap[tier]}
       </div>
 
-      {/* Nombre */}
+      {/* Nombre y tagline */}
       <h3 className={`text-lg font-bold mb-0.5 ${s.title}`}>{name}</h3>
-
-      {/* Tagline */}
       <p className="text-xs font-semibold text-[#00C48C] mb-4">{tagline}</p>
 
       {/* Precio */}
@@ -158,19 +151,24 @@ export default function AgentCard({
         ))}
       </ul>
 
+      {/* Error message */}
+      {error && (
+        <p className="text-xs text-red-500 mb-3 text-center">{error}</p>
+      )}
+
       {/* Botón CTA */}
       <button
-        onClick={handleDeploy}
-        disabled={deploying}
+        onClick={handleCheckout}
+        disabled={loading}
         className={`w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200 disabled:opacity-70 ${s.btn}`}
       >
-        {deploying ? (
+        {loading ? (
           <span className="flex items-center justify-center gap-2">
             <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
             </svg>
-            Desplegando...
+            Procesando...
           </span>
         ) : buttonLabel}
       </button>

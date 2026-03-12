@@ -5,41 +5,56 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-02-25.clover',
 })
 
-// Planes disponibles con sus precios de Stripe
+// Planes del producto con precios reales
 export const PLANS = {
-  free: {
-    name: 'Free',
-    price: 0,
-    priceId: null,
+  essential: {
+    name: 'Essential',
+    price: 9.99,
+    priceId: process.env.STRIPE_PRICE_ESSENTIAL,
     conversations_limit: 50,
     features: [
+      'Respuestas automáticas 24/7',
+      'Calificación de leads',
       '50 conversaciones/mes',
-      '1 número de WhatsApp',
       'Soporte por email',
     ],
   },
-  pro: {
-    name: 'Pro',
-    price: 29,
-    priceId: process.env.STRIPE_PRICE_PRO,
+  growth: {
+    name: 'Growth & Marketing',
+    price: 27.99,
+    priceId: process.env.STRIPE_PRICE_GROWTH,
     conversations_limit: 1000,
     features: [
+      'Todo lo del Essential',
+      'Re-engagement automático',
       '1.000 conversaciones/mes',
-      '3 números de WhatsApp',
-      'Prompt personalizado',
-      'Soporte prioritario',
+      'Analítica de conversiones',
     ],
   },
-  business: {
-    name: 'Business',
-    price: 79,
-    priceId: process.env.STRIPE_PRICE_BUSINESS,
+  partner: {
+    name: 'Partner AI',
+    price: 49.99,
+    priceId: process.env.STRIPE_PRICE_PARTNER,
     conversations_limit: 10000,
     features: [
-      '10.000 conversaciones/mes',
-      'Números ilimitados',
-      'Integraciones avanzadas',
+      'Todo lo del Growth',
+      'IA conversacional avanzada',
+      'Conversaciones ilimitadas',
       'Soporte dedicado 24/7',
     ],
   },
+}
+
+// Mapeo inverso: priceId → nombre de plan
+export function getPlanFromPriceId(priceId: string): 'essential' | 'growth' | 'partner' {
+  if (priceId === process.env.STRIPE_PRICE_GROWTH) return 'growth'
+  if (priceId === process.env.STRIPE_PRICE_PARTNER) return 'partner'
+  return 'essential'
+}
+
+export const PLAN_LIMITS: Record<string, number> = {
+  essential: 50,
+  growth: 1000,
+  partner: 10000,
+  free: 50,
 }
