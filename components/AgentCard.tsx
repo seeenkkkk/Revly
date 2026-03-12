@@ -2,30 +2,30 @@
 
 import { useState } from 'react'
 
-// Iconos SVG para cada tipo de agente
+// Icono Essential: burbuja de chat con símbolo de dólar
 const AgentIconEssential = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    <path d="M12 7v1m0 8v1m-2.5-7.5c0-1.1.9-2 2-2s2 1 2 2c0 2-4 2-4 4s.9 2 2 2 2-.9 2-2" />
   </svg>
 )
 
+// Icono Growth: burbuja de chat + rayo
 const AgentIconGrowth = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-    {/* Burbuja de chat */}
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" />
-    {/* Rayo de energía */}
-    <path d="M13 3L9 13h4l-2 8 8-10h-5l3-8z" stroke="currentColor" fill="currentColor" fillOpacity="0.15" />
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="1.7" />
+    <path d="M13.5 6l-3 5.5h3l-2 5 6-7h-4l2-3.5z" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" />
   </svg>
 )
 
+// Icono Partner: busto de androide / cerebro IA
 const AgentIconPartner = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-    {/* Busto de androide */}
-    <circle cx="12" cy="8" r="4" />
-    <path d="M6 20v-2a6 6 0 0 1 12 0v2" />
-    <path d="M9 8h.01M15 8h.01" />
-    <path d="M10 11s.5 1 2 1 2-1 2-1" />
-    <path d="M12 4V2M8 5.5L6.5 4M16 5.5l1.5-1.5" />
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="7" r="4" />
+    <path d="M5.5 20a7 7 0 0 1 13 0" />
+    <path d="M12 3V1M8.5 4.5 7 3M15.5 4.5 17 3" />
+    <circle cx="10" cy="7" r="0.5" fill="currentColor" stroke="none" />
+    <circle cx="14" cy="7" r="0.5" fill="currentColor" stroke="none" />
   </svg>
 )
 
@@ -39,13 +39,57 @@ interface AgentCardProps {
   description: string
   features: string[]
   badge?: string
+  buttonLabel: string
   onDeploy: (tier: AgentTier) => void
 }
 
-const iconMap = {
+const iconMap: Record<AgentTier, React.ReactNode> = {
   essential: <AgentIconEssential />,
   growth: <AgentIconGrowth />,
   partner: <AgentIconPartner />,
+}
+
+// Estilos diferenciados por tier
+const styles: Record<AgentTier, {
+  card: string
+  icon: string
+  title: string
+  price: string
+  desc: string
+  feature: string
+  btn: string
+  priceSub: string
+}> = {
+  essential: {
+    card: 'bg-white border border-[#E5E7EB] shadow-sm hover:shadow-md',
+    icon: 'bg-gray-100 text-gray-500',
+    title: 'text-[#0D1B2A]',
+    price: 'text-[#0D1B2A]',
+    priceSub: 'text-gray-400',
+    desc: 'text-gray-500',
+    feature: 'text-gray-600',
+    btn: 'bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#0D1B2A]',
+  },
+  growth: {
+    card: 'bg-white border-2 border-[#00C48C] shadow-lg shadow-[#00C48C]/10 hover:shadow-xl hover:shadow-[#00C48C]/15',
+    icon: 'bg-[#00C48C]/10 text-[#00C48C]',
+    title: 'text-[#0D1B2A]',
+    price: 'text-[#0D1B2A]',
+    priceSub: 'text-gray-400',
+    desc: 'text-gray-500',
+    feature: 'text-gray-600',
+    btn: 'bg-[#00C48C] hover:bg-[#00b07e] text-[#0D1B2A]',
+  },
+  partner: {
+    card: 'bg-gradient-to-b from-[#0D1B2A] to-[#0f2337] border border-[#1E3A52] shadow-xl hover:shadow-2xl',
+    icon: 'bg-white/10 text-[#00C48C]',
+    title: 'text-white',
+    price: 'text-white',
+    priceSub: 'text-white/40',
+    desc: 'text-white/50',
+    feature: 'text-white/60',
+    btn: 'bg-[#00C48C] hover:bg-[#00b07e] text-[#0D1B2A]',
+  },
 }
 
 export default function AgentCard({
@@ -56,103 +100,69 @@ export default function AgentCard({
   description,
   features,
   badge,
+  buttonLabel,
   onDeploy,
 }: AgentCardProps) {
   const [deploying, setDeploying] = useState(false)
+  const s = styles[tier]
 
   const handleDeploy = async () => {
     setDeploying(true)
-    // Simular animación de deploy y llamar al callback
-    await new Promise((r) => setTimeout(r, 800))
+    await new Promise((r) => setTimeout(r, 900))
     onDeploy(tier)
     setDeploying(false)
   }
 
-  // Estilos según el tier
-  const cardStyles = {
-    essential: 'bg-white border border-[#E5E7EB] shadow-sm hover:shadow-md',
-    growth: 'bg-white border-2 border-[#00C48C] shadow-lg shadow-[#00C48C]/10 hover:shadow-xl hover:shadow-[#00C48C]/15',
-    partner: 'bg-gradient-to-b from-[#0D1B2A] to-[#162436] border border-[#2A3F55] shadow-xl hover:shadow-2xl',
-  }
-
-  const isLight = tier !== 'partner'
-
   return (
-    <div className={`relative flex flex-col rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1 ${cardStyles[tier]}`}>
+    <div className={`relative flex flex-col rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1 ${s.card}`}>
       {/* Badge "Más Rentable" */}
       {badge && (
         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-          <span className="bg-[#00C48C] text-[#0D1B2A] text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
+          <span className="bg-[#00C48C] text-[#0D1B2A] text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm">
             {badge}
           </span>
         </div>
       )}
 
-      {/* Icono del agente */}
-      <div
-        className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${
-          tier === 'essential'
-            ? 'bg-gray-100 text-gray-500'
-            : tier === 'growth'
-            ? 'bg-[#00C48C]/10 text-[#00C48C]'
-            : 'bg-white/10 text-[#00C48C]'
-        }`}
-      >
+      {/* Icono */}
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${s.icon}`}>
         {iconMap[tier]}
       </div>
 
-      {/* Nombre y tagline */}
-      <h3 className={`text-lg font-bold mb-0.5 ${isLight ? 'text-[#0D1B2A]' : 'text-white'}`}>
-        {name}
-      </h3>
-      <p className={`text-xs font-medium mb-4 ${isLight ? 'text-[#00C48C]' : 'text-[#00C48C]'}`}>
-        {tagline}
-      </p>
+      {/* Nombre */}
+      <h3 className={`text-lg font-bold mb-0.5 ${s.title}`}>{name}</h3>
+
+      {/* Tagline */}
+      <p className="text-xs font-semibold text-[#00C48C] mb-4">{tagline}</p>
 
       {/* Precio */}
-      <div className="mb-4">
-        <span className={`text-3xl font-extrabold ${isLight ? 'text-[#0D1B2A]' : 'text-white'}`}>
+      <div className="mb-5">
+        <span className={`text-4xl font-extrabold tracking-tight ${s.price}`}>
           {price.toFixed(2).replace('.', ',')}€
         </span>
-        <span className={`text-sm ml-1 ${isLight ? 'text-gray-400' : 'text-white/40'}`}>/mes</span>
+        <span className={`text-sm ml-1 ${s.priceSub}`}>/mes</span>
       </div>
 
       {/* Descripción */}
-      <p className={`text-sm leading-relaxed mb-5 ${isLight ? 'text-gray-500' : 'text-white/50'}`}>
-        {description}
-      </p>
+      <p className={`text-sm leading-relaxed mb-5 ${s.desc}`}>{description}</p>
 
-      {/* Características */}
+      {/* Features */}
       <ul className="flex flex-col gap-2.5 mb-7 flex-1">
         {features.map((f) => (
           <li key={f} className="flex items-start gap-2 text-sm">
-            <svg
-              className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#00C48C]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2.5}
-            >
+            <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#00C48C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            <span className={isLight ? 'text-gray-600' : 'text-white/60'}>{f}</span>
+            <span className={s.feature}>{f}</span>
           </li>
         ))}
       </ul>
 
-      {/* Botón Desplegar Agente */}
+      {/* Botón CTA */}
       <button
         onClick={handleDeploy}
         disabled={deploying}
-        className={`
-          w-full py-3 rounded-xl font-semibold text-sm transition-all disabled:opacity-70
-          ${tier === 'essential'
-            ? 'bg-gray-100 hover:bg-gray-200 text-[#0D1B2A]'
-            : tier === 'growth'
-            ? 'bg-[#00C48C] hover:bg-[#00b07e] text-[#0D1B2A]'
-            : 'bg-[#00C48C] hover:bg-[#00b07e] text-[#0D1B2A]'
-          }
-        `}
+        className={`w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200 disabled:opacity-70 ${s.btn}`}
       >
         {deploying ? (
           <span className="flex items-center justify-center gap-2">
@@ -162,9 +172,7 @@ export default function AgentCard({
             </svg>
             Desplegando...
           </span>
-        ) : (
-          'Desplegar Agente →'
-        )}
+        ) : buttonLabel}
       </button>
     </div>
   )

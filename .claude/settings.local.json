@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(sleep 6 && curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(sleep 5 && curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(cd C:/Users/Mario/revly && npm run build 2>&1)"
+    ]
+  }
+}

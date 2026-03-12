@@ -1,0 +1,27 @@
+import { create } from 'zustand'
+
+export type AgentTier = 'essential' | 'growth' | 'partner'
+
+interface RevlyStore {
+  // Agente seleccionado/desplegado actualmente
+  selectedAgent: AgentTier | null
+  // IDs de workflows activos
+  activeWorkflows: string[]
+  // Datos del usuario autenticado
+  userData: { email: string; plan: string } | null
+
+  // Acciones
+  setSelectedAgent: (agent: AgentTier | null) => void
+  setActiveWorkflows: (workflows: string[]) => void
+  setUserData: (data: { email: string; plan: string } | null) => void
+}
+
+export const useRevlyStore = create<RevlyStore>((set) => ({
+  selectedAgent: null,
+  activeWorkflows: [],
+  userData: null,
+
+  setSelectedAgent: (agent) => set({ selectedAgent: agent }),
+  setActiveWorkflows: (workflows) => set({ activeWorkflows: workflows }),
+  setUserData: (data) => set({ userData: data }),
+}))
