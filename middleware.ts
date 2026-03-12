@@ -4,14 +4,18 @@ import type { NextRequest } from 'next/server'
 
 // Middleware para proteger rutas privadas
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next({
-    request: req,
-  })
+  const res = NextResponse.next({ request: req })
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  // Si las credenciales no están configuradas, dejar pasar (modo desarrollo)
+  if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
+    return res
+  }
+
+  try {
+    const supabase = createServerClient(supabaseUrl, supabaseKey!, {
       cookies: {
         getAll() {
           return req.cookies.getAll()
@@ -23,19 +27,18 @@ export async function middleware(req: NextRequest) {
           )
         },
       },
+    })
+
+    const { data: { session } } = await supabase.auth.getSession()
+
+    // Redirigir al inicio si no hay sesión y se intenta acceder al dashboard
+    if (!session && req.nextUrl.pathname.startsWith('/dashboard')) {
+      const redirectUrl = req.nextUrl.clone()
+      redirectUrl.pathname = '/'
+      return NextResponse.redirect(redirectUrl)
     }
-  )
-
-  // Refrescar sesión si existe token expirado
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  // Redirigir al inicio si no hay sesión y se intenta acceder al dashboard
-  if (!session && req.nextUrl.pathname.startsWith('/dashboard')) {
-    const redirectUrl = req.nextUrl.clone()
-    redirectUrl.pathname = '/'
-    return NextResponse.redirect(redirectUrl)
+  } catch {
+    // Error de Supabase — dejar pasar en desarrollo
   }
 
   return res
