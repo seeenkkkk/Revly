@@ -8,38 +8,43 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 // Planes del producto con precios reales
 export const PLANS = {
   essential: {
-    name: 'Essential',
-    price: 9.99,
+    name: 'Starter',
+    price: 14.99,
     priceId: process.env.STRIPE_PRICE_ESSENTIAL,
-    conversations_limit: 50,
+    conversations_limit: 100,
+    tagline: 'El gancho perfecto',
     features: [
       'Respuestas automáticas 24/7',
-      'Calificación de leads',
-      '50 conversaciones/mes',
+      'Calificación básica de leads',
+      '100 conversaciones/mes',
       'Soporte por email',
     ],
   },
   growth: {
-    name: 'Growth & Marketing',
-    price: 27.99,
+    name: 'Growth & Sales',
+    price: 34.99,
     priceId: process.env.STRIPE_PRICE_GROWTH,
-    conversations_limit: 1000,
+    conversations_limit: 1500,
+    tagline: 'El motor de ventas',
     features: [
-      'Todo lo del Essential',
+      'Todo lo del Starter',
       'Re-engagement automático',
-      '1.000 conversaciones/mes',
+      '1.500 conversaciones/mes',
       'Analítica de conversiones',
+      'Conexión a 1 CRM (Sheets/Notion)',
     ],
   },
   partner: {
-    name: 'Partner AI',
-    price: 49.99,
+    name: 'Enterprise AI',
+    price: 79.99,
     priceId: process.env.STRIPE_PRICE_PARTNER,
-    conversations_limit: 10000,
+    conversations_limit: 999999,
+    tagline: 'Tu socio total',
     features: [
       'Todo lo del Growth',
-      'IA conversacional avanzada',
+      'IA con memoria a largo plazo',
       'Conversaciones ilimitadas',
+      'Prioridad de ejecución',
       'Soporte dedicado 24/7',
     ],
   },
@@ -53,8 +58,8 @@ export function getPlanFromPriceId(priceId: string): 'essential' | 'growth' | 'p
 }
 
 export const PLAN_LIMITS: Record<string, number> = {
-  essential: 50,
-  growth: 1000,
-  partner: 10000,
+  essential: 100,
+  growth: 1500,
+  partner: 999999,
   free: 50,
 }
