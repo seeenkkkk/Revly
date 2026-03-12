@@ -25,9 +25,9 @@ export default async function LandingPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#00C48C15_0%,_transparent_70%)] pointer-events-none" />
 
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 bg-[#00C48C]/10 border border-[#00C48C]/20 rounded-full px-4 py-1.5 mb-8">
-          <span className="w-2 h-2 bg-[#00C48C] rounded-full animate-pulse" />
-          <span className="text-[#00C48C] text-sm font-medium">Agente de ventas por WhatsApp</span>
+        <div className="inline-flex items-center gap-2 bg-[#00C48C]/10 border border-[#00C48C]/20 rounded-full px-5 py-2 mb-8 whitespace-nowrap">
+          <span className="w-2 h-2 bg-[#00C48C] rounded-full animate-pulse flex-shrink-0" />
+          <span className="text-[#00C48C] text-xs font-medium">Agente de ventas por WhatsApp</span>
         </div>
 
         {/* Título principal */}
@@ -45,7 +45,7 @@ export default async function LandingPage() {
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-4">
           <a
-            href="#precios"
+            href="/dashboard/agentes"
             className="bg-[#00C48C] hover:bg-[#00b07e] text-[#0D1B2A] font-bold px-8 py-4 rounded-xl text-lg transition-all hover:scale-105"
           >
             Empezar gratis →
@@ -121,29 +121,29 @@ export default async function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-            {/* Plan Free */}
+            {/* Plan Essential */}
             <PricingCard
-              name={PLANS.free.name}
-              price={PLANS.free.price}
-              features={PLANS.free.features}
-              priceId={PLANS.free.priceId}
+              name={PLANS.essential.name}
+              price={PLANS.essential.price}
+              features={PLANS.essential.features}
+              priceId={PLANS.essential.priceId ?? null}
             />
 
-            {/* Plan Pro (destacado) */}
+            {/* Plan Growth (destacado) */}
             <PricingCard
-              name={PLANS.pro.name}
-              price={PLANS.pro.price}
-              features={PLANS.pro.features}
-              priceId={PLANS.pro.priceId}
+              name={PLANS.growth.name}
+              price={PLANS.growth.price}
+              features={PLANS.growth.features}
+              priceId={PLANS.growth.priceId ?? null}
               highlighted
             />
 
-            {/* Plan Business */}
+            {/* Plan Partner */}
             <PricingCard
-              name={PLANS.business.name}
-              price={PLANS.business.price}
-              features={PLANS.business.features}
-              priceId={PLANS.business.priceId}
+              name={PLANS.partner.name}
+              price={PLANS.partner.price}
+              features={PLANS.partner.features}
+              priceId={PLANS.partner.priceId ?? null}
             />
           </div>
         </div>

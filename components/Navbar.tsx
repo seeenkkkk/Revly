@@ -20,7 +20,7 @@ export default function Navbar({ userEmail }: NavbarProps) {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo: `${window.location.origin}/dashboard/agentes`,
       },
     })
     setLoading(false)
