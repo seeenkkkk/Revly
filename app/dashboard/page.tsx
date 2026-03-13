@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createBrowserSupabase } from '@/lib/supabase-browser'
 import type { Agent, UserProfile } from '@/lib/supabase'
@@ -66,7 +66,7 @@ function StatusBadge({ status }: { status: DeployStatus; error: string | null })
   )
 }
 
-export default function DashboardPage() {
+function DashboardContent() {
   const searchParams = useSearchParams()
   const checkoutSuccess  = searchParams.get('success')  === 'true'
   const checkoutCanceled = searchParams.get('canceled') === 'true'
@@ -506,5 +506,13 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0D1B2A]" />}>
+      <DashboardContent />
+    </Suspense>
   )
 }
