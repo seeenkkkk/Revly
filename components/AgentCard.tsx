@@ -86,10 +86,6 @@ export default function AgentCard({
 
   // Iniciar Stripe Checkout para este plan
   const handleCheckout = async () => {
-    if (!priceId) {
-      setError('Plan no disponible. Configura los precios de Stripe.')
-      return
-    }
     setLoading(true)
     setError(null)
     try {

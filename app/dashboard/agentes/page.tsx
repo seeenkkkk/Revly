@@ -19,7 +19,7 @@ const AGENT_PLANS = [
       'Soporte por email',
     ],
     buttonLabel: 'Desplegar Agente Essential',
-    priceId: process.env.STRIPE_PRICE_ESSENTIAL ?? null,
+    priceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID ?? null,
   },
   {
     tier: 'growth' as const,
@@ -35,7 +35,7 @@ const AGENT_PLANS = [
     ],
     badge: 'Más Rentable',
     buttonLabel: 'Desplegar Agente Growth',
-    priceId: process.env.STRIPE_PRICE_GROWTH ?? null,
+    priceId: process.env.NEXT_PUBLIC_STRIPE_GROWTH_PRICE_ID ?? null,
   },
   {
     tier: 'partner' as const,
@@ -50,7 +50,7 @@ const AGENT_PLANS = [
       'Soporte dedicado 24/7',
     ],
     buttonLabel: 'Contratar Socio AI',
-    priceId: process.env.STRIPE_PRICE_PARTNER ?? null,
+    priceId: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_PRICE_ID ?? null,
   },
 ]
 
