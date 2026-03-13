@@ -71,7 +71,6 @@ export default function DashboardPage() {
   const checkoutSuccess  = searchParams.get('success')  === 'true'
   const checkoutCanceled = searchParams.get('canceled') === 'true'
 
-  const [agent, setAgent] = useState<Agent | null>(null)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [deployStatus, setDeployStatus] = useState<DeployStatus>('idle')
@@ -103,7 +102,6 @@ export default function DashboardPage() {
         ])
 
         if (agentResult.data) {
-          setAgent(agentResult.data)
           setAgentName(agentResult.data.name ?? '')
           setWhatsappNumber(agentResult.data.whatsapp_number ?? '')
           setSystemPrompt(agentResult.data.system_prompt ?? '')
