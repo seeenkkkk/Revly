@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 // Icono Essential: burbuja de chat con símbolo de dólar
 const AgentIconEssential = () => (
@@ -78,30 +78,13 @@ const styles: Record<AgentTier, {
 
 export default function AgentCard({
   tier, name, price, tagline, description,
-  features, badge, buttonLabel, priceId,
+  features, badge, buttonLabel,
 }: AgentCardProps) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
   const s = styles[tier]
 
-  // Iniciar Stripe Checkout para este plan
-  const handleCheckout = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const res = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId, plan: tier }),
-      })
-      const data: { url?: string; error?: string } = await res.json()
-      if (data.error) throw new Error(data.error)
-      if (data.url) window.location.href = data.url
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al procesar el pago')
-    } finally {
-      setLoading(false)
-    }
+  const handleCheckout = () => {
+    router.push(`/dashboard/agentes?plan=${tier}`)
   }
 
   return (
@@ -147,26 +130,12 @@ export default function AgentCard({
         ))}
       </ul>
 
-      {/* Error message */}
-      {error && (
-        <p className="text-xs text-red-500 mb-3 text-center">{error}</p>
-      )}
-
       {/* Botón CTA */}
       <button
         onClick={handleCheckout}
-        disabled={loading}
-        className={`w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200 disabled:opacity-70 ${s.btn}`}
+        className={`w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${s.btn}`}
       >
-        {loading ? (
-          <span className="flex items-center justify-center gap-2">
-            <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-            </svg>
-            Procesando...
-          </span>
-        ) : buttonLabel}
+        {buttonLabel}
       </button>
     </div>
   )
