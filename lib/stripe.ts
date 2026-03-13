@@ -1,7 +1,11 @@
 import Stripe from 'stripe'
 
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing env var: STRIPE_SECRET_KEY')
+}
+
 // Cliente de Stripe para el servidor
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2026-02-25.clover',
 })
 
@@ -10,7 +14,7 @@ export const PLANS = {
   essential: {
     name: 'Starter',
     price: 14.99,
-    priceId: process.env.STRIPE_PRICE_ESSENTIAL,
+    priceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID,
     conversations_limit: 100,
     tagline: 'El gancho perfecto',
     features: [
@@ -23,7 +27,7 @@ export const PLANS = {
   growth: {
     name: 'Growth & Sales',
     price: 34.99,
-    priceId: process.env.STRIPE_PRICE_GROWTH,
+    priceId: process.env.NEXT_PUBLIC_STRIPE_GROWTH_PRICE_ID,
     conversations_limit: 1500,
     tagline: 'El motor de ventas',
     features: [
@@ -37,7 +41,7 @@ export const PLANS = {
   partner: {
     name: 'Enterprise AI',
     price: 79.99,
-    priceId: process.env.STRIPE_PRICE_PARTNER,
+    priceId: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_PRICE_ID,
     conversations_limit: 999999,
     tagline: 'Tu socio total',
     features: [
@@ -52,8 +56,8 @@ export const PLANS = {
 
 // Mapeo inverso: priceId → nombre de plan
 export function getPlanFromPriceId(priceId: string): 'essential' | 'growth' | 'partner' {
-  if (priceId === process.env.STRIPE_PRICE_GROWTH) return 'growth'
-  if (priceId === process.env.STRIPE_PRICE_PARTNER) return 'partner'
+  if (priceId === process.env.NEXT_PUBLIC_STRIPE_GROWTH_PRICE_ID) return 'growth'
+  if (priceId === process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_PRICE_ID) return 'partner'
   return 'essential'
 }
 
