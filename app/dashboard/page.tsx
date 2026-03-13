@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createBrowserSupabase } from '@/lib/supabase-browser'
 import type { Agent, UserProfile } from '@/lib/supabase'
 
@@ -12,6 +13,12 @@ const PLAN_LABELS: Record<string, string> = {
   growth: 'Growth & Sales',
   partner: 'Enterprise AI',
 }
+
+const CHECKOUT_PLANS = [
+  { key: 'essential', label: 'Starter',        price: '14,99 €/mes' },
+  { key: 'growth',    label: 'Growth & Sales',  price: '34,99 €/mes' },
+  { key: 'partner',   label: 'Enterprise AI',   price: '79,99 €/mes' },
+]
 
 // ── Status indicator ────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: DeployStatus; error: string | null }) {
@@ -60,6 +67,10 @@ function StatusBadge({ status }: { status: DeployStatus; error: string | null })
 }
 
 export default function DashboardPage() {
+  const searchParams = useSearchParams()
+  const checkoutSuccess  = searchParams.get('success')  === 'true'
+  const checkoutCanceled = searchParams.get('canceled') === 'true'
+
   const [agent, setAgent] = useState<Agent | null>(null)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
@@ -70,6 +81,9 @@ export default function DashboardPage() {
   const [agentName, setAgentName] = useState('')
   const [whatsappNumber, setWhatsappNumber] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
+
+  // Plan selector
+  const [selectedPlan, setSelectedPlan] = useState<string>('essential')
 
   // AI generation
   const [businessDesc, setBusinessDesc] = useState('')
@@ -124,64 +138,36 @@ export default function DashboardPage() {
     }
   }
 
-  // ── Deploy: save to Supabase then send webhook to n8n ───────────────────
+  // ── Deploy: save agent data then redirect to Stripe Checkout ───────────
   const handleDeploy = async () => {
     if (!agentName.trim() || !whatsappNumber.trim() || !systemPrompt.trim()) {
       setDeployError('Completa nombre, número de WhatsApp y prompt antes de desplegar.')
       return
     }
 
-    setDeployStatus('saving')
+    setDeployStatus('deploying')
     setDeployError(null)
 
     try {
-      const supabase = createBrowserSupabase()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('No autenticado')
-
-      const agentData = {
-        user_id: user.id,
-        name: agentName,
-        whatsapp_number: whatsappNumber,
-        system_prompt: systemPrompt,
-      }
-
-      let savedAgent = agent
-      if (agent?.id) {
-        const { error } = await supabase.from('agents').update(agentData).eq('id', agent.id)
-        if (error) throw error
-      } else {
-        const { data, error } = await supabase.from('agents')
-          .insert({ ...agentData, status: 'inactive', plan_type: userProfile?.plan ?? 'free' })
-          .select().single<Agent>()
-        if (error) throw error
-        if (data) { savedAgent = data; setAgent(data) }
-      }
-
-      // ── Send webhook to n8n via provision API ──
-      setDeployStatus('deploying')
-
-      const provisionRes = await fetch('/api/provision', {
+      const res = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customer_id: user.id }),
+        body: JSON.stringify({
+          agent_name:    agentName,
+          phone_number:  whatsappNumber,
+          system_prompt: systemPrompt,
+          plan:          selectedPlan,
+        }),
       })
 
-      if (!provisionRes.ok) {
-        const provisionData = await provisionRes.json()
-        // If N8N_WEBHOOK_URL not configured, still mark as active locally
-        if (provisionData.error === 'N8N_WEBHOOK_URL no configurada') {
-          await supabase.from('agents').update({ status: 'active' }).eq('id', savedAgent!.id)
-          setDeployStatus('active')
-          return
-        }
-        throw new Error(provisionData.error ?? 'Error al desplegar en n8n')
-      }
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error al crear la sesión de pago')
 
-      setDeployStatus('active')
+      // Redirect to Stripe Checkout
+      window.location.href = data.url
     } catch (err) {
       setDeployStatus('error')
-      setDeployError(err instanceof Error ? err.message : 'Error al desplegar el agente.')
+      setDeployError(err instanceof Error ? err.message : 'Error al iniciar el pago.')
     }
   }
 
@@ -234,6 +220,32 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* ── CHECKOUT BANNERS ── */}
+      {checkoutSuccess && (
+        <div className="max-w-5xl mx-auto px-10 pt-6">
+          <div className="bg-[#22c55e]/10 border border-[#22c55e]/25 rounded-xl px-5 py-4 flex items-center gap-3">
+            <svg className="w-5 h-5 text-[#22c55e] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-[#22c55e] text-sm font-semibold">
+              ¡Pago completado! Tu agente está siendo desplegado. Recibirás una confirmación en breve.
+            </p>
+          </div>
+        </div>
+      )}
+      {checkoutCanceled && (
+        <div className="max-w-5xl mx-auto px-10 pt-6">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-5 py-4 flex items-center gap-3">
+            <svg className="w-5 h-5 text-amber-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-amber-400 text-sm font-semibold">
+              Pago cancelado. Puedes intentarlo de nuevo cuando quieras.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── MAIN GRID ── */}
       <div className="max-w-5xl mx-auto px-10 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -376,8 +388,8 @@ export default function DashboardPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
-                  <p className="text-amber-400 font-bold text-sm">Desplegando Cerebro de IA...</p>
-                  <p className="text-amber-400/50 text-xs mt-1">Conectando con n8n</p>
+                  <p className="text-amber-400 font-bold text-sm">Redirigiendo a Stripe...</p>
+                  <p className="text-amber-400/50 text-xs mt-1">Preparando sesión de pago</p>
                 </>
               ) : deployStatus === 'saving' ? (
                 <>
@@ -385,7 +397,7 @@ export default function DashboardPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
-                  <p className="text-white/50 font-bold text-sm">Guardando configuración...</p>
+                  <p className="text-white/50 font-bold text-sm">Preparando pago...</p>
                 </>
               ) : deployStatus === 'error' ? (
                 <>
@@ -404,6 +416,31 @@ export default function DashboardPage() {
               )}
             </div>
 
+            {/* Plan selector */}
+            <div className="mb-4">
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">
+                Selecciona tu plan
+              </p>
+              <div className="space-y-2">
+                {CHECKOUT_PLANS.map((p) => (
+                  <button
+                    key={p.key}
+                    onClick={() => setSelectedPlan(p.key)}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-left transition-all ${
+                      selectedPlan === p.key
+                        ? 'bg-[#22c55e]/10 border-[#22c55e]/40 text-white'
+                        : 'bg-white/[0.03] border-white/[0.08] text-white/50 hover:border-white/20 hover:text-white/70'
+                    }`}
+                  >
+                    <span className="text-xs font-semibold">{p.label}</span>
+                    <span className={`text-xs font-mono ${selectedPlan === p.key ? 'text-[#22c55e]' : 'text-white/30'}`}>
+                      {p.price}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Deploy button */}
             <button
               onClick={handleDeploy}
@@ -420,7 +457,7 @@ export default function DashboardPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
-                  Desplegando Cerebro de IA...
+                  Redirigiendo a pago...
                 </>
               ) : deployStatus === 'active' ? (
                 <>
