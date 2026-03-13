@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 
-const PRICE_IDS: Record<string, string> = {
-  essential: 'price_1TAX8BHuGCSwzLGph9FgNCgl',
-  growth:    'price_1TAX8pHuGCSwzLGpJ4rw1JmG',
-  partner:   'price_1TAX9LHuGCSwzLGpqAqxEUqg',
+const PRICE_IDS: Record<string, string | undefined> = {
+  essential: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID,
+  growth:    process.env.NEXT_PUBLIC_STRIPE_GROWTH_PRICE_ID,
+  partner:   process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_PRICE_ID,
 }
 
 export async function POST(req: NextRequest) {
