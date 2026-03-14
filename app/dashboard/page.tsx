@@ -1,9 +1,18 @@
 import Link from 'next/link'
 import { createServerSupabase } from '@/lib/supabase-server'
 import type { Agent, UserProfile } from '@/lib/supabase'
-import { PLANS } from '@/lib/stripe'
+import { PLANS, FREE_PLAN } from '@/lib/stripe'
 
 const AGENT_PLANS = [
+  {
+    tier: 'free' as const,
+    name: FREE_PLAN.name,
+    price: FREE_PLAN.price,
+    tagline: FREE_PLAN.tagline,
+    features: FREE_PLAN.features,
+    badge: false,
+    priceId: null,
+  },
   {
     tier: 'essential' as const,
     name: PLANS.essential.name,
@@ -100,7 +109,7 @@ export default async function DashboardPage() {
             <p className="text-white/40 text-sm">Ve a Configuración para ajustar tu agente.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {AGENT_PLANS.map((plan) => (
               <div
                 key={plan.tier}
@@ -126,10 +135,18 @@ export default async function DashboardPage() {
                 </h3>
 
                 <div className="mb-5">
-                  <span className={`text-4xl font-black tracking-tight ${plan.badge ? 'text-white' : 'text-[#0f172a]'}`}>
-                    {plan.price.toFixed(2).replace('.', ',')}€
-                  </span>
-                  <span className={`text-sm ml-1.5 ${plan.badge ? 'text-white/40' : 'text-[#94a3b8]'}`}>/mes</span>
+                  {plan.price === 0 ? (
+                    <span className={`text-4xl font-black tracking-tight ${plan.badge ? 'text-white' : 'text-[#0f172a]'}`}>
+                      Gratis
+                    </span>
+                  ) : (
+                    <>
+                      <span className={`text-4xl font-black tracking-tight ${plan.badge ? 'text-white' : 'text-[#0f172a]'}`}>
+                        {plan.price.toFixed(2).replace('.', ',')}€
+                      </span>
+                      <span className={`text-sm ml-1.5 ${plan.badge ? 'text-white/40' : 'text-[#94a3b8]'}`}>/mes</span>
+                    </>
+                  )}
                 </div>
 
                 <div className={`h-px mb-5 ${plan.badge ? 'bg-white/10' : 'bg-[#f1f5f9]'}`} />

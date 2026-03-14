@@ -39,7 +39,7 @@ export default function PricingSection({ plans }: { plans: Plan[] }) {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
           {plans.map(({ key, name, price, tagline, features, highlighted, badge, cta }, i) => (
             <motion.div
               key={key}
@@ -75,10 +75,18 @@ export default function PricingSection({ plans }: { plans: Plan[] }) {
 
                 {/* Price */}
                 <div className="mb-6">
-                  <span className={`text-5xl font-black tracking-tight ${highlighted ? 'text-white' : 'text-[#0f172a]'}`}>
-                    {price.toFixed(2).replace('.', ',')}€
-                  </span>
-                  <span className={`text-sm ml-1.5 ${highlighted ? 'text-white/50' : 'text-[#64748b]'}`}>/mes</span>
+                  {price === 0 ? (
+                    <span className={`text-5xl font-black tracking-tight ${highlighted ? 'text-white' : 'text-[#0f172a]'}`}>
+                      Gratis
+                    </span>
+                  ) : (
+                    <>
+                      <span className={`text-5xl font-black tracking-tight ${highlighted ? 'text-white' : 'text-[#0f172a]'}`}>
+                        {price.toFixed(2).replace('.', ',')}€
+                      </span>
+                      <span className={`text-sm ml-1.5 ${highlighted ? 'text-white/50' : 'text-[#64748b]'}`}>/mes</span>
+                    </>
+                  )}
                 </div>
 
                 {/* Divider */}

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { createServerSupabase } from '@/lib/supabase-server'
-import { PLANS } from '@/lib/stripe'
+import { PLANS, FREE_PLAN } from '@/lib/stripe'
 import LandingNav from '@/components/LandingNav'
 import HowItWorks from '@/components/HowItWorks'
 import PricingSection from '@/components/PricingSection'
@@ -17,6 +17,15 @@ export default async function LandingPage() {
   }
 
   const pricingPlans = [
+    {
+      key: 'free',
+      name: FREE_PLAN.name,
+      price: FREE_PLAN.price,
+      tagline: FREE_PLAN.tagline,
+      features: FREE_PLAN.features,
+      highlighted: false,
+      cta: 'Empezar gratis',
+    },
     {
       key: 'essential',
       name: PLANS.essential.name,

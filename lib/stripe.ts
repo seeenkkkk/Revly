@@ -9,6 +9,20 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2026-02-25.clover',
 })
 
+// Plan gratuito (sin Stripe)
+export const FREE_PLAN = {
+  name: 'Free',
+  price: 0,
+  conversations_limit: 50,
+  tagline: 'Para probar',
+  features: [
+    '50 conversaciones/mes',
+    'Respuestas automáticas básicas',
+    '1 agente activo',
+    'Soporte por email',
+  ],
+}
+
 // Planes del producto con precios reales
 export const PLANS = {
   essential: {
