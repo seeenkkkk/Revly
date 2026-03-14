@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserSupabase } from '@/lib/supabase-browser'
+import { Loader2 } from 'lucide-react'
 
 const PLAN_LABELS: Record<string, string> = {
   free: 'Free',
@@ -13,9 +14,9 @@ const PLAN_LABELS: Record<string, string> = {
 
 const PLAN_PRICE: Record<string, string> = {
   free: '0 €/mes',
-  essential: '29 €/mes',
-  growth: '79 €/mes',
-  partner: '199 €/mes',
+  essential: '14,99 €/mes',
+  growth: '34,99 €/mes',
+  partner: '79,99 €/mes',
 }
 
 function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (v: boolean) => void }) {
@@ -23,7 +24,7 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (v: boolean
     <button
       onClick={() => onChange(!enabled)}
       className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
-        enabled ? 'bg-[#00C48C]' : 'bg-white/[0.12]'
+        enabled ? 'bg-[#0d9488]' : 'bg-[#e2e8f0]'
       }`}
     >
       <span
@@ -40,18 +41,13 @@ export default function ConfiguracionPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-
-  // Profile
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-
-  // Notifications
   const [notifEmail, setNotifEmail] = useState(true)
   const [notifWhatsapp, setNotifWhatsapp] = useState(false)
   const [notifAlerts, setNotifAlerts] = useState(true)
-
-  // Plan
   const [plan, setPlan] = useState('free')
+
   const nextBillingDate = new Date()
   nextBillingDate.setMonth(nextBillingDate.getMonth() + 1)
   const nextBillingStr = nextBillingDate.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
@@ -62,24 +58,14 @@ export default function ConfiguracionPage() {
         const supabase = createBrowserSupabase()
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
-
         setEmail(user.email ?? '')
-
-        const { data: profile } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', user.id)
-          .single()
-
+        const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single()
         if (profile) {
           setName(profile.name ?? '')
           setPlan(profile.plan ?? 'free')
         }
-      } catch {
-        // dev mode
-      } finally {
-        setLoading(false)
-      }
+      } catch { /* dev mode */ }
+      finally { setLoading(false) }
     }
     fetchUser()
   }, [])
@@ -91,20 +77,15 @@ export default function ConfiguracionPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
       await supabase.from('users').update({ name }).eq('id', user.id)
-    } catch {
-      // dev mode
-    } finally {
-      setSaving(false)
-    }
+    } catch { /* dev mode */ }
+    finally { setSaving(false) }
   }
 
   const handleLogout = async () => {
     try {
       const supabase = createBrowserSupabase()
       await supabase.auth.signOut()
-    } catch {
-      // dev mode
-    }
+    } catch { /* dev mode */ }
     router.push('/')
   }
 
@@ -115,204 +96,163 @@ export default function ConfiguracionPage() {
       if (!user) return
       await supabase.from('users').delete().eq('id', user.id)
       await supabase.auth.signOut()
-    } catch {
-      // dev mode
-    }
+    } catch { /* dev mode */ }
     router.push('/')
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0D1B2A] p-10">
-        <div className="max-w-2xl mx-auto space-y-4">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-24 bg-white/[0.05] rounded-2xl animate-pulse" />
-          ))}
-        </div>
-      </div>
-    )
-  }
+  if (loading) return (
+    <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+      <Loader2 size={20} className="animate-spin text-[#cbd5e1]" />
+    </div>
+  )
 
   return (
-    <div className="min-h-screen bg-[#0D1B2A]">
+    <div className="min-h-screen bg-[#fafafa]">
 
-      {/* ── HEADER ── */}
-      <div className="border-b border-white/[0.07] px-10 pt-10 pb-6">
+      {/* HERO */}
+      <div className="bg-[#0f172a] px-10 pt-10 pb-12">
         <div className="max-w-2xl mx-auto">
-          <p className="text-[#00C48C] text-xs font-semibold uppercase tracking-widest mb-1">
-            Ajustes
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#0d9488] mb-4">
+            Configuración
           </p>
-          <h1 className="text-2xl font-bold text-white">Configuración</h1>
-          <p className="text-white/35 text-sm mt-0.5">
-            Gestiona tu cuenta, notificaciones y facturación.
+          <h1 className="text-[48px] font-black leading-[1.0] tracking-tight text-white">
+            Tu cuenta,<br />
+            <em className="italic text-[#0d9488]">a tu medida.</em>
+          </h1>
+          <p className="text-white/40 text-sm mt-3">
+            Gestiona tu perfil, notificaciones y facturación.
           </p>
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-10 py-8 space-y-6">
+      <div className="max-w-2xl mx-auto px-10 py-8 space-y-5">
 
-        {/* ── PERFIL ── */}
-        <section className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
-          <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-5">
-            Perfil
-          </h2>
-
-          {/* Avatar */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-full bg-[#00C48C]/20 border border-[#00C48C]/30 flex items-center justify-center flex-shrink-0">
-              <span className="text-[#00C48C] text-xl font-bold">
-                {name?.[0]?.toUpperCase() ?? email?.[0]?.toUpperCase() ?? 'U'}
-              </span>
-            </div>
-            <div>
-              <p className="text-white text-sm font-medium">{name || 'Sin nombre'}</p>
-              <p className="text-white/40 text-xs mt-0.5">{email}</p>
-              <button className="mt-2 text-[#00C48C] text-xs font-semibold hover:underline">
-                Cambiar foto
-              </button>
-            </div>
+        {/* PERFIL */}
+        <section className="bg-white border border-[#f1f5f9] rounded-3xl overflow-hidden">
+          <div className="px-7 pt-6 pb-5 border-b border-[#f8fafc]">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#94a3b8]">Perfil</p>
           </div>
-
-          {/* Name */}
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">
-              Nombre
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Tu nombre"
-              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#00C48C]/50 focus:ring-1 focus:ring-[#00C48C]/20 transition-all"
-            />
-          </div>
-
-          {/* Email (read-only) */}
-          <div className="mb-5">
-            <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              readOnly
-              className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-3 text-sm text-white/40 cursor-not-allowed"
-            />
-            <p className="text-white/20 text-xs mt-1.5">El email no se puede cambiar desde aquí.</p>
-          </div>
-
-          <button
-            onClick={handleSaveProfile}
-            disabled={saving}
-            className="bg-[#00C48C] hover:bg-[#00a87a] text-[#0D1B2A] text-sm font-bold px-5 py-2.5 rounded-xl transition-all disabled:opacity-60 flex items-center gap-2"
-          >
-            {saving ? (
-              <>
-                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                </svg>
-                Guardando...
-              </>
-            ) : 'Guardar cambios'}
-          </button>
-        </section>
-
-        {/* ── NOTIFICACIONES ── */}
-        <section className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
-          <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-5">
-            Notificaciones
-          </h2>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white text-sm font-medium">Notificaciones por email</p>
-                <p className="text-white/35 text-xs mt-0.5">Recibe resúmenes y alertas en tu correo</p>
+          <div className="px-7 py-6">
+            {/* Avatar */}
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-14 h-14 rounded-2xl bg-[#f0fdfa] border border-[#ccfbf1] flex items-center justify-center flex-shrink-0">
+                <span className="text-[#0d9488] text-xl font-black">
+                  {name?.[0]?.toUpperCase() ?? email?.[0]?.toUpperCase() ?? 'U'}
+                </span>
               </div>
-              <Toggle enabled={notifEmail} onChange={setNotifEmail} />
-            </div>
-
-            <div className="h-px bg-white/[0.06]" />
-
-            <div className="flex items-center justify-between">
               <div>
-                <p className="text-white text-sm font-medium">Notificaciones por WhatsApp</p>
-                <p className="text-white/35 text-xs mt-0.5">Alertas directamente en tu WhatsApp</p>
-              </div>
-              <Toggle enabled={notifWhatsapp} onChange={setNotifWhatsapp} />
-            </div>
-
-            <div className="h-px bg-white/[0.06]" />
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white text-sm font-medium">Alertas del sistema</p>
-                <p className="text-white/35 text-xs mt-0.5">Avisos de caídas o errores del agente</p>
-              </div>
-              <Toggle enabled={notifAlerts} onChange={setNotifAlerts} />
-            </div>
-          </div>
-        </section>
-
-        {/* ── FACTURACIÓN ── */}
-        <section className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
-          <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-5">
-            Facturación
-          </h2>
-
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-white/50 text-xs uppercase tracking-wider mb-1">Plan actual</p>
-              <div className="flex items-center gap-2">
-                <span className="text-white font-bold text-lg">{PLAN_LABELS[plan]}</span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#00C48C]/15 text-[#00C48C]">
-                  {PLAN_PRICE[plan]}
+                <p className="text-[#0f172a] font-bold text-sm">{name || 'Sin nombre'}</p>
+                <p className="text-[#94a3b8] text-xs mt-0.5">{email}</p>
+                <span className="inline-block mt-1.5 text-[10px] font-bold uppercase tracking-wider text-[#0d9488] bg-[#f0fdfa] border border-[#ccfbf1] px-2.5 py-1 rounded-full">
+                  {PLAN_LABELS[plan]}
                 </span>
               </div>
             </div>
-            <button className="bg-[#00C48C] hover:bg-[#00a87a] text-[#0D1B2A] text-sm font-bold px-4 py-2.5 rounded-xl transition-all">
-              Cambiar plan
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">Nombre</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Tu nombre"
+                  className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm font-medium text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  readOnly
+                  className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#cbd5e1] cursor-not-allowed"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleSaveProfile}
+              disabled={saving}
+              className="bg-[#0f172a] hover:bg-[#1e293b] text-white text-[11px] font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all disabled:opacity-60 flex items-center gap-2"
+            >
+              {saving ? <><Loader2 size={13} className="animate-spin" />Guardando...</> : 'Guardar cambios'}
             </button>
           </div>
-
-          {plan !== 'free' && (
-            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                <p className="text-white/40 text-xs">Próxima factura</p>
-              </div>
-              <p className="text-white text-sm font-semibold">{nextBillingStr}</p>
-            </div>
-          )}
-
-          {plan === 'free' && (
-            <p className="text-white/25 text-xs mt-2">
-              Estás en el plan gratuito. No hay facturación activa.
-            </p>
-          )}
         </section>
 
-        {/* ── ZONA DE PELIGRO ── */}
-        <section className="bg-red-500/[0.04] border border-red-500/[0.15] rounded-2xl p-6">
-          <h2 className="text-xs font-semibold text-red-400/70 uppercase tracking-widest mb-1">
-            Zona de peligro
-          </h2>
-          <p className="text-white/30 text-xs mb-5">
-            Estas acciones son irreversibles. Procede con cuidado.
-          </p>
+        {/* NOTIFICACIONES */}
+        <section className="bg-white border border-[#f1f5f9] rounded-3xl overflow-hidden">
+          <div className="px-7 pt-6 pb-5 border-b border-[#f8fafc]">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#94a3b8]">Notificaciones</p>
+          </div>
+          <div className="px-7 py-5 space-y-5">
+            {[
+              { label: 'Notificaciones por email', sub: 'Recibe resúmenes y alertas en tu correo', val: notifEmail, set: setNotifEmail },
+              { label: 'Notificaciones por WhatsApp', sub: 'Alertas directamente en tu WhatsApp', val: notifWhatsapp, set: setNotifWhatsapp },
+              { label: 'Alertas del sistema', sub: 'Avisos de caídas o errores del agente', val: notifAlerts, set: setNotifAlerts },
+            ].map(({ label, sub, val, set }, i, arr) => (
+              <div key={label}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[#0f172a] text-sm font-semibold">{label}</p>
+                    <p className="text-[#94a3b8] text-xs mt-0.5">{sub}</p>
+                  </div>
+                  <Toggle enabled={val} onChange={set} />
+                </div>
+                {i < arr.length - 1 && <div className="mt-5 h-px bg-[#f8fafc]" />}
+              </div>
+            ))}
+          </div>
+        </section>
 
-          <div className="space-y-3">
+        {/* FACTURACIÓN */}
+        <section className="bg-white border border-[#f1f5f9] rounded-3xl overflow-hidden">
+          <div className="px-7 pt-6 pb-5 border-b border-[#f8fafc]">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#94a3b8]">Facturación</p>
+          </div>
+          <div className="px-7 py-6">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-1.5">Plan actual</p>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-[#0f172a] font-black text-xl">{PLAN_LABELS[plan]}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#f0fdfa] text-[#0d9488] border border-[#ccfbf1]">
+                    {PLAN_PRICE[plan]}
+                  </span>
+                </div>
+              </div>
+              <a
+                href="/dashboard/agentes"
+                className="bg-[#0f172a] hover:bg-[#1e293b] text-white text-[11px] font-bold uppercase tracking-wider px-5 py-3 rounded-full transition-all"
+              >
+                Cambiar plan
+              </a>
+            </div>
+
+            {plan !== 'free' && (
+              <div className="bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 flex items-center justify-between">
+                <p className="text-[#94a3b8] text-xs font-medium">Próxima factura</p>
+                <p className="text-[#0f172a] text-sm font-bold">{nextBillingStr}</p>
+              </div>
+            )}
+            {plan === 'free' && (
+              <p className="text-[#cbd5e1] text-xs">Sin facturación activa — plan gratuito.</p>
+            )}
+          </div>
+        </section>
+
+        {/* ZONA DE PELIGRO */}
+        <section className="bg-white border border-red-100 rounded-3xl overflow-hidden">
+          <div className="px-7 pt-6 pb-5 border-b border-red-50">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-red-300">Zona de peligro</p>
+          </div>
+          <div className="px-7 py-5 space-y-3">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-red-500/20 bg-red-500/[0.06] hover:bg-red-500/[0.12] text-red-400 text-sm font-semibold transition-all"
+              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-red-100 bg-red-50 hover:bg-red-100 text-red-500 text-sm font-bold transition-all"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                 <polyline points="16 17 21 12 16 7" />
                 <line x1="21" y1="12" x2="9" y2="12" />
@@ -323,9 +263,9 @@ export default function ConfiguracionPage() {
             {!showDeleteConfirm ? (
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-red-500/30 bg-red-500/[0.08] hover:bg-red-500/[0.16] text-red-400 text-sm font-semibold transition-all"
+                className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-bold transition-all"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="3 6 5 6 21 6" />
                   <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
                   <path d="M10 11v6M14 11v6" />
@@ -334,21 +274,21 @@ export default function ConfiguracionPage() {
                 Eliminar cuenta
               </button>
             ) : (
-              <div className="bg-red-500/10 border border-red-500/25 rounded-xl p-4">
-                <p className="text-red-300 text-sm font-semibold mb-1">¿Estás seguro?</p>
-                <p className="text-red-400/60 text-xs mb-4">
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
+                <p className="text-red-600 text-sm font-black mb-1">¿Estás seguro?</p>
+                <p className="text-red-400 text-xs mb-4">
                   Se eliminarán tu cuenta, agentes y todos los datos permanentemente.
                 </p>
                 <div className="flex gap-2">
                   <button
                     onClick={handleDeleteAccount}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white text-sm font-bold py-2 rounded-xl transition-all"
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white text-sm font-bold py-2.5 rounded-full transition-all"
                   >
-                    Sí, eliminar cuenta
+                    Sí, eliminar
                   </button>
                   <button
                     onClick={() => setShowDeleteConfirm(false)}
-                    className="flex-1 bg-white/[0.06] hover:bg-white/[0.10] text-white/60 text-sm font-semibold py-2 rounded-xl transition-all"
+                    className="flex-1 bg-white border border-[#f1f5f9] text-[#64748b] text-sm font-semibold py-2.5 rounded-full transition-all hover:border-[#e2e8f0]"
                   >
                     Cancelar
                   </button>
