@@ -6,20 +6,24 @@ export interface PlanLimitResult {
   used: number
   limit: number
   remaining: number
+  graceEndsAt?: string // ISO timestamp — present when in the 5-hour grace period
 }
+
+const GRACE_PERIOD_MS = 5 * 60 * 60 * 1000 // 5 hours in milliseconds
 
 /**
  * Given a WhatsApp number, checks whether the associated agent/user
- * has remaining conversations for this billing period.
+ * can handle another conversation.
  *
- * Usage (e.g. in your n8n webhook handler or API route):
- *   const result = await checkPlanLimit('+34600000000')
- *   if (!result.allowed) return "Lo siento, límite alcanzado."
+ * Rules:
+ * - If conversations_used < conversations_limit → allowed immediately.
+ * - If limit is reached for the first time → record limit_reached_at,
+ *   allow for 5 hours from that moment (grace period).
+ * - If limit_reached_at is set and 5 hours have passed → block.
  */
 export async function checkPlanLimit(whatsappNumber: string): Promise<PlanLimitResult> {
   const db = getServiceSupabase()
 
-  // Find the agent by whatsapp_number, join to the user profile
   const { data: agent, error: agentError } = await db
     .from('agents')
     .select('user_id')
@@ -28,13 +32,12 @@ export async function checkPlanLimit(whatsappNumber: string): Promise<PlanLimitR
     .single()
 
   if (agentError || !agent) {
-    // No active agent found — deny by default
     return { allowed: false, plan: 'unknown', used: 0, limit: 0, remaining: 0 }
   }
 
   const { data: user, error: userError } = await db
     .from('users')
-    .select('plan, conversations_used, conversations_limit, plan_reset_date')
+    .select('plan, conversations_used, conversations_limit, plan_reset_date, limit_reached_at')
     .eq('id', agent.user_id)
     .single()
 
@@ -42,34 +45,60 @@ export async function checkPlanLimit(whatsappNumber: string): Promise<PlanLimitR
     return { allowed: false, plan: 'unknown', used: 0, limit: 0, remaining: 0 }
   }
 
-  // Auto-reset counter if we're past the reset date
-  const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+  // Auto-reset monthly counter if past reset date
+  const today = new Date().toISOString().slice(0, 10)
   if (user.plan_reset_date && user.plan_reset_date < today) {
-    const nextMonth = new Date()
-    nextMonth.setDate(1)
-    nextMonth.setMonth(nextMonth.getMonth() + 1)
-    const nextResetDate = nextMonth.toISOString().slice(0, 10)
+    const nextReset = new Date()
+    nextReset.setDate(1)
+    nextReset.setMonth(nextReset.getMonth() + 1)
 
     await db
       .from('users')
-      .update({ conversations_used: 0, plan_reset_date: nextResetDate })
+      .update({
+        conversations_used: 0,
+        limit_reached_at: null,
+        plan_reset_date: nextReset.toISOString().slice(0, 10),
+      })
       .eq('id', agent.user_id)
 
     user.conversations_used = 0
+    user.limit_reached_at = null
   }
 
   const used = user.conversations_used ?? 0
   const limit = user.conversations_limit ?? 500
   const remaining = Math.max(0, limit - used)
-  const allowed = used < limit
 
-  return {
-    allowed,
-    plan: user.plan ?? 'free',
-    used,
-    limit,
-    remaining,
+  // Under the limit — allow normally
+  if (used < limit) {
+    return { allowed: true, plan: user.plan ?? 'free', used, limit, remaining }
   }
+
+  // Limit reached — check grace period
+  const now = Date.now()
+
+  if (!user.limit_reached_at) {
+    // First time hitting the limit — start the 5-hour clock
+    await db
+      .from('users')
+      .update({ limit_reached_at: new Date().toISOString() })
+      .eq('id', agent.user_id)
+
+    const graceEndsAt = new Date(now + GRACE_PERIOD_MS).toISOString()
+    return { allowed: true, plan: user.plan ?? 'free', used, limit, remaining: 0, graceEndsAt }
+  }
+
+  const limitReachedAt = new Date(user.limit_reached_at).getTime()
+  const elapsed = now - limitReachedAt
+
+  if (elapsed < GRACE_PERIOD_MS) {
+    // Still within the 5-hour grace window
+    const graceEndsAt = new Date(limitReachedAt + GRACE_PERIOD_MS).toISOString()
+    return { allowed: true, plan: user.plan ?? 'free', used, limit, remaining: 0, graceEndsAt }
+  }
+
+  // Grace period expired — block
+  return { allowed: false, plan: user.plan ?? 'free', used, limit, remaining: 0 }
 }
 
 /**
