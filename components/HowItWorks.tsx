@@ -1,164 +1,205 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import Image from 'next/image'
+import {
+  MessageSquare,
+  Zap,
+  SlidersHorizontal,
+  Tag,
+  CreditCard,
+  BellRing,
+} from 'lucide-react'
 
 const STEPS = [
   {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-    ),
+    Icon: MessageSquare,
     step: '01',
     title: 'Cliente escribe',
-    desc: 'Tu cliente manda un mensaje por WhatsApp a cualquier hora.',
+    desc: 'Un mensaje en WhatsApp a cualquier hora.',
   },
   {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-      </svg>
-    ),
+    Icon: Zap,
     step: '02',
-    title: 'Menos de 2 segundos',
-    desc: 'El agente responde al instante, 24/7. Sin tiempos de espera, sin errores.',
+    title: 'Respuesta en 2 segundos',
+    desc: 'El agente contesta al instante, sin demoras ni errores.',
   },
   {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-      </svg>
-    ),
+    Icon: SlidersHorizontal,
     step: '03',
-    title: 'Solo los que van a comprar',
-    desc: 'Filtra leads fríos automáticamente. Solo avanza con quienes tienen intención real.',
+    title: 'Solo los que compran',
+    desc: 'Filtra leads fríos. Avanza solo con intención real.',
   },
   {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-        <line x1="7" y1="7" x2="7.01" y2="7"/>
-      </svg>
-    ),
+    Icon: Tag,
     step: '04',
     title: 'El pitch exacto',
-    desc: 'Adapta la propuesta al perfil del cliente. El mensaje correcto en el momento correcto.',
+    desc: 'Adapta la propuesta al perfil de ese cliente.',
   },
   {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-        <line x1="1" y1="10" x2="23" y2="10"/>
-      </svg>
-    ),
+    Icon: CreditCard,
     step: '05',
-    title: 'Cobras sin salir de WhatsApp',
-    desc: 'El cliente paga directamente en el chat. Sin redirects, sin fricciones.',
+    title: 'Cobro en el chat',
+    desc: 'El cliente paga sin salir de WhatsApp.',
   },
   {
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-      </svg>
-    ),
+    Icon: BellRing,
     step: '06',
     title: 'Dinero en tu cuenta',
-    desc: 'Recibes una notificación. La venta ya está cerrada.',
+    desc: 'Recibes la notificación. La venta ya está cerrada.',
   },
 ]
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.12 },
-  },
-}
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 28 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: 'easeOut' as const, delay: i * 0.08 },
+  }),
 }
 
 export default function HowItWorks() {
   return (
-    <section id="como-funciona" className="py-28 px-6">
-      <div className="max-w-6xl mx-auto">
+    <section id="como-funciona" className="py-24 px-6 bg-white">
+      <div className="max-w-[1200px] mx-auto">
+
         {/* Header */}
-        <motion.div
-          className="text-center mb-20"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <p className="text-[#22c55e] text-xs font-semibold uppercase tracking-widest mb-3">
+        <div className="text-center mb-16">
+          <p className="text-[#2563eb] text-xs font-semibold uppercase tracking-widest mb-3">
             Cómo funciona
           </p>
-          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">
-            De mensaje a venta,{' '}
-            <span className="text-[#22c55e]">en segundos</span>
+          <h2 className="text-[38px] font-semibold tracking-tight text-[#0f172a] mb-4">
+            De mensaje a venta en segundos
           </h2>
-          <p className="text-white/45 text-lg max-w-xl mx-auto">
+          <p className="text-[#64748b] text-base max-w-md mx-auto">
             Tu agente ejecuta este flujo completo. Tú solo recibes la notificación.
           </p>
-        </motion.div>
+        </div>
 
-        {/* Steps grid */}
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
-        >
-          {STEPS.map(({ icon, step, title, desc }, i) => (
-            <motion.div key={step} variants={itemVariants}>
-              <div className="relative group rounded-2xl p-6 border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm hover:border-[#22c55e]/25 hover:bg-white/[0.06] transition-all duration-300 h-full">
-                {/* Step number */}
-                <span className="font-mono text-xs font-bold mb-5 block text-white/20">
-                  {step}
-                </span>
+        {/* Split layout: steps + phone mockup */}
+        <div className="flex flex-col lg:flex-row gap-16 items-center">
 
-                {/* Icon */}
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 bg-[#22c55e]/10 border border-[#22c55e]/20">
-                  {icon}
+          {/* Steps grid */}
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {STEPS.map(({ Icon, step, title, desc }, i) => (
+              <motion.div
+                key={step}
+                custom={i}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-60px' }}
+                className="flex gap-4 p-5 rounded-xl border border-[#e2e8f0] bg-white hover:border-[#2563eb]/30 transition-colors"
+              >
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#eff6ff] flex items-center justify-center text-[#2563eb]">
+                  <Icon size={18} strokeWidth={1.8} />
+                </div>
+                <div>
+                  <p className="text-[#94a3b8] text-xs font-mono mb-0.5">{step}</p>
+                  <h3 className="text-[#0f172a] font-semibold text-sm mb-1">{title}</h3>
+                  <p className="text-[#64748b] text-xs leading-relaxed">{desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Phone mockup with avatar */}
+          <motion.div
+            className="flex-shrink-0 flex justify-center lg:justify-end"
+            initial={{ opacity: 0, x: 32 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          >
+            {/* Phone frame */}
+            <div
+              className="relative bg-[#0f172a] rounded-[42px] p-[10px] shadow-[0_1px_3px_rgba(0,0,0,0.12)]"
+              style={{ width: 260 }}
+            >
+              {/* Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-[#0f172a] rounded-b-2xl z-10" />
+
+              {/* Screen */}
+              <div className="bg-white rounded-[34px] overflow-hidden" style={{ minHeight: 460 }}>
+
+                {/* WhatsApp-style header */}
+                <div className="bg-[#2563eb] px-4 pt-8 pb-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/30 flex-shrink-0">
+                    <Image
+                      src="/images/avatar.png.png"
+                      alt="Agente Revly"
+                      width={36}
+                      height={36}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-white text-xs font-semibold leading-tight">Revly Agent</p>
+                    <p className="text-white/60 text-[10px]">En línea ahora</p>
+                  </div>
                 </div>
 
-                {/* Content */}
-                <h3 className="text-base font-bold text-white mb-2">{title}</h3>
-                <p className="text-white/45 text-sm leading-relaxed">{desc}</p>
+                {/* Chat */}
+                <div className="bg-[#f0f4f8] flex flex-col gap-2.5 p-3" style={{ minHeight: 340 }}>
 
-                {/* Connector line for non-last items on desktop */}
-                {i < STEPS.length - 1 && (i + 1) % 3 !== 0 && (
-                  <div className="hidden lg:block absolute top-[52px] -right-[10px] w-[20px] h-px bg-[#22c55e]/20" />
-                )}
+                  {/* Customer */}
+                  <div className="self-start bg-white rounded-2xl rounded-tl-sm px-3 py-2 shadow-[0_1px_2px_rgba(0,0,0,0.06)] max-w-[82%]">
+                    <p className="text-[#0f172a] text-xs leading-snug">
+                      Hola, me interesa el plan Growth
+                    </p>
+                    <p className="text-[#94a3b8] text-[9px] mt-1">10:32</p>
+                  </div>
 
-                {/* Glow on hover */}
-                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ boxShadow: 'inset 0 0 40px #22c55e08' }} />
+                  {/* Agent */}
+                  <div className="self-end bg-[#2563eb] rounded-2xl rounded-tr-sm px-3 py-2 max-w-[85%]">
+                    <p className="text-white text-xs leading-snug">
+                      ¡Hola! Growth incluye 1.500 conversaciones y analítica completa por 34,99€/mes. ¿Empezamos?
+                    </p>
+                    <p className="text-white/50 text-[9px] mt-1">10:32 ✓✓</p>
+                  </div>
+
+                  {/* Customer */}
+                  <div className="self-start bg-white rounded-2xl rounded-tl-sm px-3 py-2 shadow-[0_1px_2px_rgba(0,0,0,0.06)] max-w-[72%]">
+                    <p className="text-[#0f172a] text-xs leading-snug">
+                      Sí, quiero contratarlo ahora
+                    </p>
+                    <p className="text-[#94a3b8] text-[9px] mt-1">10:33</p>
+                  </div>
+
+                  {/* Agent — payment confirmation */}
+                  <div className="self-end bg-[#2563eb] rounded-2xl rounded-tr-sm px-3 py-2 max-w-[85%]">
+                    <p className="text-white text-xs leading-snug">
+                      ✓ Pago procesado. Ya tienes acceso al dashboard.
+                    </p>
+                    <p className="text-white/50 text-[9px] mt-1">10:33 ✓✓</p>
+                  </div>
+
+                  {/* System badge */}
+                  <div className="self-center bg-white border border-[#e2e8f0] rounded-full px-3 py-1 mt-1">
+                    <p className="text-[#2563eb] text-[10px] font-semibold">Venta cerrada · € 34,99</p>
+                  </div>
+
+                </div>
               </div>
-            </motion.div>
-          ))}
-        </motion.div>
+            </div>
+          </motion.div>
+
+        </div>
 
         {/* Bottom CTA */}
-        <motion.div
-          className="text-center mt-14"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
+        <div className="text-center mt-14">
           <a
             href="#precios"
-            className="inline-flex items-center gap-2 text-[#22c55e] text-sm font-semibold hover:underline underline-offset-4"
+            className="inline-flex items-center gap-2 text-[#2563eb] text-sm font-medium hover:underline underline-offset-4"
           >
             Ver planes y precios
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14M13 6l6 6-6 6" />
             </svg>
           </a>
-        </motion.div>
+        </div>
+
       </div>
     </section>
   )

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { Check } from 'lucide-react'
 
 interface Plan {
   key: string
@@ -14,90 +15,87 @@ interface Plan {
   cta: string
 }
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-}
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 32 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: 'easeOut' as const, delay: i * 0.1 },
+  }),
 }
 
 export default function PricingSection({ plans }: { plans: Plan[] }) {
   return (
-    <section id="precios" className="py-28 px-6">
-      <div className="max-w-5xl mx-auto">
+    <section id="precios" className="py-24 px-6 bg-[#f8fafc]">
+      <div className="max-w-[1200px] mx-auto">
+
         {/* Header */}
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <p className="text-[#22c55e] text-xs font-semibold uppercase tracking-widest mb-3">Precios</p>
-          <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-3">
-            Sin sorpresas
+        <div className="text-center mb-14">
+          <p className="text-[#2563eb] text-xs font-semibold uppercase tracking-widest mb-3">Precios</p>
+          <h2 className="text-[38px] font-semibold tracking-tight text-[#0f172a] mb-3">
+            Sin permanencia
           </h2>
-          <p className="text-white/45 text-base">Sin permanencia. Cancela cuando quieras.</p>
-        </motion.div>
+          <p className="text-[#64748b] text-base">
+            Cancela cuando quieras. Sin letra pequeña.
+          </p>
+        </div>
 
         {/* Cards */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
-        >
-          {plans.map(({ key, name, price, tagline, features, highlighted, badge, cta }) => (
-            <motion.div key={key} variants={cardVariants}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          {plans.map(({ key, name, price, tagline, features, highlighted, badge, cta }, i) => (
+            <motion.div
+              key={key}
+              custom={i}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-40px' }}
+            >
               <div
-                className={`relative flex flex-col rounded-2xl p-7 h-full transition-all duration-300 ${
+                className={`relative flex flex-col rounded-xl p-8 h-full transition-all duration-200 ${
                   highlighted
-                    ? 'bg-[#22c55e]/10 border-2 border-[#22c55e]/60 shadow-xl shadow-[#22c55e]/10 backdrop-blur-sm'
-                    : 'bg-white/[0.04] border border-white/10 backdrop-blur-sm hover:border-white/20 hover:bg-white/[0.06]'
+                    ? 'bg-[#2563eb] text-white border border-[#2563eb]'
+                    : 'bg-white border border-[#e2e8f0] hover:border-[#2563eb]/30'
                 }`}
               >
                 {/* Badge */}
                 {badge && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="bg-[#22c55e] text-[#0D1B2A] text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-lg shadow-[#22c55e]/30">
+                    <span className="bg-[#0f172a] text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
                       {badge}
                     </span>
                   </div>
                 )}
 
-                {/* Plan name */}
-                <p className={`text-xs font-semibold uppercase tracking-widest mb-1 ${highlighted ? 'text-[#22c55e]' : 'text-white/40'}`}>
+                {/* Plan header */}
+                <p className={`text-xs font-semibold uppercase tracking-widest mb-1 ${highlighted ? 'text-blue-200' : 'text-[#64748b]'}`}>
                   {tagline}
                 </p>
-                <h3 className="text-xl font-bold text-white mb-5">{name}</h3>
+                <h3 className={`text-xl font-semibold mb-6 ${highlighted ? 'text-white' : 'text-[#0f172a]'}`}>
+                  {name}
+                </h3>
 
                 {/* Price */}
                 <div className="mb-6">
-                  <span className="font-mono text-5xl font-extrabold tracking-tight text-white">
+                  <span className={`text-5xl font-bold tracking-tight ${highlighted ? 'text-white' : 'text-[#0f172a]'}`}>
                     {price.toFixed(2).replace('.', ',')}€
                   </span>
-                  <span className="text-white/35 text-sm ml-1.5">/mes</span>
+                  <span className={`text-sm ml-1.5 ${highlighted ? 'text-blue-200' : 'text-[#64748b]'}`}>/mes</span>
                 </div>
 
                 {/* Divider */}
-                <div className={`h-px mb-6 ${highlighted ? 'bg-[#22c55e]/25' : 'bg-white/[0.08]'}`} />
+                <div className={`h-px mb-6 ${highlighted ? 'bg-white/20' : 'bg-[#e2e8f0]'}`} />
 
                 {/* Features */}
                 <ul className="flex flex-col gap-3 mb-8 flex-1">
                   {features.map((f) => (
                     <li key={f} className="flex items-start gap-2.5 text-sm">
-                      <svg
-                        className="w-4 h-4 mt-0.5 flex-shrink-0"
-                        style={{ color: highlighted ? '#22c55e' : '#22c55e' }}
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-white/60">{f}</span>
+                      <Check
+                        size={16}
+                        className={`mt-0.5 flex-shrink-0 ${highlighted ? 'text-blue-200' : 'text-[#2563eb]'}`}
+                        strokeWidth={2.5}
+                      />
+                      <span className={highlighted ? 'text-blue-50' : 'text-[#64748b]'}>{f}</span>
                     </li>
                   ))}
                 </ul>
@@ -105,10 +103,10 @@ export default function PricingSection({ plans }: { plans: Plan[] }) {
                 {/* CTA */}
                 <Link
                   href="/dashboard/agentes"
-                  className={`w-full text-center py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                  className={`w-full text-center py-3 rounded-lg font-medium text-sm transition-colors duration-200 ${
                     highlighted
-                      ? 'bg-[#22c55e] hover:bg-[#16a34a] text-[#0D1B2A] shadow-lg shadow-[#22c55e]/25 hover:shadow-[#22c55e]/40'
-                      : 'bg-white/[0.08] hover:bg-white/[0.14] text-white border border-white/10'
+                      ? 'bg-white text-[#2563eb] hover:bg-blue-50'
+                      : 'bg-[#2563eb] hover:bg-[#1d4ed8] text-white'
                   }`}
                 >
                   {cta}
@@ -116,7 +114,13 @@ export default function PricingSection({ plans }: { plans: Plan[] }) {
               </div>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
+
+        {/* Trust note */}
+        <p className="text-center text-[#94a3b8] text-sm mt-8">
+          Todos los planes incluyen configuración asistida y soporte por email.
+        </p>
+
       </div>
     </section>
   )
