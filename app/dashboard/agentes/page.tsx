@@ -78,11 +78,12 @@ function AgentesContent() {
     finally { setGeneratingPrompt(false) }
   }
 
-  const handleDeploy = async () => {
+  const handleCheckout = async (plan: string) => {
     if (!agentName.trim() || !whatsappNumber.trim() || !systemPrompt.trim()) {
       setDeployError('Completa nombre, número de WhatsApp y prompt antes de continuar.')
       return
     }
+    setSelectedPlan(plan)
     setDeployStatus('deploying')
     setDeployError(null)
     try {
@@ -93,7 +94,7 @@ function AgentesContent() {
           agent_name:    agentName,
           phone_number:  whatsappNumber,
           system_prompt: systemPrompt,
-          plan:          selectedPlan,
+          plan,
         }),
       })
       const data = await res.json()
@@ -104,6 +105,8 @@ function AgentesContent() {
       setDeployError(err instanceof Error ? err.message : 'Error al iniciar el pago.')
     }
   }
+
+  const handleDeploy = () => handleCheckout(selectedPlan)
 
   const usedPct = userProfile
     ? Math.min(Math.round((userProfile.conversations_used / userProfile.conversations_limit) * 100), 100)
@@ -358,19 +361,23 @@ function AgentesContent() {
               {CHECKOUT_PLANS.map((p) => (
                 <button
                   key={p.key}
-                  onClick={() => setSelectedPlan(p.key)}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl border text-left transition-all ${
-                    selectedPlan === p.key
+                  onClick={() => handleCheckout(p.key)}
+                  disabled={isDeploying}
+                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl border text-left transition-all disabled:opacity-60 ${
+                    selectedPlan === p.key && isDeploying
                       ? 'bg-[#0f172a] border-[#0f172a] text-white'
-                      : 'bg-[#fafafa] border-[#f1f5f9] text-[#64748b] hover:border-[#e2e8f0]'
+                      : 'bg-[#fafafa] border-[#f1f5f9] text-[#64748b] hover:bg-[#0f172a] hover:border-[#0f172a] hover:text-white group'
                   }`}
                 >
                   <div>
-                    <p className={`font-bold text-sm ${selectedPlan === p.key ? 'text-white' : 'text-[#0f172a]'}`}>{p.label}</p>
-                    <p className={`text-[10px] mt-0.5 ${selectedPlan === p.key ? 'text-white/50' : 'text-[#cbd5e1]'}`}>{p.desc}</p>
+                    <p className={`font-bold text-sm ${selectedPlan === p.key && isDeploying ? 'text-white' : 'text-[#0f172a] group-hover:text-white'}`}>{p.label}</p>
+                    <p className={`text-[10px] mt-0.5 ${selectedPlan === p.key && isDeploying ? 'text-white/50' : 'text-[#cbd5e1] group-hover:text-white/50'}`}>{p.desc}</p>
                   </div>
-                  <span className={`text-xs font-mono font-bold ${selectedPlan === p.key ? 'text-[#0d9488]' : 'text-[#cbd5e1]'}`}>
-                    {p.price}
+                  <span className={`text-xs font-mono font-bold flex items-center gap-1.5 ${selectedPlan === p.key && isDeploying ? 'text-[#0d9488]' : 'text-[#cbd5e1] group-hover:text-[#0d9488]'}`}>
+                    {selectedPlan === p.key && isDeploying
+                      ? <><Loader2 size={11} className="animate-spin" />Redirigiendo</>
+                      : p.price
+                    }
                   </span>
                 </button>
               ))}
