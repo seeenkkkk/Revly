@@ -11,12 +11,15 @@ function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || '/dashboard/agentes'
+  const confirmError = searchParams.get('error') === 'confirmation_failed'
 
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    confirmError ? 'El enlace de confirmación no es válido o ha expirado.' : null
+  )
   const [success, setSuccess] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,7 +39,14 @@ function LoginContent() {
       }
       router.push(redirect)
     } else {
-      const { error } = await supabase.auth.signUp({ email, password })
+      const appUrl = window.location.origin
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${appUrl}/auth/callback?next=/dashboard/agentes`,
+        },
+      })
       if (error) {
         setError(error.message)
         setLoading(false)
