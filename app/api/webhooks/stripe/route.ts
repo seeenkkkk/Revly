@@ -57,6 +57,12 @@ export async function POST(req: NextRequest) {
 
     const conversationsLimit = PLAN_LIMITS[plan] ?? 50
 
+    // Monthly reset date: 1st of next month
+    const nextReset = new Date()
+    nextReset.setDate(1)
+    nextReset.setMonth(nextReset.getMonth() + 1)
+    const planResetDate = nextReset.toISOString().slice(0, 10)
+
     // Upsert del usuario con el nuevo plan
     const { data: user, error: userError } = await db
       .from('users')
@@ -66,6 +72,7 @@ export async function POST(req: NextRequest) {
           plan,
           conversations_limit: conversationsLimit,
           conversations_used: 0,
+          plan_reset_date: planResetDate,
           stripe_customer_id: customerId,
           stripe_subscription_id: subscriptionId,
           ...(userId ? { id: userId } : {}),
