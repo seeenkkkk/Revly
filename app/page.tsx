@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { createServerSupabase } from '@/lib/supabase-server'
-import { PLANS, FREE_PLAN } from '@/lib/stripe'
+import { PLANS } from '@/lib/stripe'
 import LandingNav from '@/components/LandingNav'
 import HowItWorks from '@/components/HowItWorks'
 import PricingSection from '@/components/PricingSection'
@@ -17,15 +17,6 @@ export default async function LandingPage() {
   }
 
   const pricingPlans = [
-    {
-      key: 'free',
-      name: FREE_PLAN.name,
-      price: FREE_PLAN.price,
-      tagline: FREE_PLAN.tagline,
-      features: FREE_PLAN.features,
-      highlighted: false,
-      cta: 'Empezar gratis',
-    },
     {
       key: 'essential',
       name: PLANS.essential.name,
@@ -92,7 +83,7 @@ export default async function LandingPage() {
                 href="/dashboard/agentes"
                 className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold px-8 py-4 rounded-full text-[13px] uppercase tracking-wider transition-colors"
               >
-                Empieza gratis →
+                Empieza ahora →
               </Link>
               <a
                 href="#como-funciona"
@@ -295,10 +286,10 @@ export default async function LandingPage() {
             </p>
             <h2 className="text-[48px] font-black leading-[1.05] tracking-tight text-white mb-6">
               Tu primer agente,<br />
-              <em className="italic font-black text-[#0d9488]">gratis.</em>
+              <em className="italic font-black text-[#0d9488]">hoy mismo.</em>
             </h2>
             <p className="text-white/50 text-base mb-10 max-w-sm mx-auto">
-              Sin tarjeta de crédito. En marcha en menos de 10 minutos.
+              En marcha en menos de 10 minutos.
             </p>
             <Link
               href="/dashboard/agentes"

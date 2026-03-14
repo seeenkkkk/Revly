@@ -65,7 +65,7 @@ export default function LandingNav({ userEmail }: { userEmail?: string | null })
                 href="/dashboard/agentes"
                 className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold text-[11px] px-5 py-2.5 rounded-full uppercase tracking-wider transition-colors"
               >
-                Empieza gratis
+                Empieza ahora
               </Link>
             </>
           )}
@@ -97,7 +97,7 @@ export default function LandingNav({ userEmail }: { userEmail?: string | null })
             href="/dashboard/agentes"
             className="bg-[#0f172a] text-white font-bold text-[11px] px-4 py-3 rounded-full text-center uppercase tracking-wider"
           >
-            Empieza gratis
+            Empieza ahora
           </Link>
         </div>
       )}
