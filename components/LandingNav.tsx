@@ -56,13 +56,13 @@ export default function LandingNav({ userEmail }: { userEmail?: string | null })
           ) : (
             <>
               <Link
-                href="/dashboard/agentes"
+                href="/login"
                 className="text-[#64748b] hover:text-[#0f172a] text-[11px] font-semibold uppercase tracking-wider transition-colors"
               >
                 Acceder
               </Link>
               <Link
-                href="/dashboard/agentes"
+                href="/login"
                 className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold text-[11px] px-5 py-2.5 rounded-full uppercase tracking-wider transition-colors"
               >
                 Empieza ahora
@@ -94,7 +94,7 @@ export default function LandingNav({ userEmail }: { userEmail?: string | null })
             Precios
           </a>
           <Link
-            href="/dashboard/agentes"
+            href="/login"
             className="bg-[#0f172a] text-white font-bold text-[11px] px-4 py-3 rounded-full text-center uppercase tracking-wider"
           >
             Empieza ahora

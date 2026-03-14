@@ -25,6 +25,7 @@ export default async function LandingPage() {
       features: PLANS.essential.features,
       highlighted: false,
       cta: 'Empezar con Starter',
+      priceId: PLANS.essential.priceId ?? '',
     },
     {
       key: 'growth',
@@ -35,6 +36,7 @@ export default async function LandingPage() {
       highlighted: true,
       badge: 'Más popular',
       cta: 'Empezar con Growth',
+      priceId: PLANS.growth.priceId ?? '',
     },
     {
       key: 'partner',
@@ -44,6 +46,7 @@ export default async function LandingPage() {
       features: PLANS.partner.features,
       highlighted: false,
       cta: 'Contratar Enterprise',
+      priceId: PLANS.partner.priceId ?? '',
     },
   ]
 
@@ -80,7 +83,7 @@ export default async function LandingPage() {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-3 items-center">
               <Link
-                href="/dashboard/agentes"
+                href="/login"
                 className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold px-8 py-4 rounded-full text-[13px] uppercase tracking-wider transition-colors"
               >
                 Empieza ahora →
@@ -275,7 +278,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── PRICING ────────────────────────────────────────────── */}
-      <PricingSection plans={pricingPlans} />
+      <PricingSection plans={pricingPlans} userLoggedIn={!!userEmail} />
 
       {/* ── DARK CTA BLOCK ─────────────────────────────────────── */}
       <section className="py-16 px-6 bg-white">
@@ -292,7 +295,7 @@ export default async function LandingPage() {
               En marcha en menos de 10 minutos.
             </p>
             <Link
-              href="/dashboard/agentes"
+              href="/login"
               className="inline-block bg-white hover:bg-[#f8fafc] text-[#0f172a] font-bold text-[13px] px-10 py-4 rounded-full uppercase tracking-wider transition-colors"
             >
               Crear mi agente →
