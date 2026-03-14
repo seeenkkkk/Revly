@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase-server'
 import { stripe } from '@/lib/stripe'
+import { requireAuth } from '@/lib/api-auth'
 
 export async function POST(req: NextRequest) {
-  const supabase = createServerSupabase()
-
-  // Obtener sesión del usuario actual
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const auth = await requireAuth(req)
+  if (auth instanceof NextResponse) return auth
 
   let body: { priceId: string; plan: string }
   try {
@@ -30,12 +26,12 @@ export async function POST(req: NextRequest) {
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
-      customer_email: session?.user?.email ?? undefined,
+      customer_email: auth.email || undefined,
       // URL de éxito con el plan como parámetro para mostrar confirmación
       success_url: `${appUrl}/success?plan=${plan}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/cancel`,
       metadata: {
-        userId: session?.user?.id ?? '',
+        userId: auth.userId,
         plan: plan ?? '',
       },
     })

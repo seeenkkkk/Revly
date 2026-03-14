@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceSupabase } from '@/lib/supabase'
+import { requireAuth } from '@/lib/api-auth'
 
 // POST /api/provision
 // Triggered after a user completes their configuration.
 // Sends a structured webhook to n8n to activate the WhatsApp agent workflow.
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof NextResponse) return auth
+
   try {
     const { customer_id } = await req.json()
+
+    // Ensure the caller can only provision their own account
+    if (customer_id !== auth.userId) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+    }
 
     if (!customer_id) {
       return NextResponse.json({ error: 'customer_id requerido' }, { status: 400 })

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
+import { requireAuth } from '@/lib/api-auth'
 
 const PRICE_IDS: Record<string, string | undefined> = {
   essential: process.env.NEXT_PUBLIC_STRIPE_STARTER_PRICE_ID,
@@ -8,6 +9,9 @@ const PRICE_IDS: Record<string, string | undefined> = {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof NextResponse) return auth
+
   let body: { agent_name: string; phone_number: string; system_prompt: string; plan: string }
   try {
     body = await req.json()

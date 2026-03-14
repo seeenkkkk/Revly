@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth } from '@/lib/api-auth'
 
 // POST /api/generate-prompt
 // Recibe una descripción del negocio y devuelve un system prompt profesional.
 // Si OPENAI_API_KEY está configurada usa GPT-4o-mini; si no, genera un template.
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req)
+  if (auth instanceof NextResponse) return auth
+
   try {
     const { business_description } = await req.json()
 
