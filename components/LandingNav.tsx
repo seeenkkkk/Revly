@@ -16,27 +16,27 @@ export default function LandingNav({ userEmail }: { userEmail?: string | null })
   }, [])
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#e2e8f0] transition-shadow duration-200 ${
-        scrolled ? 'shadow-[0_1px_3px_rgba(0,0,0,0.08)]' : ''
-      }`}
-    >
-      <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4">
+      <div
+        className={`w-full max-w-[1100px] flex items-center justify-between bg-white/95 backdrop-blur-sm border border-[#e2e8f0] rounded-2xl px-5 h-14 transition-shadow duration-200 ${
+          scrolled ? 'shadow-[0_4px_20px_rgba(0,0,0,0.08)]' : ''
+        }`}
+      >
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-          <Image src="/images/logo.png.png" alt="Revly" width={32} height={32} className="h-8 w-auto" />
-          <span className="font-semibold text-[#0f172a] text-[15px] tracking-tight">revly</span>
+          <Image src="/images/logo.png.png" alt="Revly" width={28} height={28} className="h-7 w-auto" />
+          <span className="font-bold text-[#0f172a] text-[15px] tracking-tight">revly</span>
         </Link>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-8">
-          <a href="#como-funciona" className="text-[#64748b] hover:text-[#0f172a] text-sm transition-colors">
+          <a href="#como-funciona" className="text-[#64748b] hover:text-[#0f172a] text-[11px] font-semibold uppercase tracking-widest transition-colors">
             Cómo funciona
           </a>
-          <a href="#funciones" className="text-[#64748b] hover:text-[#0f172a] text-sm transition-colors">
+          <a href="#funciones" className="text-[#64748b] hover:text-[#0f172a] text-[11px] font-semibold uppercase tracking-widest transition-colors">
             Funciones
           </a>
-          <a href="#precios" className="text-[#64748b] hover:text-[#0f172a] text-sm transition-colors">
+          <a href="#precios" className="text-[#64748b] hover:text-[#0f172a] text-[11px] font-semibold uppercase tracking-widest transition-colors">
             Precios
           </a>
         </nav>
@@ -48,7 +48,7 @@ export default function LandingNav({ userEmail }: { userEmail?: string | null })
               <span className="text-[#64748b] text-sm">{userEmail}</span>
               <Link
                 href="/dashboard/agentes"
-                className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors"
+                className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold text-[11px] px-5 py-2.5 rounded-full uppercase tracking-wider transition-colors"
               >
                 Dashboard →
               </Link>
@@ -57,13 +57,13 @@ export default function LandingNav({ userEmail }: { userEmail?: string | null })
             <>
               <Link
                 href="/dashboard/agentes"
-                className="text-[#64748b] hover:text-[#0f172a] text-sm transition-colors"
+                className="text-[#64748b] hover:text-[#0f172a] text-[11px] font-semibold uppercase tracking-wider transition-colors"
               >
-                Iniciar sesión
+                Acceder
               </Link>
               <Link
                 href="/dashboard/agentes"
-                className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors"
+                className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold text-[11px] px-5 py-2.5 rounded-full uppercase tracking-wider transition-colors"
               >
                 Empieza gratis
               </Link>
@@ -83,13 +83,19 @@ export default function LandingNav({ userEmail }: { userEmail?: string | null })
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-[#e2e8f0] bg-white px-6 py-4 flex flex-col gap-4">
-          <a href="#como-funciona" onClick={() => setMobileOpen(false)} className="text-[#64748b] text-sm py-1">Cómo funciona</a>
-          <a href="#funciones" onClick={() => setMobileOpen(false)} className="text-[#64748b] text-sm py-1">Funciones</a>
-          <a href="#precios" onClick={() => setMobileOpen(false)} className="text-[#64748b] text-sm py-1">Precios</a>
+        <div className="md:hidden absolute top-20 left-4 right-4 bg-white border border-[#e2e8f0] rounded-2xl px-6 py-5 flex flex-col gap-4 shadow-xl">
+          <a href="#como-funciona" onClick={() => setMobileOpen(false)} className="text-[#64748b] text-[11px] uppercase tracking-widest font-semibold py-1">
+            Cómo funciona
+          </a>
+          <a href="#funciones" onClick={() => setMobileOpen(false)} className="text-[#64748b] text-[11px] uppercase tracking-widest font-semibold py-1">
+            Funciones
+          </a>
+          <a href="#precios" onClick={() => setMobileOpen(false)} className="text-[#64748b] text-[11px] uppercase tracking-widest font-semibold py-1">
+            Precios
+          </a>
           <Link
             href="/dashboard/agentes"
-            className="bg-[#0d9488] text-white font-medium text-sm px-4 py-2.5 rounded-lg text-center"
+            className="bg-[#0f172a] text-white font-bold text-[11px] px-4 py-3 rounded-full text-center uppercase tracking-wider"
           >
             Empieza gratis
           </Link>

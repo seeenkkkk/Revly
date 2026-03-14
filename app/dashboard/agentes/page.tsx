@@ -144,20 +144,20 @@ function AgentesContent() {
   const isDeploying = deployStatus === 'saving' || deployStatus === 'deploying'
 
   if (loading) return (
-    <div className="min-h-screen bg-[#f8fafc] p-10">
+    <div className="min-h-screen bg-[#fafafa] p-10">
       <div className="max-w-5xl mx-auto space-y-4">
         {[1,2,3].map(i => (
-          <div key={i} className="h-20 bg-[#e2e8f0] rounded-xl animate-pulse" />
+          <div key={i} className="h-20 bg-[#f1f5f9] rounded-3xl animate-pulse" />
         ))}
       </div>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
+    <div className="min-h-screen bg-[#fafafa]">
 
       {/* ── HEADER ── */}
-      <div className="bg-white border-b border-[#e2e8f0] px-10 pt-8 pb-6">
+      <div className="bg-white border-b border-[#f1f5f9] px-10 pt-8 pb-6">
         <div className="max-w-5xl mx-auto flex items-start justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4">
             <Image
@@ -167,22 +167,22 @@ function AgentesContent() {
               height={32}
               className="h-8 w-auto"
             />
-            <div className="w-px h-8 bg-[#e2e8f0]" />
+            <div className="w-px h-8 bg-[#f1f5f9]" />
             <div>
-              <p className="text-[#0d9488] text-xs font-semibold uppercase tracking-widest mb-1">
+              <p className="text-[#0d9488] text-[10px] font-bold uppercase tracking-widest mb-1">
                 Mis Agentes
               </p>
-              <h1 className="text-xl font-semibold text-[#0f172a]">
+              <h1 className="text-xl font-black text-[#0f172a] tracking-tight">
                 {agentName || 'Nuevo agente'}
               </h1>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <StatusBadge status={deployStatus} />
-            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${
+            <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border ${
               userProfile?.plan === 'partner'
                 ? 'bg-[#f0fdfa] text-[#0d9488] border-[#99f6e4]'
-                : 'bg-[#f8fafc] text-[#64748b] border-[#e2e8f0]'
+                : 'bg-[#fafafa] text-[#64748b] border-[#f1f5f9]'
             }`}>
               {PLAN_LABELS[userProfile?.plan ?? 'free']}
             </span>
@@ -217,14 +217,14 @@ function AgentesContent() {
 
         {/* ── LEFT: Configuración ── */}
         <div className="lg:col-span-2 space-y-5">
-          <div className="bg-white border border-[#e2e8f0] rounded-xl p-6">
-            <h2 className="text-sm font-semibold text-[#0f172a] mb-5">
+          <div className="bg-white border border-[#f1f5f9] rounded-3xl p-7">
+            <h2 className="text-[11px] font-bold uppercase tracking-widest text-[#0d9488] mb-6">
               Configuración del agente
             </h2>
 
             {/* Nombre */}
             <div className="mb-5">
-              <label className="block text-xs font-medium text-[#64748b] mb-1.5">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">
                 Nombre del agente
               </label>
               <input
@@ -232,13 +232,13 @@ function AgentesContent() {
                 value={agentName}
                 onChange={(e) => setAgentName(e.target.value)}
                 placeholder="Ej: Asistente de Ventas"
-                className="w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-2.5 text-sm text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
+                className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm font-medium text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
               />
             </div>
 
             {/* WhatsApp */}
             <div className="mb-5">
-              <label className="block text-xs font-medium text-[#64748b] mb-1.5">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">
                 Número WhatsApp Business
               </label>
               <input
@@ -246,18 +246,18 @@ function AgentesContent() {
                 value={whatsappNumber}
                 onChange={(e) => setWhatsappNumber(e.target.value)}
                 placeholder="+34 600 000 000"
-                className="w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-2.5 text-sm text-[#0f172a] placeholder-[#94a3b8] font-mono focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
+                className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm font-medium text-[#0f172a] placeholder-[#cbd5e1] font-mono focus:outline-none focus:border-[#0d9488] focus:bg-white focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
               />
-              <p className="text-[#94a3b8] text-xs mt-1.5">Incluye el prefijo internacional (+34 para España)</p>
+              <p className="text-[#cbd5e1] text-xs mt-2">Incluye el prefijo internacional (+34 para España)</p>
             </div>
 
             {/* Prompt */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-medium text-[#64748b]">
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8]">
                   Prompt del sistema
                 </label>
-                <span className="text-[#94a3b8] text-xs tabular-nums">
+                <span className="text-[#cbd5e1] text-xs tabular-nums">
                   {systemPrompt.length} caracteres
                 </span>
               </div>
@@ -266,7 +266,7 @@ function AgentesContent() {
                 onChange={(e) => setSystemPrompt(e.target.value)}
                 rows={7}
                 placeholder="Eres un asistente de ventas profesional de..."
-                className="w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-3 text-sm text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/10 transition-all resize-none leading-relaxed"
+                className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white focus:ring-2 focus:ring-[#0d9488]/10 transition-all resize-none leading-relaxed"
               />
 
               {/* Generador con IA */}
@@ -277,12 +277,12 @@ function AgentesContent() {
                   onChange={(e) => setBusinessDesc(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleGeneratePrompt()}
                   placeholder='Ej: "Soy una inmobiliaria en Madrid"'
-                  className="flex-1 bg-white border border-[#e2e8f0] rounded-lg px-4 py-2.5 text-sm text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
+                  className="flex-1 bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-2.5 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
                 />
                 <button
                   onClick={handleGeneratePrompt}
                   disabled={generatingPrompt || !businessDesc.trim()}
-                  className="flex items-center gap-2 bg-[#f0fdfa] hover:bg-[#ccfbf1] border border-[#99f6e4] text-[#0d9488] text-xs font-medium px-4 py-2.5 rounded-lg transition-all disabled:opacity-40 whitespace-nowrap"
+                  className="flex items-center gap-2 bg-[#f0fdfa] hover:bg-[#ccfbf1] border border-[#99f6e4] text-[#0d9488] text-[10px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-2xl transition-all disabled:opacity-40 whitespace-nowrap"
                 >
                   {generatingPrompt
                     ? <><Loader2 size={13} className="animate-spin" />Generando...</>
@@ -290,7 +290,7 @@ function AgentesContent() {
                   }
                 </button>
               </div>
-              <p className="text-[#94a3b8] text-xs mt-1.5">
+              <p className="text-[#cbd5e1] text-xs mt-2">
                 Describe tu negocio y la IA escribirá el prompt por ti.
               </p>
             </div>
@@ -298,10 +298,10 @@ function AgentesContent() {
 
           {/* Error */}
           {deployError && (
-            <div className={`border rounded-xl px-4 py-3 flex items-start gap-3 text-sm ${
+            <div className={`border rounded-3xl px-5 py-4 flex items-start gap-3 text-sm ${
               deployStatus === 'error'
-                ? 'bg-red-50 border-red-200 text-red-700'
-                : 'bg-amber-50 border-amber-200 text-amber-700'
+                ? 'bg-red-50 border-red-100 text-red-700'
+                : 'bg-amber-50 border-amber-100 text-amber-700'
             }`}>
               <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
               {deployError}
@@ -313,16 +313,16 @@ function AgentesContent() {
         <div className="space-y-4">
 
           {/* Estado + deploy */}
-          <div className="bg-white border border-[#e2e8f0] rounded-xl p-6">
-            <h2 className="text-sm font-semibold text-[#0f172a] mb-5">Estado del agente</h2>
+          <div className="bg-white border border-[#f1f5f9] rounded-3xl p-6">
+            <h2 className="text-[10px] font-bold uppercase tracking-widest text-[#0d9488] mb-5">Estado del agente</h2>
 
             {/* Estado visual */}
-            <div className={`rounded-lg p-4 mb-5 flex flex-col items-center text-center transition-all ${
+            <div className={`rounded-2xl p-4 mb-5 flex flex-col items-center text-center transition-all ${
               deployStatus === 'active'
-                ? 'bg-[#f0fdfa] border border-[#99f6e4]'
+                ? 'bg-[#f0fdfa] border border-[#ccfbf1]'
                 : deployStatus === 'error'
-                ? 'bg-red-50 border border-red-200'
-                : 'bg-[#f8fafc] border border-[#e2e8f0]'
+                ? 'bg-red-50 border border-red-100'
+                : 'bg-[#fafafa] border border-[#f1f5f9]'
             }`}>
               {/* Avatar siempre visible */}
               <div className="relative mb-3">
@@ -373,20 +373,20 @@ function AgentesContent() {
 
             {/* Plan selector */}
             <div className="mb-4">
-              <p className="text-xs font-medium text-[#64748b] mb-2">Plan</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-3">Plan</p>
               <div className="space-y-2">
                 {CHECKOUT_PLANS.map((p) => (
                   <button
                     key={p.key}
                     onClick={() => setSelectedPlan(p.key)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg border text-left transition-all text-sm ${
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl border text-left transition-all ${
                       selectedPlan === p.key
                         ? 'bg-[#f0fdfa] border-[#0d9488] text-[#0f172a]'
-                        : 'bg-white border-[#e2e8f0] text-[#64748b] hover:border-[#0d9488]/40'
+                        : 'bg-[#fafafa] border-[#f1f5f9] text-[#64748b] hover:border-[#e2e8f0]'
                     }`}
                   >
-                    <span className="font-medium">{p.label}</span>
-                    <span className={`text-xs font-mono ${selectedPlan === p.key ? 'text-[#0d9488]' : 'text-[#94a3b8]'}`}>
+                    <span className="font-bold text-sm">{p.label}</span>
+                    <span className={`text-xs font-mono ${selectedPlan === p.key ? 'text-[#0d9488]' : 'text-[#cbd5e1]'}`}>
                       {p.price}
                     </span>
                   </button>
@@ -398,30 +398,30 @@ function AgentesContent() {
             <button
               onClick={handleDeploy}
               disabled={isDeploying}
-              className={`w-full py-3 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 ${
+              className={`w-full py-3.5 rounded-full font-bold text-[11px] uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
                 deployStatus === 'active'
-                  ? 'bg-[#f8fafc] hover:bg-[#f1f5f9] text-[#64748b] border border-[#e2e8f0]'
-                  : 'bg-[#0d9488] hover:bg-[#0f766e] text-white disabled:opacity-60'
+                  ? 'bg-[#fafafa] hover:bg-[#f1f5f9] text-[#64748b] border border-[#f1f5f9]'
+                  : 'bg-[#0f172a] hover:bg-[#1e293b] text-white disabled:opacity-60'
               }`}
             >
               {isDeploying ? (
-                <><Loader2 size={15} className="animate-spin" />Redirigiendo a pago...</>
+                <><Loader2 size={14} className="animate-spin" />Redirigiendo a pago...</>
               ) : deployStatus === 'active' ? (
-                <><RefreshCw size={15} />Redesplegar agente</>
+                <><RefreshCw size={14} />Redesplegar agente</>
               ) : (
-                <><Zap size={15} />Desplegar agente</>
+                <><Zap size={14} />Desplegar agente</>
               )}
             </button>
           </div>
 
           {/* Uso del plan */}
-          <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
-            <div className="flex items-center justify-between mb-3">
+          <div className="bg-white border border-[#f1f5f9] rounded-3xl p-5">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <BarChart2 size={14} className="text-[#0d9488]" />
-                <h2 className="text-sm font-semibold text-[#0f172a]">Uso del plan</h2>
+                <BarChart2 size={13} className="text-[#0d9488]" />
+                <h2 className="text-[10px] font-bold uppercase tracking-widest text-[#94a3b8]">Uso del plan</h2>
               </div>
-              <span className="text-[#94a3b8] text-xs tabular-nums">
+              <span className="text-[#cbd5e1] text-xs tabular-nums">
                 {userProfile?.conversations_used ?? 0} / {userProfile?.conversations_limit ?? 100}
               </span>
             </div>
@@ -434,9 +434,9 @@ function AgentesContent() {
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-[#94a3b8] text-xs">{usedPct}% usado</span>
+              <span className="text-[#cbd5e1] text-xs">{usedPct}% usado</span>
               {userProfile?.plan !== 'partner' && (
-                <a href="/dashboard" className="text-[#0d9488] text-xs font-medium hover:underline underline-offset-4">
+                <a href="/dashboard" className="text-[#0d9488] text-[10px] font-bold uppercase tracking-wider hover:underline underline-offset-4">
                   Mejorar plan →
                 </a>
               )}
@@ -451,7 +451,7 @@ function AgentesContent() {
 
 export default function AgentesPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#f8fafc]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#fafafa]" />}>
       <AgentesContent />
     </Suspense>
   )

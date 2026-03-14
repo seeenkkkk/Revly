@@ -54,74 +54,74 @@ export default async function LandingPage() {
       <LandingNav userEmail={userEmail} />
 
       {/* ── HERO ───────────────────────────────────────────────── */}
-      <section className="pt-32 pb-24 px-6">
-        <div className="max-w-[1200px] mx-auto">
-          <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
+      <section className="pt-36 pb-24 px-6">
+        <div className="max-w-[1100px] mx-auto">
+          <div className="flex flex-col items-center text-center max-w-4xl mx-auto mb-20">
 
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-[#f0fdfa] border border-[#99f6e4] rounded-full px-4 py-1.5 mb-8">
-              <span className="w-1.5 h-1.5 bg-[#0d9488] rounded-full flex-shrink-0" />
-              <span className="text-[#0d9488] text-xs font-semibold">
+            <div className="inline-flex items-center gap-2 bg-[#f0fdfa] border border-[#99f6e4] rounded-full px-4 py-2 mb-10">
+              <span className="w-1.5 h-1.5 bg-[#0d9488] rounded-full flex-shrink-0 animate-pulse" />
+              <span className="text-[#0d9488] text-[11px] font-bold uppercase tracking-widest">
                 Para negocios con WhatsApp Business
               </span>
             </div>
 
-            {/* H1 */}
-            <h1 className="text-[56px] sm:text-[64px] font-bold leading-[1.08] tracking-tight text-[#0f172a] mb-6">
-              Tu agente de ventas{' '}
-              <span className="text-[#0d9488]">en WhatsApp, 24/7</span>
+            {/* H1 — massive bold with italic accent */}
+            <h1 className="text-[68px] sm:text-[84px] font-black leading-[1.0] tracking-tight text-[#0f172a] mb-8">
+              Tu agente de ventas<br />
+              <em className="italic font-black text-[#0d9488]">en WhatsApp, 24/7</em>
             </h1>
 
-            <p className="text-[#64748b] text-lg leading-relaxed max-w-xl mb-10">
+            <p className="text-[#64748b] text-lg leading-relaxed max-w-lg mb-12">
               Configura tu agente en minutos. Responde, califica y cierra
               ventas mientras tú haces otra cosa.
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 items-center">
               <Link
                 href="/dashboard/agentes"
-                className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-medium px-6 py-3 rounded-lg text-sm transition-colors"
+                className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold px-8 py-4 rounded-full text-[13px] uppercase tracking-wider transition-colors"
               >
                 Empieza gratis →
               </Link>
               <a
                 href="#como-funciona"
-                className="border border-[#e2e8f0] hover:border-[#cbd5e1] bg-white text-[#0f172a] font-medium px-6 py-3 rounded-lg text-sm transition-colors"
+                className="border border-[#e2e8f0] hover:border-[#cbd5e1] bg-white text-[#64748b] hover:text-[#0f172a] font-semibold px-8 py-4 rounded-full text-[13px] uppercase tracking-wider transition-colors"
               >
                 Ver cómo funciona
               </a>
             </div>
           </div>
 
-          {/* Dashboard mockup — light */}
+          {/* Dashboard mockup */}
           <div className="relative mx-auto max-w-5xl">
-            {/* logo2 badge flotante */}
-            <div className="absolute -top-5 -left-4 z-10 hidden md:flex items-center gap-2 bg-white border border-[#e2e8f0] rounded-xl px-3 py-2 shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+            {/* Floating badge */}
+            <div className="absolute -top-5 -left-4 z-10 hidden md:flex items-center gap-2 bg-white border border-[#e2e8f0] rounded-2xl px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
               <Image src="/images/logo2.png.png" alt="" width={20} height={20} className="h-5 w-auto" />
-              <span className="text-[#0f172a] text-xs font-semibold">Revly</span>
+              <span className="text-[#0f172a] text-xs font-bold">Revly</span>
             </div>
 
-            <div className="rounded-xl overflow-hidden border border-[#e2e8f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+            <div className="rounded-3xl overflow-hidden border border-[#e2e8f0]">
               {/* Browser bar */}
               <div className="bg-[#f8fafc] border-b border-[#e2e8f0] px-4 py-3 flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-[#fca5a5]" />
                 <span className="w-3 h-3 rounded-full bg-[#fcd34d]" />
                 <span className="w-3 h-3 rounded-full bg-[#86efac]" />
-                <div className="flex-1 mx-4 bg-white border border-[#e2e8f0] rounded-md h-6 flex items-center px-3">
+                <div className="flex-1 mx-4 bg-white border border-[#e2e8f0] rounded-lg h-6 flex items-center px-3">
                   <span className="text-[#94a3b8] text-xs font-mono">app.revly.io/dashboard</span>
                 </div>
               </div>
 
-              {/* App UI — light theme */}
+              {/* App UI */}
               <div className="bg-white flex" style={{ minHeight: 320 }}>
                 {/* Sidebar */}
                 <div className="bg-[#f8fafc] border-r border-[#e2e8f0] flex flex-col gap-1 p-3 flex-shrink-0" style={{ width: 176 }}>
-                  <div className="h-7 w-16 bg-[#ccfbf1] rounded-md mb-4" />
+                  <div className="h-7 w-16 bg-[#ccfbf1] rounded-lg mb-4" />
                   {['Mis Agentes', 'Analítica', 'Configuración', 'Soporte'].map((item, i) => (
                     <div
                       key={item}
-                      className={`h-8 rounded-lg flex items-center px-3 gap-2 ${
+                      className={`h-8 rounded-xl flex items-center px-3 gap-2 ${
                         i === 0 ? 'bg-[#f0fdfa] text-[#0d9488]' : 'text-[#94a3b8]'
                       }`}
                     >
@@ -140,19 +140,19 @@ export default async function LandingPage() {
                       { v: '3', l: 'Agentes activos' },
                       { v: '€ 8.490', l: 'Ventas este mes' },
                     ].map(({ v, l }) => (
-                      <div key={l} className="bg-white rounded-lg p-3 border border-[#e2e8f0]">
-                        <p className="text-[#0f172a] font-bold text-lg">{v}</p>
+                      <div key={l} className="bg-white rounded-xl p-3 border border-[#f1f5f9]">
+                        <p className="text-[#0f172a] font-black text-lg">{v}</p>
                         <p className="text-[#94a3b8] text-xs mt-0.5">{l}</p>
                       </div>
                     ))}
                   </div>
-                  <div className="bg-white rounded-lg p-4 border border-[#e2e8f0] flex-1">
+                  <div className="bg-white rounded-xl p-4 border border-[#f1f5f9] flex-1">
                     <div className="h-2.5 w-32 bg-[#f1f5f9] rounded mb-4" />
                     <div className="flex items-end gap-2 h-20">
                       {[40, 65, 50, 85, 60, 75, 95].map((h, i) => (
                         <div
                           key={i}
-                          className="flex-1 rounded-t-sm"
+                          className="flex-1 rounded-t-md"
                           style={{
                             height: `${h}%`,
                             backgroundColor: i === 6 ? '#0d9488' : '#ccfbf1',
@@ -169,8 +169,8 @@ export default async function LandingPage() {
       </section>
 
       {/* ── SOCIAL PROOF STRIP ─────────────────────────────────── */}
-      <section className="py-10 px-6 border-y border-[#e2e8f0] bg-[#f8fafc]">
-        <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16">
+      <section className="py-12 px-6 bg-[#fafafa] border-y border-[#f1f5f9]">
+        <div className="max-w-[1100px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-20">
           {[
             { v: '+1.200', l: 'negocios activos' },
             { v: '< 2s', l: 'tiempo de respuesta' },
@@ -178,8 +178,8 @@ export default async function LandingPage() {
             { v: '24/7', l: 'sin interrupciones' },
           ].map(({ v, l }) => (
             <div key={l} className="flex flex-col items-center gap-1 text-center">
-              <span className="text-[#0f172a] font-bold text-2xl tracking-tight">{v}</span>
-              <span className="text-[#64748b] text-sm">{l}</span>
+              <span className="text-[#0f172a] font-black text-3xl tracking-tight">{v}</span>
+              <span className="text-[#94a3b8] text-xs font-semibold uppercase tracking-wider">{l}</span>
             </div>
           ))}
         </div>
@@ -189,27 +189,24 @@ export default async function LandingPage() {
       <HowItWorks />
 
       {/* ── FEATURES ───────────────────────────────────────────── */}
-      <section id="funciones" className="py-24 px-6 bg-[#f8fafc]">
-        <div className="max-w-[1200px] mx-auto">
+      <section id="funciones" className="py-28 px-6 bg-[#fafafa]">
+        <div className="max-w-[1100px] mx-auto">
 
-          <div className="text-center mb-14">
-            <p className="text-[#0d9488] text-xs font-semibold uppercase tracking-widest mb-3">
+          <div className="text-center mb-16">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#0d9488] mb-4">
               Funciones
             </p>
-            <h2 className="text-[38px] font-semibold tracking-tight text-[#0f172a] mb-4">
-              Construido para cerrar ventas
+            <h2 className="text-[52px] font-black leading-[1.05] tracking-tight text-[#0f172a]">
+              Construido para<br />
+              <em className="italic font-black text-[#0d9488]">cerrar ventas.</em>
             </h2>
-            <p className="text-[#64748b] text-base max-w-lg mx-auto">
-              Cada función apunta a un único objetivo: que tus clientes paguen
-              sin que tengas que intervenir.
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               {
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                   </svg>
                 ),
@@ -218,7 +215,7 @@ export default async function LandingPage() {
               },
               {
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
                   </svg>
                 ),
@@ -227,7 +224,7 @@ export default async function LandingPage() {
               },
               {
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
                   </svg>
                 ),
@@ -236,7 +233,7 @@ export default async function LandingPage() {
               },
               {
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
                   </svg>
                 ),
@@ -245,7 +242,7 @@ export default async function LandingPage() {
               },
               {
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                   </svg>
                 ),
@@ -254,7 +251,7 @@ export default async function LandingPage() {
               },
               {
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
                   </svg>
                 ),
@@ -264,12 +261,12 @@ export default async function LandingPage() {
             ].map(({ icon, title, desc }) => (
               <div
                 key={title}
-                className="bg-white border border-[#e2e8f0] rounded-xl p-8 hover:border-[#0d9488]/30 transition-colors duration-200"
+                className="bg-white border border-[#f1f5f9] rounded-3xl p-8 hover:border-[#e2e8f0] transition-colors duration-200"
               >
-                <div className="w-10 h-10 rounded-lg bg-[#f0fdfa] flex items-center justify-center mb-5 text-[#0d9488]">
+                <div className="w-11 h-11 rounded-2xl bg-[#f0fdfa] flex items-center justify-center mb-6 text-[#0d9488]">
                   {icon}
                 </div>
-                <h3 className="text-[#0f172a] font-semibold text-base mb-2">{title}</h3>
+                <h3 className="text-[#0f172a] font-black text-base mb-2 uppercase tracking-wide">{title}</h3>
                 <p className="text-[#64748b] text-sm leading-relaxed">{desc}</p>
               </div>
             ))}
@@ -280,9 +277,33 @@ export default async function LandingPage() {
       {/* ── PRICING ────────────────────────────────────────────── */}
       <PricingSection plans={pricingPlans} />
 
+      {/* ── DARK CTA BLOCK ─────────────────────────────────────── */}
+      <section className="py-16 px-6 bg-white">
+        <div className="max-w-[1100px] mx-auto">
+          <div className="bg-[#0f172a] rounded-3xl px-12 py-16 text-center">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#0d9488] mb-5">
+              Empieza hoy
+            </p>
+            <h2 className="text-[48px] font-black leading-[1.05] tracking-tight text-white mb-6">
+              Tu primer agente,<br />
+              <em className="italic font-black text-[#0d9488]">gratis.</em>
+            </h2>
+            <p className="text-white/50 text-base mb-10 max-w-sm mx-auto">
+              Sin tarjeta de crédito. En marcha en menos de 10 minutos.
+            </p>
+            <Link
+              href="/dashboard/agentes"
+              className="inline-block bg-white hover:bg-[#f8fafc] text-[#0f172a] font-bold text-[13px] px-10 py-4 rounded-full uppercase tracking-wider transition-colors"
+            >
+              Crear mi agente →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ── FOOTER ─────────────────────────────────────────────── */}
-      <footer className="border-t border-[#e2e8f0] py-16 px-6 bg-white">
-        <div className="max-w-[1200px] mx-auto">
+      <footer className="border-t border-[#f1f5f9] py-16 px-6 bg-white">
+        <div className="max-w-[1100px] mx-auto">
           <div className="flex flex-col md:flex-row justify-between gap-12 mb-12">
 
             {/* Brand */}
@@ -296,7 +317,7 @@ export default async function LandingPage() {
                   className="h-9 w-auto"
                 />
               </Link>
-              <p className="text-[#64748b] text-sm leading-relaxed">
+              <p className="text-[#94a3b8] text-sm leading-relaxed">
                 Agentes de IA para WhatsApp Business.<br />
                 Vende más sin contratar más.
               </p>
@@ -305,38 +326,38 @@ export default async function LandingPage() {
             {/* Links */}
             <div className="flex gap-16 sm:gap-24">
               <div className="flex flex-col gap-3">
-                <p className="text-[#0f172a] text-xs font-semibold uppercase tracking-widest mb-1">
+                <p className="text-[#0f172a] text-[10px] font-bold uppercase tracking-widest mb-2">
                   Producto
                 </p>
-                <a href="#como-funciona" className="text-[#64748b] hover:text-[#0f172a] text-sm transition-colors">
+                <a href="#como-funciona" className="text-[#94a3b8] hover:text-[#0f172a] text-sm transition-colors">
                   Cómo funciona
                 </a>
-                <a href="#funciones" className="text-[#64748b] hover:text-[#0f172a] text-sm transition-colors">
+                <a href="#funciones" className="text-[#94a3b8] hover:text-[#0f172a] text-sm transition-colors">
                   Funciones
                 </a>
-                <a href="#precios" className="text-[#64748b] hover:text-[#0f172a] text-sm transition-colors">
+                <a href="#precios" className="text-[#94a3b8] hover:text-[#0f172a] text-sm transition-colors">
                   Precios
                 </a>
-                <Link href="/dashboard/agentes" className="text-[#64748b] hover:text-[#0f172a] text-sm transition-colors">
+                <Link href="/dashboard/agentes" className="text-[#94a3b8] hover:text-[#0f172a] text-sm transition-colors">
                   Acceder
                 </Link>
               </div>
               <div className="flex flex-col gap-3">
-                <p className="text-[#0f172a] text-xs font-semibold uppercase tracking-widest mb-1">
+                <p className="text-[#0f172a] text-[10px] font-bold uppercase tracking-widest mb-2">
                   Legal
                 </p>
-                <Link href="/privacy" className="text-[#64748b] hover:text-[#0f172a] text-sm transition-colors">
+                <Link href="/privacy" className="text-[#94a3b8] hover:text-[#0f172a] text-sm transition-colors">
                   Privacidad
                 </Link>
-                <Link href="/terms" className="text-[#64748b] hover:text-[#0f172a] text-sm transition-colors">
+                <Link href="/terms" className="text-[#94a3b8] hover:text-[#0f172a] text-sm transition-colors">
                   Términos de uso
                 </Link>
               </div>
             </div>
           </div>
 
-          <div className="border-t border-[#e2e8f0] pt-8">
-            <p className="text-[#94a3b8] text-sm">
+          <div className="border-t border-[#f1f5f9] pt-8">
+            <p className="text-[#cbd5e1] text-xs uppercase tracking-widest font-semibold">
               © 2026 Revly. Todos los derechos reservados.
             </p>
           </div>
