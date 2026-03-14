@@ -6,20 +6,20 @@ export interface PlanLimitResult {
   used: number
   limit: number
   remaining: number
-  graceEndsAt?: string // ISO timestamp — present when in the 5-hour grace period
+  unblocksAt?: string // ISO timestamp — present while blocked, shows when they can use it again
 }
 
-const GRACE_PERIOD_MS = 5 * 60 * 60 * 1000 // 5 hours in milliseconds
+const BLOCK_DURATION_MS = 5 * 60 * 60 * 1000 // 5 hours
 
 /**
- * Given a WhatsApp number, checks whether the associated agent/user
- * can handle another conversation.
+ * Given a WhatsApp number, checks whether the agent can handle another conversation.
  *
  * Rules:
- * - If conversations_used < conversations_limit → allowed immediately.
- * - If limit is reached for the first time → record limit_reached_at,
- *   allow for 5 hours from that moment (grace period).
- * - If limit_reached_at is set and 5 hours have passed → block.
+ * - Under the limit → allowed.
+ * - Limit reached → block for 5 hours (saves tokens on our side).
+ *   After 5 hours the counter resets to 0 and they can use it again,
+ *   same day or the next — independent of the monthly billing reset.
+ * - Monthly billing reset (plan_reset_date) is separate and unrelated to this.
  */
 export async function checkPlanLimit(whatsappNumber: string): Promise<PlanLimitResult> {
   const db = getServiceSupabase()
@@ -45,7 +45,9 @@ export async function checkPlanLimit(whatsappNumber: string): Promise<PlanLimitR
     return { allowed: false, plan: 'unknown', used: 0, limit: 0, remaining: 0 }
   }
 
-  // Auto-reset monthly counter if past reset date
+  const now = Date.now()
+
+  // ── Monthly billing reset (independent of the 5-hour block) ──────────────
   const today = new Date().toISOString().slice(0, 10)
   if (user.plan_reset_date && user.plan_reset_date < today) {
     const nextReset = new Date()
@@ -65,40 +67,52 @@ export async function checkPlanLimit(whatsappNumber: string): Promise<PlanLimitR
     user.limit_reached_at = null
   }
 
+  // ── 5-hour cooldown reset ─────────────────────────────────────────────────
+  // If the user was blocked and 5 hours have now passed → reset counter, unblock
+  if (user.limit_reached_at) {
+    const blockedAt = new Date(user.limit_reached_at).getTime()
+    const elapsed = now - blockedAt
+
+    if (elapsed >= BLOCK_DURATION_MS) {
+      // 5 hours are up — reset counter and clear the block
+      await db
+        .from('users')
+        .update({ conversations_used: 0, limit_reached_at: null })
+        .eq('id', agent.user_id)
+
+      user.conversations_used = 0
+      user.limit_reached_at = null
+    } else {
+      // Still within the 5-hour block — deny
+      const unblocksAt = new Date(blockedAt + BLOCK_DURATION_MS).toISOString()
+      return {
+        allowed: false,
+        plan: user.plan ?? 'free',
+        used: user.conversations_used ?? 0,
+        limit: user.conversations_limit ?? 500,
+        remaining: 0,
+        unblocksAt,
+      }
+    }
+  }
+
   const used = user.conversations_used ?? 0
   const limit = user.conversations_limit ?? 500
   const remaining = Math.max(0, limit - used)
 
-  // Under the limit — allow normally
+  // ── Under the limit → allow ───────────────────────────────────────────────
   if (used < limit) {
     return { allowed: true, plan: user.plan ?? 'free', used, limit, remaining }
   }
 
-  // Limit reached — check grace period
-  const now = Date.now()
+  // ── Just hit the limit → start the 5-hour block ──────────────────────────
+  await db
+    .from('users')
+    .update({ limit_reached_at: new Date().toISOString() })
+    .eq('id', agent.user_id)
 
-  if (!user.limit_reached_at) {
-    // First time hitting the limit — start the 5-hour clock
-    await db
-      .from('users')
-      .update({ limit_reached_at: new Date().toISOString() })
-      .eq('id', agent.user_id)
-
-    const graceEndsAt = new Date(now + GRACE_PERIOD_MS).toISOString()
-    return { allowed: true, plan: user.plan ?? 'free', used, limit, remaining: 0, graceEndsAt }
-  }
-
-  const limitReachedAt = new Date(user.limit_reached_at).getTime()
-  const elapsed = now - limitReachedAt
-
-  if (elapsed < GRACE_PERIOD_MS) {
-    // Still within the 5-hour grace window
-    const graceEndsAt = new Date(limitReachedAt + GRACE_PERIOD_MS).toISOString()
-    return { allowed: true, plan: user.plan ?? 'free', used, limit, remaining: 0, graceEndsAt }
-  }
-
-  // Grace period expired — block
-  return { allowed: false, plan: user.plan ?? 'free', used, limit, remaining: 0 }
+  const unblocksAt = new Date(now + BLOCK_DURATION_MS).toISOString()
+  return { allowed: false, plan: user.plan ?? 'free', used, limit, remaining: 0, unblocksAt }
 }
 
 /**
