@@ -66,7 +66,7 @@ export default function HowItWorks() {
 
         {/* Header */}
         <div className="text-center mb-16">
-          <p className="text-[#2563eb] text-xs font-semibold uppercase tracking-widest mb-3">
+          <p className="text-[#0d9488] text-xs font-semibold uppercase tracking-widest mb-3">
             Cómo funciona
           </p>
           <h2 className="text-[38px] font-semibold tracking-tight text-[#0f172a] mb-4">
@@ -90,9 +90,9 @@ export default function HowItWorks() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-60px' }}
-                className="flex gap-4 p-5 rounded-xl border border-[#e2e8f0] bg-white hover:border-[#2563eb]/30 transition-colors"
+                className="flex gap-4 p-5 rounded-xl border border-[#e2e8f0] bg-white hover:border-[#0d9488]/30 transition-colors"
               >
-                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#eff6ff] flex items-center justify-center text-[#2563eb]">
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#f0fdfa] flex items-center justify-center text-[#0d9488]">
                   <Icon size={18} strokeWidth={1.8} />
                 </div>
                 <div>
@@ -124,7 +124,7 @@ export default function HowItWorks() {
               <div className="bg-white rounded-[34px] overflow-hidden" style={{ minHeight: 460 }}>
 
                 {/* WhatsApp-style header */}
-                <div className="bg-[#2563eb] px-4 pt-8 pb-3 flex items-center gap-3">
+                <div className="bg-[#0d9488] px-4 pt-8 pb-3 flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/30 flex-shrink-0">
                     <Image
                       src="/images/avatar.png.png"
@@ -152,7 +152,7 @@ export default function HowItWorks() {
                   </div>
 
                   {/* Agent */}
-                  <div className="self-end bg-[#2563eb] rounded-2xl rounded-tr-sm px-3 py-2 max-w-[85%]">
+                  <div className="self-end bg-[#0d9488] rounded-2xl rounded-tr-sm px-3 py-2 max-w-[85%]">
                     <p className="text-white text-xs leading-snug">
                       ¡Hola! Growth incluye 1.500 conversaciones y analítica completa por 34,99€/mes. ¿Empezamos?
                     </p>
@@ -168,7 +168,7 @@ export default function HowItWorks() {
                   </div>
 
                   {/* Agent — payment confirmation */}
-                  <div className="self-end bg-[#2563eb] rounded-2xl rounded-tr-sm px-3 py-2 max-w-[85%]">
+                  <div className="self-end bg-[#0d9488] rounded-2xl rounded-tr-sm px-3 py-2 max-w-[85%]">
                     <p className="text-white text-xs leading-snug">
                       ✓ Pago procesado. Ya tienes acceso al dashboard.
                     </p>
@@ -177,7 +177,7 @@ export default function HowItWorks() {
 
                   {/* System badge */}
                   <div className="self-center bg-white border border-[#e2e8f0] rounded-full px-3 py-1 mt-1">
-                    <p className="text-[#2563eb] text-[10px] font-semibold">Venta cerrada · € 34,99</p>
+                    <p className="text-[#0d9488] text-[10px] font-semibold">Venta cerrada · € 34,99</p>
                   </div>
 
                 </div>
@@ -191,7 +191,7 @@ export default function HowItWorks() {
         <div className="text-center mt-14">
           <a
             href="#precios"
-            className="inline-flex items-center gap-2 text-[#2563eb] text-sm font-medium hover:underline underline-offset-4"
+            className="inline-flex items-center gap-2 text-[#0d9488] text-sm font-medium hover:underline underline-offset-4"
           >
             Ver planes y precios
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

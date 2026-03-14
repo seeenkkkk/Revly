@@ -31,7 +31,7 @@ export default function PricingSection({ plans }: { plans: Plan[] }) {
 
         {/* Header */}
         <div className="text-center mb-14">
-          <p className="text-[#2563eb] text-xs font-semibold uppercase tracking-widest mb-3">Precios</p>
+          <p className="text-[#0d9488] text-xs font-semibold uppercase tracking-widest mb-3">Precios</p>
           <h2 className="text-[38px] font-semibold tracking-tight text-[#0f172a] mb-3">
             Sin permanencia
           </h2>
@@ -54,8 +54,8 @@ export default function PricingSection({ plans }: { plans: Plan[] }) {
               <div
                 className={`relative flex flex-col rounded-xl p-8 h-full transition-all duration-200 ${
                   highlighted
-                    ? 'bg-[#2563eb] text-white border border-[#2563eb]'
-                    : 'bg-white border border-[#e2e8f0] hover:border-[#2563eb]/30'
+                    ? 'bg-[#0d9488] text-white border border-[#0d9488]'
+                    : 'bg-white border border-[#e2e8f0] hover:border-[#0d9488]/30'
                 }`}
               >
                 {/* Badge */}
@@ -92,7 +92,7 @@ export default function PricingSection({ plans }: { plans: Plan[] }) {
                     <li key={f} className="flex items-start gap-2.5 text-sm">
                       <Check
                         size={16}
-                        className={`mt-0.5 flex-shrink-0 ${highlighted ? 'text-blue-200' : 'text-[#2563eb]'}`}
+                        className={`mt-0.5 flex-shrink-0 ${highlighted ? 'text-blue-200' : 'text-[#0d9488]'}`}
                         strokeWidth={2.5}
                       />
                       <span className={highlighted ? 'text-blue-50' : 'text-[#64748b]'}>{f}</span>
@@ -105,8 +105,8 @@ export default function PricingSection({ plans }: { plans: Plan[] }) {
                   href="/dashboard/agentes"
                   className={`w-full text-center py-3 rounded-lg font-medium text-sm transition-colors duration-200 ${
                     highlighted
-                      ? 'bg-white text-[#2563eb] hover:bg-blue-50'
-                      : 'bg-[#2563eb] hover:bg-[#1d4ed8] text-white'
+                      ? 'bg-white text-[#0d9488] hover:bg-blue-50'
+                      : 'bg-[#0d9488] hover:bg-[#0f766e] text-white'
                   }`}
                 >
                   {cta}

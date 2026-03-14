@@ -48,7 +48,7 @@ export default function LandingNav({ userEmail }: { userEmail?: string | null })
               <span className="text-[#64748b] text-sm">{userEmail}</span>
               <Link
                 href="/dashboard/agentes"
-                className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors"
+                className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors"
               >
                 Dashboard →
               </Link>
@@ -63,7 +63,7 @@ export default function LandingNav({ userEmail }: { userEmail?: string | null })
               </Link>
               <Link
                 href="/dashboard/agentes"
-                className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors"
+                className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors"
               >
                 Empieza gratis
               </Link>
@@ -89,7 +89,7 @@ export default function LandingNav({ userEmail }: { userEmail?: string | null })
           <a href="#precios" onClick={() => setMobileOpen(false)} className="text-[#64748b] text-sm py-1">Precios</a>
           <Link
             href="/dashboard/agentes"
-            className="bg-[#2563eb] text-white font-medium text-sm px-4 py-2.5 rounded-lg text-center"
+            className="bg-[#0d9488] text-white font-medium text-sm px-4 py-2.5 rounded-lg text-center"
           >
             Empieza gratis
           </Link>

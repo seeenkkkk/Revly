@@ -59,9 +59,9 @@ export default async function LandingPage() {
           <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
 
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-[#eff6ff] border border-[#bfdbfe] rounded-full px-4 py-1.5 mb-8">
-              <span className="w-1.5 h-1.5 bg-[#2563eb] rounded-full flex-shrink-0" />
-              <span className="text-[#2563eb] text-xs font-semibold">
+            <div className="inline-flex items-center gap-2 bg-[#f0fdfa] border border-[#99f6e4] rounded-full px-4 py-1.5 mb-8">
+              <span className="w-1.5 h-1.5 bg-[#0d9488] rounded-full flex-shrink-0" />
+              <span className="text-[#0d9488] text-xs font-semibold">
                 Para negocios con WhatsApp Business
               </span>
             </div>
@@ -69,7 +69,7 @@ export default async function LandingPage() {
             {/* H1 */}
             <h1 className="text-[56px] sm:text-[64px] font-bold leading-[1.08] tracking-tight text-[#0f172a] mb-6">
               Tu agente de ventas{' '}
-              <span className="text-[#2563eb]">en WhatsApp, 24/7</span>
+              <span className="text-[#0d9488]">en WhatsApp, 24/7</span>
             </h1>
 
             <p className="text-[#64748b] text-lg leading-relaxed max-w-xl mb-10">
@@ -81,7 +81,7 @@ export default async function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/dashboard/agentes"
-                className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium px-6 py-3 rounded-lg text-sm transition-colors"
+                className="bg-[#0d9488] hover:bg-[#0f766e] text-white font-medium px-6 py-3 rounded-lg text-sm transition-colors"
               >
                 Empieza gratis →
               </Link>
@@ -117,16 +117,16 @@ export default async function LandingPage() {
               <div className="bg-white flex" style={{ minHeight: 320 }}>
                 {/* Sidebar */}
                 <div className="bg-[#f8fafc] border-r border-[#e2e8f0] flex flex-col gap-1 p-3 flex-shrink-0" style={{ width: 176 }}>
-                  <div className="h-7 w-16 bg-[#dbeafe] rounded-md mb-4" />
+                  <div className="h-7 w-16 bg-[#ccfbf1] rounded-md mb-4" />
                   {['Mis Agentes', 'Analítica', 'Configuración', 'Soporte'].map((item, i) => (
                     <div
                       key={item}
                       className={`h-8 rounded-lg flex items-center px-3 gap-2 ${
-                        i === 0 ? 'bg-[#eff6ff] text-[#2563eb]' : 'text-[#94a3b8]'
+                        i === 0 ? 'bg-[#f0fdfa] text-[#0d9488]' : 'text-[#94a3b8]'
                       }`}
                     >
-                      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${i === 0 ? 'bg-[#2563eb]' : 'bg-[#e2e8f0]'}`} />
-                      <div className={`h-2 rounded flex-1 ${i === 0 ? 'bg-[#bfdbfe]' : 'bg-[#e2e8f0]'}`} />
+                      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${i === 0 ? 'bg-[#0d9488]' : 'bg-[#e2e8f0]'}`} />
+                      <div className={`h-2 rounded flex-1 ${i === 0 ? 'bg-[#99f6e4]' : 'bg-[#e2e8f0]'}`} />
                     </div>
                   ))}
                 </div>
@@ -155,7 +155,7 @@ export default async function LandingPage() {
                           className="flex-1 rounded-t-sm"
                           style={{
                             height: `${h}%`,
-                            backgroundColor: i === 6 ? '#2563eb' : '#dbeafe',
+                            backgroundColor: i === 6 ? '#0d9488' : '#ccfbf1',
                           }}
                         />
                       ))}
@@ -193,7 +193,7 @@ export default async function LandingPage() {
         <div className="max-w-[1200px] mx-auto">
 
           <div className="text-center mb-14">
-            <p className="text-[#2563eb] text-xs font-semibold uppercase tracking-widest mb-3">
+            <p className="text-[#0d9488] text-xs font-semibold uppercase tracking-widest mb-3">
               Funciones
             </p>
             <h2 className="text-[38px] font-semibold tracking-tight text-[#0f172a] mb-4">
@@ -264,9 +264,9 @@ export default async function LandingPage() {
             ].map(({ icon, title, desc }) => (
               <div
                 key={title}
-                className="bg-white border border-[#e2e8f0] rounded-xl p-8 hover:border-[#2563eb]/30 transition-colors duration-200"
+                className="bg-white border border-[#e2e8f0] rounded-xl p-8 hover:border-[#0d9488]/30 transition-colors duration-200"
               >
-                <div className="w-10 h-10 rounded-lg bg-[#eff6ff] flex items-center justify-center mb-5 text-[#2563eb]">
+                <div className="w-10 h-10 rounded-lg bg-[#f0fdfa] flex items-center justify-center mb-5 text-[#0d9488]">
                   {icon}
                 </div>
                 <h3 className="text-[#0f172a] font-semibold text-base mb-2">{title}</h3>

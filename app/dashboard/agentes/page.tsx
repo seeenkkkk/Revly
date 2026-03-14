@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createBrowserSupabase } from '@/lib/supabase-browser'
 import type { Agent, UserProfile } from '@/lib/supabase'
+import { CheckCircle, AlertCircle, Zap, RefreshCw, Loader2, Sparkles, BarChart2 } from 'lucide-react'
 
 type DeployStatus = 'idle' | 'saving' | 'deploying' | 'active' | 'error'
 
@@ -20,48 +21,34 @@ const CHECKOUT_PLANS = [
   { key: 'partner',   label: 'Enterprise AI',   price: '79,99 €/mes' },
 ]
 
-// ── Status indicator ────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: DeployStatus; error: string | null }) {
-  if (status === 'active') {
-    return (
-      <div className="flex items-center gap-2">
-        <span className="relative flex h-3 w-3">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22c55e] opacity-75" />
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-[#22c55e]" />
-        </span>
-        <span className="text-[#22c55e] text-sm font-semibold">Agente Activo</span>
-      </div>
-    )
-  }
-  if (status === 'deploying' || status === 'saving') {
-    return (
-      <div className="flex items-center gap-2">
-        <span className="relative flex h-3 w-3">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-400" />
-        </span>
-        <span className="text-amber-400 text-sm font-semibold">
-          {status === 'saving' ? 'Guardando...' : 'Desplegando...'}
-        </span>
-      </div>
-    )
-  }
-  if (status === 'error') {
-    return (
-      <div className="flex items-center gap-2">
-        <span className="relative flex h-3 w-3">
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
-        </span>
-        <span className="text-red-400 text-sm font-semibold">Error</span>
-      </div>
-    )
-  }
+function StatusBadge({ status }: { status: DeployStatus }) {
+  if (status === 'active') return (
+    <div className="flex items-center gap-2">
+      <span className="relative flex h-2.5 w-2.5">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0d9488] opacity-60" />
+        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0d9488]" />
+      </span>
+      <span className="text-[#0d9488] text-sm font-medium">Agente activo</span>
+    </div>
+  )
+  if (status === 'deploying' || status === 'saving') return (
+    <div className="flex items-center gap-2">
+      <Loader2 size={14} className="animate-spin text-amber-500" />
+      <span className="text-amber-600 text-sm font-medium">
+        {status === 'saving' ? 'Guardando...' : 'Redirigiendo a pago...'}
+      </span>
+    </div>
+  )
+  if (status === 'error') return (
+    <div className="flex items-center gap-2">
+      <span className="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0" />
+      <span className="text-red-500 text-sm font-medium">Error</span>
+    </div>
+  )
   return (
     <div className="flex items-center gap-2">
-      <span className="relative flex h-3 w-3">
-        <span className="relative inline-flex rounded-full h-3 w-3 bg-white/20" />
-      </span>
-      <span className="text-white/30 text-sm font-semibold">Sin desplegar</span>
+      <span className="w-2.5 h-2.5 rounded-full bg-[#e2e8f0] flex-shrink-0" />
+      <span className="text-[#94a3b8] text-sm font-medium">Sin desplegar</span>
     </div>
   )
 }
@@ -76,15 +63,10 @@ function AgentesContent() {
   const [deployStatus, setDeployStatus] = useState<DeployStatus>('idle')
   const [deployError, setDeployError] = useState<string | null>(null)
 
-  // Form fields
   const [agentName, setAgentName] = useState('')
   const [whatsappNumber, setWhatsappNumber] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
-
-  // Plan selector
   const [selectedPlan, setSelectedPlan] = useState<string>('essential')
-
-  // AI generation
   const [businessDesc, setBusinessDesc] = useState('')
   const [generatingPrompt, setGeneratingPrompt] = useState(false)
 
@@ -94,13 +76,11 @@ function AgentesContent() {
         const supabase = createBrowserSupabase()
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
-
         const [agentResult, profileResult] = await Promise.all([
           supabase.from('agents').select('*').eq('user_id', user.id)
             .order('created_at', { ascending: false }).limit(1).single<Agent>(),
           supabase.from('users').select('*').eq('id', user.id).single<UserProfile>(),
         ])
-
         if (agentResult.data) {
           setAgentName(agentResult.data.name ?? '')
           setWhatsappNumber(agentResult.data.whatsapp_number ?? '')
@@ -108,16 +88,12 @@ function AgentesContent() {
           if (agentResult.data.status === 'active') setDeployStatus('active')
         }
         if (profileResult.data) setUserProfile(profileResult.data)
-      } catch {
-        // dev mode
-      } finally {
-        setLoading(false)
-      }
+      } catch { /* dev mode */ }
+      finally { setLoading(false) }
     }
     fetchData()
   }, [])
 
-  // ── Generate prompt with AI ─────────────────────────────────────────────
   const handleGeneratePrompt = async () => {
     if (!businessDesc.trim()) return
     setGeneratingPrompt(true)
@@ -129,23 +105,17 @@ function AgentesContent() {
       })
       const data = await res.json()
       if (data.prompt) setSystemPrompt(data.prompt)
-    } catch {
-      // silently ignore
-    } finally {
-      setGeneratingPrompt(false)
-    }
+    } catch { /* silently ignore */ }
+    finally { setGeneratingPrompt(false) }
   }
 
-  // ── Deploy: save agent data then redirect to Stripe Checkout ───────────
   const handleDeploy = async () => {
     if (!agentName.trim() || !whatsappNumber.trim() || !systemPrompt.trim()) {
-      setDeployError('Completa nombre, número de WhatsApp y prompt antes de desplegar.')
+      setDeployError('Completa nombre, número de WhatsApp y prompt antes de continuar.')
       return
     }
-
     setDeployStatus('deploying')
     setDeployError(null)
-
     try {
       const res = await fetch('/api/create-checkout-session', {
         method: 'POST',
@@ -157,11 +127,8 @@ function AgentesContent() {
           plan:          selectedPlan,
         }),
       })
-
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Error al crear la sesión de pago')
-
-      // Redirect to Stripe Checkout
       window.location.href = data.url
     } catch (err) {
       setDeployStatus('error')
@@ -173,45 +140,41 @@ function AgentesContent() {
     ? Math.min(Math.round((userProfile.conversations_used / userProfile.conversations_limit) * 100), 100)
     : 0
 
-  // ── Loading skeleton ──────────────────────────────────────────────────
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0D1B2A] p-10">
-        <div className="max-w-5xl mx-auto space-y-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-20 bg-white/[0.05] rounded-2xl animate-pulse" />
-          ))}
-        </div>
-      </div>
-    )
-  }
-
   const isDeploying = deployStatus === 'saving' || deployStatus === 'deploying'
 
+  if (loading) return (
+    <div className="min-h-screen bg-[#f8fafc] p-10">
+      <div className="max-w-5xl mx-auto space-y-4">
+        {[1,2,3].map(i => (
+          <div key={i} className="h-20 bg-[#e2e8f0] rounded-xl animate-pulse" />
+        ))}
+      </div>
+    </div>
+  )
+
   return (
-    <div className="min-h-screen bg-[#0D1B2A]">
+    <div className="min-h-screen bg-[#f8fafc]">
 
       {/* ── HEADER ── */}
-      <div className="border-b border-white/[0.07] px-10 pt-10 pb-6">
+      <div className="bg-white border-b border-[#e2e8f0] px-10 pt-8 pb-6">
         <div className="max-w-5xl mx-auto flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="text-[#22c55e] text-xs font-semibold uppercase tracking-widest mb-1">
-              Panel de Control
+            <p className="text-[#0d9488] text-xs font-semibold uppercase tracking-widest mb-1">
+              Mis Agentes
             </p>
-            <h1 className="text-2xl font-bold text-white">
-              {agentName || 'Nuevo Agente'}
+            <h1 className="text-2xl font-semibold text-[#0f172a]">
+              {agentName || 'Nuevo agente'}
             </h1>
-            <p className="text-white/35 text-sm mt-0.5">
-              Configura y despliega el cerebro de IA de tu agente de WhatsApp.
+            <p className="text-[#64748b] text-sm mt-0.5">
+              Configura y despliega tu agente de WhatsApp.
             </p>
           </div>
-
           <div className="flex items-center gap-4">
-            <StatusBadge status={deployStatus} error={deployError} />
-            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+            <StatusBadge status={deployStatus} />
+            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${
               userProfile?.plan === 'partner'
-                ? 'bg-[#22c55e]/15 text-[#22c55e]'
-                : 'bg-white/[0.08] text-white/50'
+                ? 'bg-[#f0fdfa] text-[#0d9488] border-[#99f6e4]'
+                : 'bg-[#f8fafc] text-[#64748b] border-[#e2e8f0]'
             }`}>
               {PLAN_LABELS[userProfile?.plan ?? 'free']}
             </span>
@@ -219,59 +182,55 @@ function AgentesContent() {
         </div>
       </div>
 
-      {/* ── CHECKOUT BANNERS ── */}
+      {/* ── BANNERS ── */}
       {checkoutSuccess && (
         <div className="max-w-5xl mx-auto px-10 pt-6">
-          <div className="bg-[#22c55e]/10 border border-[#22c55e]/25 rounded-xl px-5 py-4 flex items-center gap-3">
-            <svg className="w-5 h-5 text-[#22c55e] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-[#22c55e] text-sm font-semibold">
-              ¡Pago completado! Tu agente está siendo desplegado. Recibirás una confirmación en breve.
+          <div className="bg-[#f0fdfa] border border-[#99f6e4] rounded-xl px-5 py-4 flex items-center gap-3">
+            <CheckCircle size={18} className="text-[#0d9488] flex-shrink-0" />
+            <p className="text-[#0f766e] text-sm font-medium">
+              ¡Pago completado! Tu agente está siendo desplegado. Recibirás confirmación por email.
             </p>
           </div>
         </div>
       )}
       {checkoutCanceled && (
         <div className="max-w-5xl mx-auto px-10 pt-6">
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-5 py-4 flex items-center gap-3">
-            <svg className="w-5 h-5 text-amber-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-amber-400 text-sm font-semibold">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 flex items-center gap-3">
+            <AlertCircle size={18} className="text-amber-500 flex-shrink-0" />
+            <p className="text-amber-700 text-sm font-medium">
               Pago cancelado. Puedes intentarlo de nuevo cuando quieras.
             </p>
           </div>
         </div>
       )}
 
-      {/* ── MAIN GRID ── */}
+      {/* ── GRID ── */}
       <div className="max-w-5xl mx-auto px-10 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* ── LEFT: Config form ── */}
+        {/* ── LEFT: Configuración ── */}
         <div className="lg:col-span-2 space-y-5">
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-5">
-              Cerebro del Agente
+          <div className="bg-white border border-[#e2e8f0] rounded-xl p-6">
+            <h2 className="text-sm font-semibold text-[#0f172a] mb-5">
+              Configuración del agente
             </h2>
 
-            {/* Agent name */}
+            {/* Nombre */}
             <div className="mb-5">
-              <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">
-                Nombre del Agente
+              <label className="block text-xs font-medium text-[#64748b] mb-1.5">
+                Nombre del agente
               </label>
               <input
                 type="text"
                 value={agentName}
                 onChange={(e) => setAgentName(e.target.value)}
                 placeholder="Ej: Asistente de Ventas"
-                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#22c55e]/50 focus:ring-1 focus:ring-[#22c55e]/20 transition-all"
+                className="w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-2.5 text-sm text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
               />
             </div>
 
             {/* WhatsApp */}
             <div className="mb-5">
-              <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-medium text-[#64748b] mb-1.5">
                 Número WhatsApp Business
               </label>
               <input
@@ -279,18 +238,18 @@ function AgentesContent() {
                 value={whatsappNumber}
                 onChange={(e) => setWhatsappNumber(e.target.value)}
                 placeholder="+34 600 000 000"
-                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#22c55e]/50 focus:ring-1 focus:ring-[#22c55e]/20 transition-all font-mono"
+                className="w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-2.5 text-sm text-[#0f172a] placeholder-[#94a3b8] font-mono focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
               />
-              <p className="text-white/25 text-xs mt-1.5">Incluye el prefijo internacional (+34 para España)</p>
+              <p className="text-[#94a3b8] text-xs mt-1.5">Incluye el prefijo internacional (+34 para España)</p>
             </div>
 
-            {/* System prompt */}
+            {/* Prompt */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider">
-                  Prompt del Sistema
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-medium text-[#64748b]">
+                  Prompt del sistema
                 </label>
-                <span className="text-[#22c55e] text-xs font-semibold">
+                <span className="text-[#94a3b8] text-xs tabular-nums">
                   {systemPrompt.length} caracteres
                 </span>
               </div>
@@ -299,10 +258,10 @@ function AgentesContent() {
                 onChange={(e) => setSystemPrompt(e.target.value)}
                 rows={7}
                 placeholder="Eres un asistente de ventas profesional de..."
-                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#22c55e]/50 focus:ring-1 focus:ring-[#22c55e]/20 transition-all resize-none leading-relaxed"
+                className="w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-3 text-sm text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/10 transition-all resize-none leading-relaxed"
               />
 
-              {/* AI generator row */}
+              {/* Generador con IA */}
               <div className="mt-3 flex gap-2">
                 <input
                   type="text"
@@ -310,128 +269,99 @@ function AgentesContent() {
                   onChange={(e) => setBusinessDesc(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleGeneratePrompt()}
                   placeholder='Ej: "Soy una inmobiliaria en Madrid"'
-                  className="flex-1 bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#22c55e]/40 transition-all"
+                  className="flex-1 bg-white border border-[#e2e8f0] rounded-lg px-4 py-2.5 text-sm text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
                 />
                 <button
                   onClick={handleGeneratePrompt}
                   disabled={generatingPrompt || !businessDesc.trim()}
-                  className="flex items-center gap-2 bg-[#22c55e]/10 hover:bg-[#22c55e]/20 border border-[#22c55e]/30 text-[#22c55e] text-xs font-semibold px-4 py-2.5 rounded-xl transition-all disabled:opacity-40 whitespace-nowrap"
+                  className="flex items-center gap-2 bg-[#f0fdfa] hover:bg-[#ccfbf1] border border-[#99f6e4] text-[#0d9488] text-xs font-medium px-4 py-2.5 rounded-lg transition-all disabled:opacity-40 whitespace-nowrap"
                 >
-                  {generatingPrompt ? (
-                    <>
-                      <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                      </svg>
-                      Analizando...
-                    </>
-                  ) : (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
-                      </svg>
-                      Generar con IA
-                    </>
-                  )}
+                  {generatingPrompt
+                    ? <><Loader2 size={13} className="animate-spin" />Generando...</>
+                    : <><Sparkles size={13} />Generar con IA</>
+                  }
                 </button>
               </div>
-              <p className="text-white/20 text-xs mt-1.5">
+              <p className="text-[#94a3b8] text-xs mt-1.5">
                 Describe tu negocio y la IA escribirá el prompt por ti.
               </p>
             </div>
           </div>
 
-          {/* Error message */}
-          {deployError && deployStatus === 'error' && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-sm text-red-400">
-              {deployError}
-            </div>
-          )}
-          {deployError && deployStatus !== 'error' && (
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3 text-sm text-amber-400">
+          {/* Error */}
+          {deployError && (
+            <div className={`border rounded-xl px-4 py-3 flex items-start gap-3 text-sm ${
+              deployStatus === 'error'
+                ? 'bg-red-50 border-red-200 text-red-700'
+                : 'bg-amber-50 border-amber-200 text-amber-700'
+            }`}>
+              <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
               {deployError}
             </div>
           )}
         </div>
 
-        {/* ── RIGHT: Deploy panel ── */}
+        {/* ── RIGHT: Deploy ── */}
         <div className="space-y-4">
 
-          {/* Deploy card */}
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-6">
-              Estado en Tiempo Real
-            </h2>
+          {/* Estado + deploy */}
+          <div className="bg-white border border-[#e2e8f0] rounded-xl p-6">
+            <h2 className="text-sm font-semibold text-[#0f172a] mb-5">Estado del agente</h2>
 
-            {/* Big status display */}
-            <div className={`rounded-xl p-5 mb-5 flex flex-col items-center text-center transition-all duration-500 ${
+            {/* Estado visual */}
+            <div className={`rounded-lg p-4 mb-5 flex flex-col items-center text-center transition-all ${
               deployStatus === 'active'
-                ? 'bg-[#22c55e]/10 border border-[#22c55e]/25'
+                ? 'bg-[#f0fdfa] border border-[#99f6e4]'
                 : deployStatus === 'error'
-                ? 'bg-red-500/10 border border-red-500/20'
-                : 'bg-white/[0.03] border border-white/[0.06]'
+                ? 'bg-red-50 border border-red-200'
+                : 'bg-[#f8fafc] border border-[#e2e8f0]'
             }`}>
               {deployStatus === 'active' ? (
                 <>
                   <span className="relative flex h-5 w-5 mb-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22c55e] opacity-60" />
-                    <span className="relative inline-flex rounded-full h-5 w-5 bg-[#22c55e]" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0d9488] opacity-50" />
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-[#0d9488]" />
                   </span>
-                  <p className="text-[#22c55e] font-bold text-base">Agente Activo</p>
-                  <p className="text-[#22c55e]/60 text-xs mt-1">Escuchando en WhatsApp</p>
+                  <p className="text-[#0d9488] font-semibold text-sm">Agente activo</p>
+                  <p className="text-[#0d9488]/60 text-xs mt-1">Escuchando en WhatsApp</p>
                 </>
               ) : deployStatus === 'deploying' ? (
                 <>
-                  <svg className="animate-spin w-6 h-6 text-amber-400 mb-3" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                  </svg>
-                  <p className="text-amber-400 font-bold text-sm">Redirigiendo a Stripe...</p>
-                  <p className="text-amber-400/50 text-xs mt-1">Preparando sesión de pago</p>
-                </>
-              ) : deployStatus === 'saving' ? (
-                <>
-                  <svg className="animate-spin w-6 h-6 text-white/40 mb-3" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                  </svg>
-                  <p className="text-white/50 font-bold text-sm">Preparando pago...</p>
+                  <Loader2 size={20} className="animate-spin text-amber-500 mb-3" />
+                  <p className="text-amber-700 font-semibold text-sm">Redirigiendo a Stripe...</p>
+                  <p className="text-amber-500 text-xs mt-1">Preparando sesión de pago</p>
                 </>
               ) : deployStatus === 'error' ? (
                 <>
-                  <svg className="w-6 h-6 text-red-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                  <p className="text-red-400 font-bold text-sm">Error al desplegar</p>
-                  <p className="text-red-400/50 text-xs mt-1">Revisa los datos e inténtalo</p>
+                  <AlertCircle size={20} className="text-red-500 mb-3" />
+                  <p className="text-red-600 font-semibold text-sm">Error al desplegar</p>
+                  <p className="text-red-400 text-xs mt-1">Revisa los datos e inténtalo</p>
                 </>
               ) : (
                 <>
-                  <span className="w-5 h-5 rounded-full bg-white/10 mb-3 block" />
-                  <p className="text-white/30 font-semibold text-sm">Sin desplegar</p>
-                  <p className="text-white/20 text-xs mt-1">Completa los datos y despliega</p>
+                  <span className="w-5 h-5 rounded-full bg-[#e2e8f0] mb-3 block" />
+                  <p className="text-[#64748b] font-medium text-sm">Sin desplegar</p>
+                  <p className="text-[#94a3b8] text-xs mt-1">Completa los datos</p>
                 </>
               )}
             </div>
 
             {/* Plan selector */}
             <div className="mb-4">
-              <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">
-                Selecciona tu plan
-              </p>
+              <p className="text-xs font-medium text-[#64748b] mb-2">Plan</p>
               <div className="space-y-2">
                 {CHECKOUT_PLANS.map((p) => (
                   <button
                     key={p.key}
                     onClick={() => setSelectedPlan(p.key)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-left transition-all ${
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg border text-left transition-all text-sm ${
                       selectedPlan === p.key
-                        ? 'bg-[#22c55e]/10 border-[#22c55e]/40 text-white'
-                        : 'bg-white/[0.03] border-white/[0.08] text-white/50 hover:border-white/20 hover:text-white/70'
+                        ? 'bg-[#f0fdfa] border-[#0d9488] text-[#0f172a]'
+                        : 'bg-white border-[#e2e8f0] text-[#64748b] hover:border-[#0d9488]/40'
                     }`}
                   >
-                    <span className="text-xs font-semibold">{p.label}</span>
-                    <span className={`text-xs font-mono ${selectedPlan === p.key ? 'text-[#22c55e]' : 'text-white/30'}`}>
+                    <span className="font-medium">{p.label}</span>
+                    <span className={`text-xs font-mono ${selectedPlan === p.key ? 'text-[#0d9488]' : 'text-[#94a3b8]'}`}>
                       {p.price}
                     </span>
                   </button>
@@ -439,64 +369,49 @@ function AgentesContent() {
               </div>
             </div>
 
-            {/* Deploy button */}
+            {/* Botón deploy */}
             <button
               onClick={handleDeploy}
               disabled={isDeploying}
-              className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
+              className={`w-full py-3 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 ${
                 deployStatus === 'active'
-                  ? 'bg-white/[0.07] hover:bg-white/[0.10] text-white/60 border border-white/10'
-                  : 'bg-[#22c55e] hover:bg-[#16a34a] text-[#0D1B2A] shadow-lg shadow-[#22c55e]/20 hover:shadow-[#22c55e]/35 disabled:opacity-60'
+                  ? 'bg-[#f8fafc] hover:bg-[#f1f5f9] text-[#64748b] border border-[#e2e8f0]'
+                  : 'bg-[#0d9488] hover:bg-[#0f766e] text-white disabled:opacity-60'
               }`}
             >
               {isDeploying ? (
-                <>
-                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                  </svg>
-                  Redirigiendo a pago...
-                </>
+                <><Loader2 size={15} className="animate-spin" />Redirigiendo a pago...</>
               ) : deployStatus === 'active' ? (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  Redesplegar Agente
-                </>
+                <><RefreshCw size={15} />Redesplegar agente</>
               ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  Desplegar Agente
-                </>
+                <><Zap size={15} />Desplegar agente</>
               )}
             </button>
           </div>
 
-          {/* Plan usage card */}
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">
-                Uso del Plan
-              </h2>
-              <span className="text-white/50 text-xs font-mono">
-                {userProfile?.conversations_used ?? 0}/{userProfile?.conversations_limit ?? 100}
+          {/* Uso del plan */}
+          <div className="bg-white border border-[#e2e8f0] rounded-xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <BarChart2 size={14} className="text-[#0d9488]" />
+                <h2 className="text-sm font-semibold text-[#0f172a]">Uso del plan</h2>
+              </div>
+              <span className="text-[#94a3b8] text-xs tabular-nums">
+                {userProfile?.conversations_used ?? 0} / {userProfile?.conversations_limit ?? 100}
               </span>
             </div>
 
-            <div className="h-1.5 bg-white/[0.07] rounded-full overflow-hidden mb-3">
+            <div className="h-1.5 bg-[#f1f5f9] rounded-full overflow-hidden mb-3">
               <div
-                className={`h-full rounded-full transition-all duration-700 ${usedPct > 80 ? 'bg-red-400' : 'bg-[#22c55e]'}`}
+                className={`h-full rounded-full transition-all duration-700 ${usedPct > 80 ? 'bg-red-400' : 'bg-[#0d9488]'}`}
                 style={{ width: `${usedPct}%` }}
               />
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-white/30 text-xs">{usedPct}% usado</span>
+              <span className="text-[#94a3b8] text-xs">{usedPct}% usado</span>
               {userProfile?.plan !== 'partner' && (
-                <a href="/dashboard" className="text-[#22c55e] text-xs font-semibold hover:underline">
+                <a href="/dashboard" className="text-[#0d9488] text-xs font-medium hover:underline underline-offset-4">
                   Mejorar plan →
                 </a>
               )}
@@ -511,7 +426,7 @@ function AgentesContent() {
 
 export default function AgentesPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0D1B2A]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#f8fafc]" />}>
       <AgentesContent />
     </Suspense>
   )

@@ -111,18 +111,18 @@ export default function Sidebar() {
               className={`
                 flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
                 ${isActive
-                  ? 'bg-[#00C48C]/15 text-[#00C48C]'
+                  ? 'bg-[#0d9488]/15 text-[#0d9488]'
                   : 'text-[#6B7E93] hover:text-white hover:bg-white/[0.06]'
                 }
               `}
             >
-              <span className={`flex-shrink-0 transition-colors ${isActive ? 'text-[#00C48C]' : ''}`}>
+              <span className={`flex-shrink-0 transition-colors ${isActive ? 'text-[#0d9488]' : ''}`}>
                 {icons[icon]}
               </span>
               {label}
               {/* Indicador activo */}
               {isActive && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#00C48C]" />
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#0d9488]" />
               )}
             </Link>
           )
@@ -132,10 +132,10 @@ export default function Sidebar() {
       {/* ====== WIDGET ESTADO SERVIDOR ====== */}
       <div className="px-4 pb-3">
         <div className="bg-white/[0.05] rounded-xl px-3 py-2.5 flex items-center gap-2.5">
-          <span className="w-2 h-2 rounded-full bg-[#00C48C] animate-pulse flex-shrink-0" />
+          <span className="w-2 h-2 rounded-full bg-[#0d9488] animate-pulse flex-shrink-0" />
           <div>
             <p className="text-[#6B7E93] text-xs">Estado del Servidor</p>
-            <p className="text-[#00C48C] text-xs font-semibold">Online</p>
+            <p className="text-[#0d9488] text-xs font-semibold">Online</p>
           </div>
         </div>
       </div>
@@ -144,8 +144,8 @@ export default function Sidebar() {
       <div className="px-3 pb-5 pt-2 border-t border-white/[0.08]">
         <div className="flex items-center gap-3 px-3 py-3">
           {/* Avatar con inicial */}
-          <div className="w-8 h-8 rounded-full bg-[#00C48C]/20 border border-[#00C48C]/30 flex items-center justify-center flex-shrink-0">
-            <span className="text-[#00C48C] text-xs font-bold">{avatarLetter}</span>
+          <div className="w-8 h-8 rounded-full bg-[#0d9488]/20 border border-[#0d9488]/30 flex items-center justify-center flex-shrink-0">
+            <span className="text-[#0d9488] text-xs font-bold">{avatarLetter}</span>
           </div>
           {/* Email truncado */}
           <div className="flex-1 min-w-0">
