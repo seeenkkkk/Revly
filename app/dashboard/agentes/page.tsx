@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createBrowserSupabase } from '@/lib/supabase-browser'
 import type { Agent, UserProfile } from '@/lib/supabase'
+import Image from 'next/image'
 import { CheckCircle, AlertCircle, Zap, RefreshCw, Loader2, Sparkles, BarChart2 } from 'lucide-react'
 
 type DeployStatus = 'idle' | 'saving' | 'deploying' | 'active' | 'error'
@@ -158,16 +159,23 @@ function AgentesContent() {
       {/* ── HEADER ── */}
       <div className="bg-white border-b border-[#e2e8f0] px-10 pt-8 pb-6">
         <div className="max-w-5xl mx-auto flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <p className="text-[#0d9488] text-xs font-semibold uppercase tracking-widest mb-1">
-              Mis Agentes
-            </p>
-            <h1 className="text-2xl font-semibold text-[#0f172a]">
-              {agentName || 'Nuevo agente'}
-            </h1>
-            <p className="text-[#64748b] text-sm mt-0.5">
-              Configura y despliega tu agente de WhatsApp.
-            </p>
+          <div className="flex items-center gap-4">
+            <Image
+              src="/images/logo-completo.png.png"
+              alt="Revly"
+              width={100}
+              height={32}
+              className="h-8 w-auto"
+            />
+            <div className="w-px h-8 bg-[#e2e8f0]" />
+            <div>
+              <p className="text-[#0d9488] text-xs font-semibold uppercase tracking-widest mb-1">
+                Mis Agentes
+              </p>
+              <h1 className="text-xl font-semibold text-[#0f172a]">
+                {agentName || 'Nuevo agente'}
+              </h1>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <StatusBadge status={deployStatus} />
@@ -316,32 +324,49 @@ function AgentesContent() {
                 ? 'bg-red-50 border border-red-200'
                 : 'bg-[#f8fafc] border border-[#e2e8f0]'
             }`}>
+              {/* Avatar siempre visible */}
+              <div className="relative mb-3">
+                <div className="w-14 h-14 rounded-full overflow-hidden ring-2 ring-white shadow-sm">
+                  <Image
+                    src="/images/avatar.png.png"
+                    alt="Agente"
+                    width={56}
+                    height={56}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {/* Indicador de estado sobre el avatar */}
+                <span className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full ring-2 ring-white ${
+                  deployStatus === 'active' ? 'bg-[#0d9488]' :
+                  deployStatus === 'error'  ? 'bg-red-500' :
+                  deployStatus === 'deploying' ? 'bg-amber-400' :
+                  'bg-[#e2e8f0]'
+                }`}>
+                  {deployStatus === 'active' && (
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0d9488] opacity-60" />
+                  )}
+                </span>
+              </div>
+
               {deployStatus === 'active' ? (
                 <>
-                  <span className="relative flex h-5 w-5 mb-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0d9488] opacity-50" />
-                    <span className="relative inline-flex rounded-full h-5 w-5 bg-[#0d9488]" />
-                  </span>
                   <p className="text-[#0d9488] font-semibold text-sm">Agente activo</p>
-                  <p className="text-[#0d9488]/60 text-xs mt-1">Escuchando en WhatsApp</p>
+                  <p className="text-[#0d9488]/60 text-xs mt-0.5">Escuchando en WhatsApp</p>
                 </>
               ) : deployStatus === 'deploying' ? (
                 <>
-                  <Loader2 size={20} className="animate-spin text-amber-500 mb-3" />
+                  <Loader2 size={14} className="animate-spin text-amber-500 mb-1" />
                   <p className="text-amber-700 font-semibold text-sm">Redirigiendo a Stripe...</p>
-                  <p className="text-amber-500 text-xs mt-1">Preparando sesión de pago</p>
                 </>
               ) : deployStatus === 'error' ? (
                 <>
-                  <AlertCircle size={20} className="text-red-500 mb-3" />
                   <p className="text-red-600 font-semibold text-sm">Error al desplegar</p>
-                  <p className="text-red-400 text-xs mt-1">Revisa los datos e inténtalo</p>
+                  <p className="text-red-400 text-xs mt-0.5">Revisa los datos e inténtalo</p>
                 </>
               ) : (
                 <>
-                  <span className="w-5 h-5 rounded-full bg-[#e2e8f0] mb-3 block" />
-                  <p className="text-[#64748b] font-medium text-sm">Sin desplegar</p>
-                  <p className="text-[#94a3b8] text-xs mt-1">Completa los datos</p>
+                  <p className="text-[#64748b] font-medium text-sm">{agentName || 'Sin nombre'}</p>
+                  <p className="text-[#94a3b8] text-xs mt-0.5">Sin desplegar</p>
                 </>
               )}
             </div>

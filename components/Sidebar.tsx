@@ -90,11 +90,10 @@ export default function Sidebar() {
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-white/[0.08]">
         <div className="relative w-8 h-8 flex-shrink-0">
           <Image
-            src="/revly-logo.png"
+            src="/images/logo.png.png"
             alt="Revly"
             fill
             className="object-contain"
-            onError={() => {}} // fallback al div de abajo si no existe el logo
           />
         </div>
         <span className="text-white font-bold text-lg tracking-tight">revly</span>
