@@ -72,7 +72,14 @@ export default async function LandingPage() {
             {/* H1 — massive bold with italic accent */}
             <h1 className="text-[68px] sm:text-[84px] font-black leading-[1.0] tracking-tight text-[#0f172a] mb-8">
               Tu agente de ventas<br />
-              <em className="italic font-black text-[#0d9488]">en WhatsApp, 24/7</em>
+              <em className="italic font-black text-[#0d9488]">en <span className="relative inline-block">
+                <Image
+                  src="/images/avatar.png.png"
+                  alt=""
+                  width={44}
+                  height={44}
+                  className="absolute -top-11 left-1/2 -translate-x-1/2 w-11 h-11 rounded-full object-cover ring-2 ring-white shadow-xl"
+                />W</span>hatsApp, 24/7</em>
             </h1>
 
             <p className="text-[#64748b] text-lg leading-relaxed max-w-lg mb-12">
