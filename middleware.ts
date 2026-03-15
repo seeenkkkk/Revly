@@ -34,17 +34,15 @@ export async function middleware(req: NextRequest) {
 
   // ── Auth guard for dashboard routes ──────────────────────────────────────────────────────
   if (pathname.startsWith('/dashboard')) {
-    // Check for any Supabase session cookie (v1 or v2 format)
+    // Supabase SSR stores session as chunked cookies: sb-xxx-auth-token, sb-xxx-auth-token.0, etc.
     const hasSession =
       req.cookies.has('sb-access-token') ||
-      [...req.cookies.getAll()].some(
-        (c) => c.name.startsWith('sb-') && c.name.endsWith('-auth-token')
+      req.cookies.getAll().some(
+        (c) => c.name.startsWith('sb-') && c.name.includes('-auth-token')
       )
 
     if (!hasSession) {
-      const url = new URL('/', req.url)
-      url.searchParams.set('auth', 'required')
-      return NextResponse.redirect(url)
+      return NextResponse.redirect(new URL('/login', req.url))
     }
   }
 
