@@ -105,6 +105,62 @@ export default async function LandingPage() {
               <span className="text-[#0f172a] text-xs font-bold">Revly</span>
             </div>
 
+            {/* Floating live chat card */}
+            <div className="absolute -bottom-8 -right-6 z-20 hidden lg:block w-[230px] bg-[#0f172a] rounded-2xl shadow-[0_24px_48px_rgba(0,0,0,0.28)] overflow-hidden border border-white/[0.07]">
+              {/* Header */}
+              <div className="flex items-center gap-2.5 px-3.5 py-3 border-b border-white/[0.07]">
+                <div className="relative flex-shrink-0">
+                  <Image
+                    src="/images/avatar.png.png"
+                    alt="Revly Agent"
+                    width={32}
+                    height={32}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  <span className="absolute bottom-0 right-0 w-2 h-2 bg-[#0d9488] rounded-full ring-[1.5px] ring-[#0f172a]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-white text-[12px] font-bold leading-none">Tu agente</p>
+                  <p className="text-[#0d9488] text-[10px] mt-0.5">● En línea ahora</p>
+                </div>
+              </div>
+
+              {/* Chat bubbles */}
+              <div className="px-3 py-3 space-y-2">
+                <div className="flex justify-start">
+                  <div className="bg-white/[0.08] rounded-xl rounded-tl-sm px-2.5 py-2 max-w-[85%]">
+                    <p className="text-white/70 text-[10.5px] leading-snug">Hola! ¿cuánto cuesta el servicio? 👋</p>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <div className="bg-[#0d9488] rounded-xl rounded-tr-sm px-2.5 py-2 max-w-[85%]">
+                    <p className="text-white text-[10.5px] leading-snug">¡Hola! Tenemos planes desde 14,99€/mes, con 14 días gratis 🎯</p>
+                  </div>
+                </div>
+                <div className="flex justify-start">
+                  <div className="bg-white/[0.08] rounded-xl rounded-tl-sm px-2.5 py-2 max-w-[85%]">
+                    <p className="text-white/70 text-[10.5px] leading-snug">Perfecto, me apunto 🙌</p>
+                  </div>
+                </div>
+                {/* Typing indicator */}
+                <div className="flex justify-end">
+                  <div className="bg-[#0d9488]/80 rounded-xl rounded-tr-sm px-3 py-2 flex gap-1 items-center">
+                    <span className="w-1 h-1 bg-white/80 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1 h-1 bg-white/80 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1 h-1 bg-white/80 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Stat strip */}
+              <div className="px-3 pb-3">
+                <div className="bg-white/[0.05] rounded-xl px-3 py-1.5 flex items-center justify-between">
+                  <span className="text-white/30 text-[9px] uppercase tracking-wider">conversión</span>
+                  <span className="text-[#0d9488] text-[11px] font-black">+41% 📈</span>
+                </div>
+              </div>
+            </div>
+
             <div className="rounded-3xl overflow-hidden border border-[#e2e8f0]">
               {/* Browser bar */}
               <div className="bg-[#f8fafc] border-b border-[#e2e8f0] px-4 py-3 flex items-center gap-2">
