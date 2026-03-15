@@ -52,13 +52,43 @@ export default async function LandingPage() {
 
   return (
     <main className="min-h-screen bg-white text-[#0f172a]">
+      <style>{`
+        @keyframes blob1 {
+          0%,100% { transform: translate(0,0) scale(1); }
+          33%      { transform: translate(40px,-30px) scale(1.08); }
+          66%      { transform: translate(-25px,20px) scale(0.94); }
+        }
+        @keyframes blob2 {
+          0%,100% { transform: translate(0,0) scale(1); }
+          33%      { transform: translate(-35px,25px) scale(1.06); }
+          66%      { transform: translate(30px,-20px) scale(0.96); }
+        }
+        @keyframes blob3 {
+          0%,100% { transform: translate(0,0) scale(1); }
+          50%      { transform: translate(20px,30px) scale(1.04); }
+        }
+        .blob-1 { animation: blob1 20s ease-in-out infinite; }
+        .blob-2 { animation: blob2 26s ease-in-out infinite; }
+        .blob-3 { animation: blob3 18s ease-in-out infinite; }
+        @keyframes marquee {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .marquee-track { animation: marquee 28s linear infinite; }
+        .marquee-track:hover { animation-play-state: paused; }
+      `}</style>
 
       {/* ── NAVBAR ─────────────────────────────────────────────── */}
       <LandingNav userEmail={userEmail} />
 
       {/* ── HERO ───────────────────────────────────────────────── */}
-      <section className="pt-36 pb-24 px-6">
-        <div className="max-w-[1100px] mx-auto">
+      <section className="pt-36 pb-24 px-6 relative overflow-hidden">
+        {/* Animated blobs */}
+        <div className="blob-1 absolute top-24 left-[10%] w-[520px] h-[520px] bg-[#0d9488]/[0.07] rounded-full blur-3xl pointer-events-none" />
+        <div className="blob-2 absolute top-40 right-[8%] w-[420px] h-[420px] bg-[#0f172a]/[0.04] rounded-full blur-3xl pointer-events-none" />
+        <div className="blob-3 absolute bottom-10 left-1/2 w-[340px] h-[340px] bg-[#0d9488]/[0.05] rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-[1100px] mx-auto relative">
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto mb-20">
 
             {/* Badge */}
@@ -72,7 +102,9 @@ export default async function LandingPage() {
             {/* H1 — massive bold with italic accent */}
             <h1 className="text-[68px] sm:text-[84px] font-black leading-[1.0] tracking-tight text-[#0f172a] mb-8">
               Tu agente de ventas<br />
-              <em className="italic font-black text-[#0d9488]">en WhatsApp, 24/7</em>
+              <em className="italic font-black bg-gradient-to-r from-[#0d9488] via-[#0f9d7e] to-[#059669] bg-clip-text text-transparent">
+                en WhatsApp, 24/7
+              </em>
             </h1>
 
             <p className="text-[#64748b] text-lg leading-relaxed max-w-lg mb-12">
@@ -94,6 +126,31 @@ export default async function LandingPage() {
               >
                 Ver cómo funciona
               </a>
+            </div>
+
+            {/* Social proof mini */}
+            <div className="flex items-center gap-3 mt-8">
+              <div className="flex -space-x-2.5">
+                {['#0d9488','#0f172a','#475569','#0f766e','#1e293b'].map((bg, i) => (
+                  <div
+                    key={i}
+                    className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-black flex-shrink-0"
+                    style={{ backgroundColor: bg }}
+                  >
+                    {['M','A','R','I','O'][i]}
+                  </div>
+                ))}
+              </div>
+              <div className="text-left">
+                <div className="flex items-center gap-1 mb-0.5">
+                  {[1,2,3,4,5].map(i => (
+                    <svg key={i} width="11" height="11" viewBox="0 0 24 24" fill="#f59e0b">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-[#64748b] text-xs font-medium">Más de <span className="text-[#0f172a] font-bold">1.200 negocios</span> ya lo usan</p>
+              </div>
             </div>
           </div>
 
@@ -228,8 +285,9 @@ export default async function LandingPage() {
       </section>
 
       {/* ── SOCIAL PROOF STRIP ─────────────────────────────────── */}
-      <section className="py-12 px-6 bg-[#fafafa] border-y border-[#f1f5f9]">
-        <div className="max-w-[1100px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-20">
+      <section className="py-14 px-6 bg-[#fafafa] border-y border-[#f1f5f9] overflow-hidden">
+        {/* Stats row */}
+        <div className="max-w-[1100px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-20 mb-10">
           {[
             { v: '+1.200', l: 'negocios activos' },
             { v: '< 2s', l: 'tiempo de respuesta' },
@@ -242,22 +300,42 @@ export default async function LandingPage() {
             </div>
           ))}
         </div>
+
+        {/* Marquee */}
+        <div className="relative">
+          <div className="absolute left-0 top-0 w-24 h-full bg-gradient-to-r from-[#fafafa] to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 w-24 h-full bg-gradient-to-l from-[#fafafa] to-transparent z-10 pointer-events-none" />
+          <div className="flex overflow-hidden">
+            <div className="marquee-track flex gap-12 items-center whitespace-nowrap">
+              {[
+                'Clínica Aurora','AutoMoto SL','BeautyStudio Nord','InmoPlus','FitPro Gym',
+                'Restaurante El Rincón','TechStore Madrid','Academia Lingua','Viajes Sur','Dental Express',
+                'Clínica Aurora','AutoMoto SL','BeautyStudio Nord','InmoPlus','FitPro Gym',
+                'Restaurante El Rincón','TechStore Madrid','Academia Lingua','Viajes Sur','Dental Express',
+              ].map((name, i) => (
+                <span key={i} className="text-[#cbd5e1] font-black text-[13px] uppercase tracking-widest flex-shrink-0">
+                  {name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ── HOW IT WORKS ───────────────────────────────────────── */}
       <HowItWorks />
 
       {/* ── FEATURES ───────────────────────────────────────────── */}
-      <section id="funciones" className="py-28 px-6 bg-[#fafafa]">
+      <section id="funciones" className="py-28 px-6 bg-[#0f172a]">
         <div className="max-w-[1100px] mx-auto">
 
           <div className="text-center mb-16">
             <p className="text-[11px] font-bold uppercase tracking-widest text-[#0d9488] mb-4">
               Funciones
             </p>
-            <h2 className="text-[52px] font-black leading-[1.05] tracking-tight text-[#0f172a]">
+            <h2 className="text-[52px] font-black leading-[1.05] tracking-tight text-white">
               Construido para<br />
-              <em className="italic font-black text-[#0d9488]">cerrar ventas.</em>
+              <em className="italic font-black bg-gradient-to-r from-[#0d9488] to-[#059669] bg-clip-text text-transparent">cerrar ventas.</em>
             </h2>
           </div>
 
@@ -320,13 +398,83 @@ export default async function LandingPage() {
             ].map(({ icon, title, desc }) => (
               <div
                 key={title}
-                className="bg-white border border-[#f1f5f9] rounded-3xl p-8 hover:border-[#e2e8f0] transition-colors duration-200"
+                className="bg-white/[0.04] border border-white/[0.07] rounded-3xl p-8 hover:bg-white/[0.07] hover:border-white/[0.14] transition-all duration-200 group"
               >
-                <div className="w-11 h-11 rounded-2xl bg-[#f0fdfa] flex items-center justify-center mb-6 text-[#0d9488]">
+                <div className="w-11 h-11 rounded-2xl bg-[#0d9488]/15 flex items-center justify-center mb-6 text-[#0d9488] group-hover:bg-[#0d9488]/25 transition-colors">
                   {icon}
                 </div>
-                <h3 className="text-[#0f172a] font-black text-base mb-2 uppercase tracking-wide">{title}</h3>
-                <p className="text-[#64748b] text-sm leading-relaxed">{desc}</p>
+                <h3 className="text-white font-black text-base mb-2 uppercase tracking-wide">{title}</h3>
+                <p className="text-white/40 text-sm leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS ────────────────────────────────────────── */}
+      <section className="py-28 px-6 bg-white">
+        <div className="max-w-[1100px] mx-auto">
+
+          <div className="text-center mb-16">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#0d9488] mb-4">Testimonios</p>
+            <h2 className="text-[52px] font-black leading-[1.05] tracking-tight text-[#0f172a]">
+              Lo que dicen<br />
+              <em className="italic font-black text-[#0d9488]">nuestros clientes.</em>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {[
+              {
+                quote: 'En la primera semana el agente cerró 3 ventas que yo ni había visto. Responde mejor que yo y nunca se cansa.',
+                name: 'Carlos M.',
+                role: 'Inmobiliaria Costa Sur',
+                initials: 'CM',
+                gradient: 'from-[#0d9488] to-[#0f766e]',
+                stars: 5,
+              },
+              {
+                quote: 'Antes perdía leads por no responder rápido. Ahora el agente responde en segundos y yo solo cierro los que ya están convencidos.',
+                name: 'Laura P.',
+                role: 'Clínica Dental Norte',
+                initials: 'LP',
+                gradient: 'from-[#0f172a] to-[#1e293b]',
+                stars: 5,
+              },
+              {
+                quote: 'Lo configuré en 10 minutos y ese mismo día ya tenía conversaciones activas. La mejor inversión que he hecho en marketing.',
+                name: 'Andrés V.',
+                role: 'FitPro Gym Valencia',
+                initials: 'AV',
+                gradient: 'from-[#475569] to-[#334155]',
+                stars: 5,
+              },
+            ].map(({ quote, name, role, initials, gradient, stars }) => (
+              <div key={name} className="flex flex-col bg-white border border-[#f1f5f9] rounded-3xl p-8 hover:border-[#e2e8f0] hover:shadow-[0_8px_32px_rgba(0,0,0,0.06)] transition-all duration-300">
+                {/* Stars */}
+                <div className="flex gap-1 mb-5">
+                  {Array.from({ length: stars }).map((_, i) => (
+                    <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                  ))}
+                </div>
+
+                {/* Quote */}
+                <p className="text-[#0f172a] text-sm leading-relaxed flex-1 mb-7">
+                  &ldquo;{quote}&rdquo;
+                </p>
+
+                {/* Author */}
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center flex-shrink-0`}>
+                    <span className="text-white text-[11px] font-black">{initials}</span>
+                  </div>
+                  <div>
+                    <p className="text-[#0f172a] font-bold text-sm">{name}</p>
+                    <p className="text-[#94a3b8] text-xs">{role}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
