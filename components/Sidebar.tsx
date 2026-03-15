@@ -3,13 +3,13 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createBrowserSupabase } from '@/lib/supabase-browser'
 import { useRevlyStore } from '@/lib/store'
 
 const NAV_ITEMS = [
   {
-    label: 'Dashboard',
+    label: 'Inicio',
     href: '/dashboard',
     exact: true,
     icon: (
@@ -20,7 +20,7 @@ const NAV_ITEMS = [
     ),
   },
   {
-    label: 'Mis Agentes',
+    label: 'Tu agente',
     href: '/dashboard/agentes',
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -29,7 +29,7 @@ const NAV_ITEMS = [
     ),
   },
   {
-    label: 'Funcionamiento',
+    label: 'Cómo funciona',
     href: '/dashboard/funcionamiento',
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -38,7 +38,7 @@ const NAV_ITEMS = [
     ),
   },
   {
-    label: 'Analítica',
+    label: 'Resultados',
     href: '/dashboard/analitica',
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -47,7 +47,7 @@ const NAV_ITEMS = [
     ),
   },
   {
-    label: 'Configuración',
+    label: 'Ajustes',
     href: '/dashboard/configuracion',
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -58,10 +58,18 @@ const NAV_ITEMS = [
   },
 ]
 
+const PLAN_BADGE: Record<string, { label: string; className: string }> = {
+  essential: { label: 'Starter',       className: 'bg-[#0d9488]/15 text-[#0d9488]' },
+  growth:    { label: 'Growth',        className: 'bg-[#0d9488]/15 text-[#0d9488]' },
+  partner:   { label: 'Enterprise',    className: 'bg-[#0d9488]/15 text-[#0d9488]' },
+  free:      { label: 'Plan gratuito', className: 'text-white/20 bg-white/[0.06]'  },
+}
+
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { userData, setUserData } = useRevlyStore()
+  const [fullName, setFullName] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -70,6 +78,18 @@ export default function Sidebar() {
         const { data: { user } } = await supabase.auth.getUser()
         if (user?.email) {
           setUserData({ email: user.email, plan: 'free' })
+
+          // Fetch full_name + plan from public.users
+          const { data: profile } = await supabase
+            .from('users')
+            .select('full_name, plan')
+            .eq('id', user.id)
+            .single()
+
+          if (profile) {
+            setFullName(profile.full_name ?? null)
+            setUserData({ email: user.email, plan: profile.plan ?? 'free' })
+          }
         }
       } catch { /* dev mode */ }
     }
@@ -84,8 +104,10 @@ export default function Sidebar() {
     router.push('/')
   }
 
-  const avatarLetter = userData?.email?.[0]?.toUpperCase() ?? 'U'
-  const displayEmail = userData?.email ?? 'usuario@revly.io'
+  const email = userData?.email ?? ''
+  const displayName = fullName || email.split('@')[0] || 'Usuario'
+  const plan = userData?.plan ?? 'free'
+  const badge = PLAN_BADGE[plan] ?? PLAN_BADGE.free
 
   return (
     <aside className="fixed left-0 top-0 h-full bg-[#0a0f1a] flex flex-col z-40 border-r border-white/[0.05]" style={{ width: 220 }}>
@@ -98,11 +120,6 @@ export default function Sidebar() {
           </div>
           <span className="text-white font-black text-base tracking-tight">revly</span>
         </Link>
-      </div>
-
-      {/* LABEL */}
-      <div className="px-5 pb-3">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-white/20">Menú</p>
       </div>
 
       {/* NAV */}
@@ -124,7 +141,7 @@ export default function Sidebar() {
               </span>
               {label}
               {isActive && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#0d9488] flex-shrink-0" />
+                <span className="ml-auto w-2 h-2 rounded-full bg-[#0d9488] flex-shrink-0" />
               )}
             </Link>
           )
@@ -136,11 +153,14 @@ export default function Sidebar() {
         {/* User row */}
         <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/[0.03] mb-2">
           <div className="w-8 h-8 rounded-xl bg-[#0d9488]/20 border border-[#0d9488]/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-[#0d9488] text-xs font-black">{avatarLetter}</span>
+            <span className="text-[#0d9488] text-xs font-black">{displayName[0]?.toUpperCase() ?? 'U'}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-xs font-semibold truncate">{displayEmail}</p>
-            <p className="text-white/25 text-[10px] uppercase tracking-wider">{userData?.plan ?? 'free'}</p>
+            <p className="text-white text-[13px] font-semibold truncate">{displayName}</p>
+            <p className="text-white/30 text-[11px] truncate">{email}</p>
+            <span className={`inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${badge.className}`}>
+              {badge.label}
+            </span>
           </div>
         </div>
 
@@ -154,7 +174,7 @@ export default function Sidebar() {
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
-          Cerrar sesión
+          Salir
         </button>
       </div>
     </aside>
