@@ -20,7 +20,7 @@ const NAV_ITEMS = [
     ),
   },
   {
-    label: 'Tu agente',
+    label: 'Mi agente',
     href: '/dashboard/agentes',
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -29,11 +29,12 @@ const NAV_ITEMS = [
     ),
   },
   {
-    label: 'Cómo funciona',
-    href: '/dashboard/funcionamiento',
+    label: 'Conversaciones',
+    href: '/dashboard/conversaciones',
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        <path d="M17 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v4l-4-4H9a2 2 0 0 1-2-2v-1"/>
+        <path d="M15 4H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4l4-4h4a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
       </svg>
     ),
   },
@@ -47,8 +48,17 @@ const NAV_ITEMS = [
     ),
   },
   {
-    label: 'Ajustes',
+    label: 'Plan y facturación',
     href: '/dashboard/configuracion',
+    icon: (
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'Ajustes',
+    href: '/dashboard/ajustes',
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="3" />
