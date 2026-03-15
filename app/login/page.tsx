@@ -38,17 +38,16 @@ function LoginContent() {
     setGoogleLoading(true)
     setError(null)
     const supabase = createBrowserSupabase()
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
-    if (error) {
+    if (oauthError) {
       setError('No se pudo iniciar sesión con Google.')
       setGoogleLoading(false)
     }
-    // On success, browser is redirected by Supabase — no need to do anything
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,27 +55,26 @@ function LoginContent() {
     setLoading(true)
     setError(null)
     setSuccess(null)
-
     const supabase = createBrowserSupabase()
 
     if (mode === 'login') {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) {
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      if (signInError) {
         setError('Email o contraseña incorrectos.')
         setLoading(false)
         return
       }
       router.push(redirect)
     } else {
-      const { error } = await supabase.auth.signUp({
+      const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       })
-      if (error) {
-        setError(error.message)
+      if (signUpError) {
+        setError(signUpError.message)
         setLoading(false)
         return
       }
@@ -92,35 +90,31 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-[#0a0f1a] flex flex-col items-center justify-center px-4">
 
-      <Link href="/" className="mb-10">
-        <Image
-          src="/images/logo-completo.png.png"
-          alt="Revly"
-          width={120}
-          height={36}
-          className="h-8 w-auto"
-        />
+      {/* Logo above card */}
+      <Link href="/" className="flex items-center gap-2.5 mb-8">
+        <Image src="/images/logo.png.png" alt="Revly" width={32} height={32} className="h-8 w-auto" />
+        <span className="text-white font-black text-xl tracking-tight">revly</span>
       </Link>
 
-      <div className="w-full max-w-sm bg-white border border-[#f1f5f9] rounded-3xl p-8">
+      <div className="w-full max-w-sm bg-[#0d1117] rounded-2xl p-8">
 
-        <h1 className="text-[22px] font-black text-[#0f172a] mb-1 tracking-tight">
-          {mode === 'login' ? 'Accede a tu cuenta' : 'Crea tu cuenta'}
+        <h1 className="text-[22px] font-bold text-white mb-1 tracking-tight">
+          Bienvenido a Revly
         </h1>
-        <p className="text-[#94a3b8] text-sm mb-6">
-          {mode === 'login' ? 'Bienvenido de vuelta.' : 'Empieza a vender con IA hoy.'}
+        <p className="text-white/40 text-sm mb-7">
+          Gestiona tu agente de ventas en WhatsApp
         </p>
 
-        {/* Google */}
+        {/* Google button */}
         <button
           onClick={handleGoogle}
           disabled={googleLoading || loading}
-          className="w-full flex items-center justify-center gap-3 bg-white border border-[#e2e8f0] hover:border-[#cbd5e1] hover:bg-[#fafafa] rounded-2xl px-4 py-3 text-sm font-semibold text-[#0f172a] transition-all disabled:opacity-60 mb-5"
+          className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 hover:shadow-md rounded-xl px-4 py-3.5 text-sm font-semibold text-gray-800 transition-all disabled:opacity-60 mb-5"
         >
           {googleLoading
-            ? <Loader2 size={16} className="animate-spin text-[#94a3b8]" />
+            ? <Loader2 size={16} className="animate-spin text-gray-400" />
             : <GoogleIcon />
           }
           {mode === 'login' ? 'Continuar con Google' : 'Registrarse con Google'}
@@ -128,72 +122,66 @@ function LoginContent() {
 
         {/* Divider */}
         <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 h-px bg-[#f1f5f9]" />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#cbd5e1]">o con email</span>
-          <div className="flex-1 h-px bg-[#f1f5f9]" />
+          <div className="flex-1 h-px bg-white/[0.08]" />
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/20">o con email</span>
+          <div className="flex-1 h-px bg-white/[0.08]" />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">
+            <label className="block text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2">
               Email
             </label>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               required
               placeholder="tu@email.com"
-              className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
+              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#0d9488] focus:bg-white/[0.08] transition-all"
             />
           </div>
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">
+            <label className="block text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2">
               Contraseña
             </label>
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               required
               minLength={6}
               placeholder="••••••••"
-              className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
+              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#0d9488] focus:bg-white/[0.08] transition-all"
             />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-xs font-medium">{error}</p>
-          )}
-          {success && (
-            <p className="text-[#0d9488] text-xs font-medium">{success}</p>
-          )}
+          {error && <p className="text-red-400 text-xs font-medium">{error}</p>}
+          {success && <p className="text-[#0d9488] text-xs font-medium">{success}</p>}
 
           <button
             type="submit"
             disabled={loading || googleLoading}
-            className="w-full py-3.5 rounded-full bg-[#0f172a] hover:bg-[#1e293b] text-white font-black text-[12px] uppercase tracking-wider transition-all disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
+            className="w-full py-3.5 rounded-full bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-[12px] uppercase tracking-wider transition-all disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
           >
             {loading && <Loader2 size={14} className="animate-spin" />}
             {mode === 'login' ? 'Entrar →' : 'Crear cuenta →'}
           </button>
         </form>
 
-        <p className="text-center text-[#94a3b8] text-xs mt-6">
+        <p className="text-center text-white/30 text-xs mt-5">
           {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}{' '}
           <button
             onClick={switchMode}
-            className="text-[#0d9488] font-bold hover:underline underline-offset-4"
+            className="text-[#0d9488] font-bold hover:text-[#0f766e] transition-colors"
           >
             {mode === 'login' ? 'Regístrate gratis' : 'Acceder'}
           </button>
         </p>
       </div>
 
-      <p className="text-[#cbd5e1] text-xs mt-8">
-        <Link href="/" className="hover:text-[#94a3b8] transition-colors">
-          ← Volver al inicio
-        </Link>
+      <p className="text-white/20 text-xs mt-8 text-center">
+        Al continuar aceptas nuestros términos de uso
       </p>
     </div>
   )
@@ -201,7 +189,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#fafafa]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#0a0f1a]" />}>
       <LoginContent />
     </Suspense>
   )

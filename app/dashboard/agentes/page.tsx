@@ -3,41 +3,55 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createBrowserSupabase } from '@/lib/supabase-browser'
-import type { Agent, UserProfile } from '@/lib/supabase'
-import Image from 'next/image'
-import { CheckCircle, AlertCircle, Zap, RefreshCw, Loader2, Sparkles, BarChart2 } from 'lucide-react'
+import type { Agent } from '@/lib/supabase'
+import { CheckCircle, AlertCircle, Loader2, Sparkles } from 'lucide-react'
 
-type DeployStatus = 'idle' | 'saving' | 'deploying' | 'active' | 'error'
-
-const PLAN_LABELS: Record<string, string> = {
-  free: 'Free',
-  essential: 'Starter',
-  growth: 'Growth & Sales',
-  partner: 'Enterprise AI',
+function StepIndicator({ current }: { current: number }) {
+  return (
+    <div className="flex items-center mb-8">
+      {[1, 2, 3].map((s, i) => (
+        <div key={s} className="flex items-center flex-1 last:flex-none">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-black transition-all ${
+            current >= s ? 'bg-[#0d9488] text-white' : 'bg-[#f1f5f9] text-[#94a3b8]'
+          }`}>
+            {current > s ? (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            ) : s}
+          </div>
+          {i < 2 && (
+            <div className={`flex-1 h-0.5 mx-2 transition-all ${current > s ? 'bg-[#0d9488]' : 'bg-[#f1f5f9]'}`} />
+          )}
+        </div>
+      ))}
+    </div>
+  )
 }
-
-const CHECKOUT_PLANS = [
-  { key: 'essential', label: 'Starter',       price: '14,99 €/mes', desc: '500 conversaciones' },
-  { key: 'growth',    label: 'Growth',         price: '34,99 €/mes', desc: '1.500 conversaciones' },
-  { key: 'partner',   label: 'Enterprise AI',  price: '79,99 €/mes', desc: 'Sin límites' },
-]
 
 function AgentesContent() {
   const searchParams = useSearchParams()
-  const checkoutSuccess  = searchParams.get('success')  === 'true'
+  const checkoutSuccess = searchParams.get('success') === 'true'
   const checkoutCanceled = searchParams.get('canceled') === 'true'
 
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
-  const [deployStatus, setDeployStatus] = useState<DeployStatus>('idle')
-  const [deployError, setDeployError] = useState<string | null>(null)
+  const [hasAgent, setHasAgent] = useState(false)
+  const [agentId, setAgentId] = useState<string | null>(null)
+  const [agentStatus, setAgentStatus] = useState<'active' | 'inactive'>('inactive')
+  const [editMode, setEditMode] = useState(false)
+  const [currentStep, setCurrentStep] = useState(1)
 
   const [agentName, setAgentName] = useState('')
   const [whatsappNumber, setWhatsappNumber] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
-  const [selectedPlan, setSelectedPlan] = useState<string>('growth')
   const [businessDesc, setBusinessDesc] = useState('')
+
   const [generatingPrompt, setGeneratingPrompt] = useState(false)
+  const [provisioning, setProvisioning] = useState(false)
+  const [provisionError, setProvisionError] = useState<string | null>(null)
+  const [provisionSuccess, setProvisionSuccess] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [showFullPrompt, setShowFullPrompt] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,19 +59,22 @@ function AgentesContent() {
         const supabase = createBrowserSupabase()
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
-        const [agentResult, profileResult] = await Promise.all([
-          supabase.from('agents').select('*').eq('user_id', user.id)
-            .order('created_at', { ascending: false }).limit(1).single<Agent>(),
-          supabase.from('users').select('*').eq('id', user.id).single<UserProfile>(),
-        ])
-        if (agentResult.data) {
-          setAgentName(agentResult.data.name ?? '')
-          setWhatsappNumber(agentResult.data.whatsapp_number ?? '')
-          setSystemPrompt(agentResult.data.system_prompt ?? '')
-          if (agentResult.data.status === 'active') setDeployStatus('active')
+        const { data } = await supabase
+          .from('agents')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single<Agent>()
+        if (data) {
+          setHasAgent(true)
+          setAgentId(data.id)
+          setAgentStatus(data.status)
+          setAgentName(data.name ?? '')
+          setWhatsappNumber(data.whatsapp_number ?? '')
+          setSystemPrompt(data.system_prompt ?? '')
         }
-        if (profileResult.data) setUserProfile(profileResult.data)
-      } catch { /* dev mode */ }
+      } catch { /* no agent yet */ }
       finally { setLoading(false) }
     }
     fetchData()
@@ -78,381 +95,368 @@ function AgentesContent() {
     finally { setGeneratingPrompt(false) }
   }
 
-  const handleCheckout = async (plan: string) => {
-    if (!agentName.trim() || !whatsappNumber.trim() || !systemPrompt.trim()) {
-      setDeployError('Completa nombre, número de WhatsApp y prompt antes de continuar.')
-      return
-    }
-    setSelectedPlan(plan)
-    setDeployStatus('deploying')
-    setDeployError(null)
+  const handleProvision = async () => {
+    setProvisioning(true)
+    setProvisionError(null)
     try {
-      const res = await fetch('/api/create-checkout-session', {
+      const supabase = createBrowserSupabase()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No autenticado')
+
+      const agentPayload = {
+        user_id: user.id,
+        name: agentName,
+        whatsapp_number: whatsappNumber,
+        system_prompt: systemPrompt,
+        status: 'inactive' as const,
+      }
+
+      if (agentId) {
+        await supabase.from('agents').update(agentPayload).eq('id', agentId)
+      } else {
+        const { data: newAgent } = await supabase.from('agents').insert(agentPayload).select().single<Agent>()
+        if (newAgent) setAgentId(newAgent.id)
+      }
+
+      const res = await fetch('/api/provision', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agent_name:    agentName,
-          phone_number:  whatsappNumber,
-          system_prompt: systemPrompt,
-          plan,
-        }),
+        body: JSON.stringify({ customer_id: user.id }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Error al crear la sesión de pago')
-      window.location.href = data.url
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        throw new Error(d.error ?? 'Error al activar el agente')
+      }
+      setHasAgent(true)
+      setAgentStatus('active')
+      setEditMode(false)
+      setProvisionSuccess(true)
     } catch (err) {
-      setDeployStatus('error')
-      setDeployError(err instanceof Error ? err.message : 'Error al iniciar el pago.')
+      setProvisionError(err instanceof Error ? err.message : 'Error al activar')
     }
+    finally { setProvisioning(false) }
   }
 
-  const handleDeploy = () => handleCheckout(selectedPlan)
+  const handleSaveEdit = async () => {
+    if (!agentId) return
+    setSaving(true)
+    try {
+      const supabase = createBrowserSupabase()
+      await supabase.from('agents').update({
+        name: agentName,
+        whatsapp_number: whatsappNumber,
+        system_prompt: systemPrompt,
+      }).eq('id', agentId)
+      setEditMode(false)
+    } catch { /* dev */ }
+    finally { setSaving(false) }
+  }
 
-  const usedPct = userProfile
-    ? Math.min(Math.round((userProfile.conversations_used / userProfile.conversations_limit) * 100), 100)
-    : 0
-
-  const isDeploying = deployStatus === 'saving' || deployStatus === 'deploying'
+  const handleToggleStatus = async () => {
+    if (!agentId) return
+    const newStatus = agentStatus === 'active' ? 'inactive' : 'active'
+    try {
+      const supabase = createBrowserSupabase()
+      await supabase.from('agents').update({ status: newStatus }).eq('id', agentId)
+      setAgentStatus(newStatus)
+    } catch { /* dev */ }
+  }
 
   if (loading) return (
     <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-[#f1f5f9] animate-pulse" />
-        <div className="w-32 h-3 rounded-full bg-[#f1f5f9] animate-pulse" />
+      <Loader2 size={22} className="animate-spin text-[#0d9488]" />
+    </div>
+  )
+
+  // ── AGENT EXISTS VIEW ──
+  if (hasAgent && !editMode) return (
+    <div className="min-h-screen bg-[#fafafa] px-8 py-10">
+      <div className="max-w-2xl mx-auto space-y-5">
+
+        <div>
+          <h1 className="text-[#0f172a] text-[28px] font-black tracking-tight">Mi agente</h1>
+          <p className="text-[#94a3b8] text-sm mt-1">Gestiona y configura tu agente de WhatsApp</p>
+        </div>
+
+        {checkoutSuccess && (
+          <div className="bg-[#f0fdfa] border border-[#99f6e4] rounded-2xl px-5 py-4 flex items-center gap-3">
+            <CheckCircle size={16} className="text-[#0d9488] flex-shrink-0" />
+            <p className="text-[#0f766e] text-sm font-medium">¡Pago completado! Tu agente está activo.</p>
+          </div>
+        )}
+        {checkoutCanceled && (
+          <div className="bg-amber-50 border border-amber-100 rounded-2xl px-5 py-4 flex items-center gap-3">
+            <AlertCircle size={16} className="text-amber-500 flex-shrink-0" />
+            <p className="text-amber-700 text-sm font-medium">Pago cancelado. Puedes intentarlo de nuevo.</p>
+          </div>
+        )}
+        {provisionSuccess && (
+          <div className="bg-[#f0fdfa] border border-[#99f6e4] rounded-2xl px-5 py-4 flex items-center gap-3">
+            <CheckCircle size={16} className="text-[#0d9488] flex-shrink-0" />
+            <p className="text-[#0f766e] text-sm font-medium">¡Agente activado correctamente!</p>
+          </div>
+        )}
+
+        {/* Agent card */}
+        <div className="bg-[#0d1117] rounded-2xl p-6">
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <p className="text-white font-black text-xl">{agentName || 'Mi agente'}</p>
+              {whatsappNumber && (
+                <p className="text-white/40 text-sm mt-1 font-mono">{whatsappNumber}</p>
+              )}
+            </div>
+            <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full flex-shrink-0 ${
+              agentStatus === 'active'
+                ? 'bg-[#0d9488]/15 text-[#0d9488]'
+                : 'bg-white/5 text-white/30'
+            }`}>
+              {agentStatus === 'active' ? 'Activo' : 'Inactivo'}
+            </span>
+          </div>
+
+          {systemPrompt && (
+            <div className="bg-white/[0.04] rounded-xl p-4 mb-5">
+              <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest mb-2">Prompt del sistema</p>
+              <p className={`text-white/60 text-sm leading-relaxed ${!showFullPrompt ? 'line-clamp-3' : ''}`}>
+                {systemPrompt}
+              </p>
+              {systemPrompt.length > 120 && (
+                <button
+                  onClick={() => setShowFullPrompt(!showFullPrompt)}
+                  className="text-[#0d9488] text-xs font-bold mt-2 hover:text-[#0f766e] transition-colors"
+                >
+                  {showFullPrompt ? 'Ver menos ↑' : 'Ver completo ↓'}
+                </button>
+              )}
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => setEditMode(true)}
+              className="flex-1 py-3 rounded-full bg-white/[0.08] hover:bg-white/[0.12] text-white text-[12px] font-bold uppercase tracking-wider transition-all"
+            >
+              Editar
+            </button>
+            <button
+              onClick={handleToggleStatus}
+              className={`flex-1 py-3 rounded-full text-[12px] font-bold uppercase tracking-wider transition-all ${
+                agentStatus === 'active'
+                  ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
+                  : 'bg-[#0d9488] text-white hover:bg-[#0f766e]'
+              }`}
+            >
+              {agentStatus === 'active' ? 'Desactivar' : 'Activar'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )
 
-  return (
-    <div className="min-h-screen bg-[#fafafa]">
+  // ── EDIT MODE ──
+  if (hasAgent && editMode) return (
+    <div className="min-h-screen bg-[#fafafa] px-8 py-10">
+      <div className="max-w-2xl mx-auto space-y-5">
+        <div className="flex items-center justify-between">
+          <h1 className="text-[#0f172a] text-[28px] font-black tracking-tight">Editar agente</h1>
+          <button onClick={() => setEditMode(false)} className="text-[#94a3b8] hover:text-[#0f172a] text-sm transition-colors">
+            Cancelar
+          </button>
+        </div>
 
-      {/* ── HERO BANNER ── */}
-      <div className="bg-[#0f172a] px-10 pt-10 pb-12">
-        <div className="max-w-5xl mx-auto">
-
-          {/* Top row */}
-          <div className="flex items-center justify-between mb-10">
-            <Image
-              src="/images/logo-completo.png.png"
-              alt="Revly"
-              width={100}
-              height={32}
-              className="h-7 w-auto opacity-90"
+        <div className="bg-white border border-[#f1f5f9] rounded-2xl p-6 space-y-5">
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">Nombre del agente</label>
+            <input
+              type="text"
+              value={agentName}
+              onChange={e => setAgentName(e.target.value)}
+              placeholder="Ej: Asistente de Ventas"
+              className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
             />
-            <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border ${
-              userProfile?.plan === 'partner'
-                ? 'bg-[#0d9488]/20 text-[#0d9488] border-[#0d9488]/30'
-                : 'bg-white/10 text-white/50 border-white/10'
-            }`}>
-              {PLAN_LABELS[userProfile?.plan ?? 'free']}
-            </span>
           </div>
-
-          {/* Hero content */}
-          <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8">
-            <div className="flex-1">
-              <p className="text-[11px] font-bold uppercase tracking-widest text-[#0d9488] mb-4">
-                Mis Agentes
-              </p>
-              <h1 className="text-[48px] font-black leading-[1.0] tracking-tight text-white mb-3">
-                {deployStatus === 'active'
-                  ? <><em className="italic text-[#0d9488]">Activo</em> y vendiendo.</>
-                  : <>Crea tu agente,<br /><em className="italic text-[#0d9488]">en minutos.</em></>
-                }
-              </h1>
-              <p className="text-white/40 text-sm">
-                Configura, elige tu plan y despliega. Tu agente empieza a vender hoy.
-              </p>
-            </div>
-
-            {/* Avatar + status */}
-            <div className="flex items-center gap-4 bg-white/[0.06] rounded-3xl px-5 py-4 border border-white/[0.08] flex-shrink-0">
-              <div className="relative">
-                <div className="w-14 h-14 rounded-2xl overflow-hidden">
-                  <Image
-                    src="/images/avatar.png.png"
-                    alt="Agente"
-                    width={56}
-                    height={56}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <span className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full ring-2 ring-[#0f172a] ${
-                  deployStatus === 'active' ? 'bg-[#0d9488]' :
-                  deployStatus === 'error'  ? 'bg-red-500' :
-                  deployStatus === 'deploying' ? 'bg-amber-400' :
-                  'bg-white/20'
-                }`}>
-                  {deployStatus === 'active' && (
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0d9488] opacity-60" />
-                  )}
-                </span>
-              </div>
-              <div>
-                <p className="text-white font-bold text-sm">{agentName || 'Revly Agent'}</p>
-                <p className={`text-xs font-medium mt-0.5 ${
-                  deployStatus === 'active' ? 'text-[#0d9488]' :
-                  deployStatus === 'deploying' ? 'text-amber-400' :
-                  'text-white/30'
-                }`}>
-                  {deployStatus === 'active' ? '● En línea ahora' :
-                   deployStatus === 'deploying' ? '● Redirigiendo...' :
-                   '○ Sin desplegar'}
-                </p>
-              </div>
-            </div>
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">Número WhatsApp</label>
+            <input
+              type="tel"
+              value={whatsappNumber}
+              onChange={e => setWhatsappNumber(e.target.value)}
+              placeholder="+34 600 000 000"
+              className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm font-mono text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
+            />
           </div>
-
-          {/* Stats row — solo si hay datos */}
-          {userProfile && (
-            <div className="mt-8 grid grid-cols-3 gap-4">
-              {[
-                { v: userProfile.conversations_used, l: 'Conversaciones' },
-                { v: `${usedPct}%`, l: 'Capacidad usada' },
-                { v: userProfile.conversations_limit, l: 'Límite del plan' },
-              ].map(({ v, l }) => (
-                <div key={l} className="bg-white/[0.05] rounded-2xl px-4 py-3 border border-white/[0.06]">
-                  <p className="text-white font-black text-xl">{v}</p>
-                  <p className="text-white/30 text-xs uppercase tracking-wide mt-0.5">{l}</p>
-                </div>
-              ))}
-            </div>
-          )}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">Prompt del sistema</label>
+            <textarea
+              value={systemPrompt}
+              onChange={e => setSystemPrompt(e.target.value)}
+              rows={6}
+              className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all resize-none leading-relaxed"
+            />
+          </div>
+          <button
+            onClick={handleSaveEdit}
+            disabled={saving}
+            className="w-full py-3.5 rounded-full bg-[#0f172a] hover:bg-[#1e293b] text-white font-black text-[12px] uppercase tracking-wider transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+          >
+            {saving && <Loader2 size={14} className="animate-spin" />}
+            Guardar cambios
+          </button>
         </div>
       </div>
+    </div>
+  )
 
-      {/* ── BANNERS ── */}
-      {checkoutSuccess && (
-        <div className="max-w-5xl mx-auto px-10 pt-6">
-          <div className="bg-[#f0fdfa] border border-[#99f6e4] rounded-3xl px-5 py-4 flex items-center gap-3">
-            <CheckCircle size={18} className="text-[#0d9488] flex-shrink-0" />
-            <p className="text-[#0f766e] text-sm font-medium">
-              ¡Pago completado! Tu agente está siendo desplegado. Recibirás confirmación por email.
-            </p>
-          </div>
+  // ── ONBOARDING FLOW (no agent) ──
+  return (
+    <div className="min-h-screen bg-[#fafafa] px-8 py-10">
+      <div className="max-w-xl mx-auto">
+
+        <div className="mb-8">
+          <h1 className="text-[#0f172a] text-[28px] font-black tracking-tight">Configura tu agente</h1>
+          <p className="text-[#94a3b8] text-sm mt-1">En 3 pasos, tu agente estará listo para vender</p>
         </div>
-      )}
-      {checkoutCanceled && (
-        <div className="max-w-5xl mx-auto px-10 pt-6">
-          <div className="bg-amber-50 border border-amber-100 rounded-3xl px-5 py-4 flex items-center gap-3">
-            <AlertCircle size={18} className="text-amber-500 flex-shrink-0" />
-            <p className="text-amber-700 text-sm font-medium">
-              Pago cancelado. Puedes intentarlo de nuevo cuando quieras.
-            </p>
-          </div>
-        </div>
-      )}
 
-      {/* ── MAIN GRID ── */}
-      <div className="max-w-5xl mx-auto px-10 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <StepIndicator current={currentStep} />
 
-        {/* ── LEFT: Pasos de configuración ── */}
-        <div className="lg:col-span-2 space-y-4">
-
-          {/* Paso 1 */}
-          <div className="bg-white border border-[#f1f5f9] rounded-3xl overflow-hidden">
-            <div className="flex items-center gap-3 px-6 pt-6 pb-4 border-b border-[#f8fafc]">
-              <span className="w-7 h-7 rounded-full bg-[#0f172a] flex items-center justify-center text-white text-[11px] font-black flex-shrink-0">1</span>
-              <h2 className="text-[11px] font-bold uppercase tracking-widest text-[#0f172a]">
-                Identidad del agente
-              </h2>
+        {/* Step 1 */}
+        {currentStep === 1 && (
+          <div className="bg-white border border-[#f1f5f9] rounded-2xl p-6 space-y-5">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#0d9488] mb-1">Paso 1 de 3</p>
+              <h2 className="text-[#0f172a] font-black text-lg">¿Cómo se llama tu agente?</h2>
+              <p className="text-[#94a3b8] text-sm mt-1">Dale un nombre a tu asistente de ventas</p>
             </div>
-            <div className="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">
-                  Nombre del agente
-                </label>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">Nombre del agente</label>
+              <input
+                type="text"
+                value={agentName}
+                onChange={e => setAgentName(e.target.value)}
+                placeholder="Ej: Asistente de Ventas"
+                className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
+              />
+            </div>
+            <button
+              onClick={() => setCurrentStep(2)}
+              disabled={!agentName.trim()}
+              className="w-full py-3.5 rounded-full bg-[#0f172a] hover:bg-[#1e293b] text-white font-black text-[12px] uppercase tracking-wider transition-all disabled:opacity-40"
+            >
+              Siguiente →
+            </button>
+          </div>
+        )}
+
+        {/* Step 2 */}
+        {currentStep === 2 && (
+          <div className="bg-white border border-[#f1f5f9] rounded-2xl p-6 space-y-5">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#0d9488] mb-1">Paso 2 de 3</p>
+              <h2 className="text-[#0f172a] font-black text-lg">Configura las instrucciones</h2>
+              <p className="text-[#94a3b8] text-sm mt-1">Describe tu negocio para generar el prompt con IA</p>
+            </div>
+
+            {/* AI generator */}
+            <div className="bg-[#f0fdfa] border border-[#ccfbf1] rounded-2xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles size={13} className="text-[#0d9488]" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#0d9488]">Generar con IA</p>
+              </div>
+              <div className="flex gap-2">
                 <input
                   type="text"
-                  value={agentName}
-                  onChange={(e) => setAgentName(e.target.value)}
-                  placeholder="Ej: Asistente de Ventas"
-                  className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm font-medium text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
+                  value={businessDesc}
+                  onChange={e => setBusinessDesc(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleGeneratePrompt()}
+                  placeholder='Ej: "Soy una inmobiliaria en Madrid"'
+                  className="flex-1 bg-white border border-[#f1f5f9] rounded-xl px-4 py-2.5 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] transition-all"
                 />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">
-                  Número WhatsApp Business
-                </label>
-                <input
-                  type="tel"
-                  value={whatsappNumber}
-                  onChange={(e) => setWhatsappNumber(e.target.value)}
-                  placeholder="+34 600 000 000"
-                  className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm font-mono font-medium text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
-                />
+                <button
+                  onClick={handleGeneratePrompt}
+                  disabled={generatingPrompt || !businessDesc.trim()}
+                  className="flex items-center gap-2 bg-[#0d9488] hover:bg-[#0f766e] text-white text-[10px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all disabled:opacity-40 whitespace-nowrap"
+                >
+                  {generatingPrompt ? <><Loader2 size={12} className="animate-spin" />Generando</> : 'Generar'}
+                </button>
               </div>
             </div>
-          </div>
 
-          {/* Paso 2 */}
-          <div className="bg-white border border-[#f1f5f9] rounded-3xl overflow-hidden">
-            <div className="flex items-center gap-3 px-6 pt-6 pb-4 border-b border-[#f8fafc]">
-              <span className="w-7 h-7 rounded-full bg-[#0f172a] flex items-center justify-center text-white text-[11px] font-black flex-shrink-0">2</span>
-              <h2 className="text-[11px] font-bold uppercase tracking-widest text-[#0f172a]">
-                Instrucciones del agente
-              </h2>
-              <span className="ml-auto text-[#cbd5e1] text-xs tabular-nums">{systemPrompt.length} caracteres</span>
-            </div>
-            <div className="px-6 py-5">
+            {/* System prompt (readonly after generation) */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">Prompt generado</label>
               <textarea
                 value={systemPrompt}
-                onChange={(e) => setSystemPrompt(e.target.value)}
-                rows={6}
-                placeholder="Eres un asistente de ventas profesional de... Responde siempre en español. Tu objetivo es..."
-                className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all resize-none leading-relaxed mb-4"
+                readOnly
+                rows={5}
+                placeholder="El prompt aparecerá aquí después de generarlo con IA..."
+                className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none resize-none leading-relaxed"
               />
-
-              {/* Generador IA */}
-              <div className="bg-[#fafafa] border border-[#f1f5f9] rounded-2xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles size={13} className="text-[#0d9488]" />
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#0d9488]">Generar con IA</p>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={businessDesc}
-                    onChange={(e) => setBusinessDesc(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleGeneratePrompt()}
-                    placeholder='Describe tu negocio: "Soy una inmobiliaria en Madrid"'
-                    className="flex-1 bg-white border border-[#f1f5f9] rounded-xl px-4 py-2.5 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] transition-all"
-                  />
-                  <button
-                    onClick={handleGeneratePrompt}
-                    disabled={generatingPrompt || !businessDesc.trim()}
-                    className="flex items-center gap-2 bg-[#0f172a] hover:bg-[#1e293b] text-white text-[10px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all disabled:opacity-40 whitespace-nowrap"
-                  >
-                    {generatingPrompt
-                      ? <><Loader2 size={12} className="animate-spin" />Generando...</>
-                      : <>Generar</>
-                    }
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Error */}
-          {deployError && (
-            <div className={`border rounded-3xl px-5 py-4 flex items-start gap-3 text-sm ${
-              deployStatus === 'error'
-                ? 'bg-red-50 border-red-100 text-red-700'
-                : 'bg-amber-50 border-amber-100 text-amber-700'
-            }`}>
-              <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
-              {deployError}
-            </div>
-          )}
-        </div>
-
-        {/* ── RIGHT: Plan + Deploy ── */}
-        <div className="space-y-4">
-
-          {/* Paso 3 — Plan */}
-          <div className="bg-white border border-[#f1f5f9] rounded-3xl overflow-hidden">
-            <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-[#f8fafc]">
-              <span className="w-7 h-7 rounded-full bg-[#0f172a] flex items-center justify-center text-white text-[11px] font-black flex-shrink-0">3</span>
-              <h2 className="text-[11px] font-bold uppercase tracking-widest text-[#0f172a]">
-                Elige tu plan
-              </h2>
-            </div>
-            <div className="px-4 py-4 space-y-2">
-              {CHECKOUT_PLANS.map((p) => (
-                <button
-                  key={p.key}
-                  onClick={() => handleCheckout(p.key)}
-                  disabled={isDeploying}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl border text-left transition-all disabled:opacity-60 ${
-                    selectedPlan === p.key && isDeploying
-                      ? 'bg-[#0f172a] border-[#0f172a] text-white'
-                      : 'bg-[#fafafa] border-[#f1f5f9] text-[#64748b] hover:bg-[#0f172a] hover:border-[#0f172a] hover:text-white group'
-                  }`}
-                >
-                  <div>
-                    <p className={`font-bold text-sm ${selectedPlan === p.key && isDeploying ? 'text-white' : 'text-[#0f172a] group-hover:text-white'}`}>{p.label}</p>
-                    <p className={`text-[10px] mt-0.5 ${selectedPlan === p.key && isDeploying ? 'text-white/50' : 'text-[#cbd5e1] group-hover:text-white/50'}`}>{p.desc}</p>
-                  </div>
-                  <span className={`text-xs font-mono font-bold flex items-center gap-1.5 ${selectedPlan === p.key && isDeploying ? 'text-[#0d9488]' : 'text-[#cbd5e1] group-hover:text-[#0d9488]'}`}>
-                    {selectedPlan === p.key && isDeploying
-                      ? <><Loader2 size={11} className="animate-spin" />Redirigiendo</>
-                      : p.price
-                    }
-                  </span>
-                </button>
-              ))}
             </div>
 
-            {/* Deploy button */}
-            <div className="px-4 pb-5">
+            <div className="flex gap-3">
               <button
-                onClick={handleDeploy}
-                disabled={isDeploying}
-                className={`w-full py-4 rounded-full font-black text-[13px] uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-                  deployStatus === 'active'
-                    ? 'bg-[#fafafa] hover:bg-[#f1f5f9] text-[#64748b] border border-[#f1f5f9]'
-                    : 'bg-[#0d9488] hover:bg-[#0f766e] text-white disabled:opacity-60'
-                }`}
+                onClick={() => setCurrentStep(1)}
+                className="px-6 py-3.5 rounded-full bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#64748b] font-bold text-[12px] uppercase tracking-wider transition-all"
               >
-                {isDeploying ? (
-                  <><Loader2 size={15} className="animate-spin" />Redirigiendo...</>
-                ) : deployStatus === 'active' ? (
-                  <><RefreshCw size={15} />Redesplegar</>
-                ) : (
-                  <><Zap size={15} />Activar agente →</>
-                )}
+                ← Atrás
               </button>
-              <p className="text-center text-[#cbd5e1] text-[10px] mt-3 uppercase tracking-wider">
-                Pago seguro · Cancela cuando quieras
-              </p>
+              <button
+                onClick={() => setCurrentStep(3)}
+                disabled={!systemPrompt.trim()}
+                className="flex-1 py-3.5 rounded-full bg-[#0f172a] hover:bg-[#1e293b] text-white font-black text-[12px] uppercase tracking-wider transition-all disabled:opacity-40"
+              >
+                Siguiente →
+              </button>
             </div>
           </div>
+        )}
 
-          {/* Uso del plan */}
-          {userProfile && (
-            <div className="bg-white border border-[#f1f5f9] rounded-3xl p-5">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <BarChart2 size={13} className="text-[#0d9488]" />
-                  <h2 className="text-[10px] font-bold uppercase tracking-widest text-[#94a3b8]">Uso del plan</h2>
-                </div>
-                <span className="text-[#cbd5e1] text-xs tabular-nums">
-                  {userProfile.conversations_used} / {userProfile.conversations_limit}
-                </span>
-              </div>
-              <div className="h-2 bg-[#f1f5f9] rounded-full overflow-hidden mb-3">
-                <div
-                  className={`h-full rounded-full transition-all duration-700 ${usedPct > 80 ? 'bg-red-400' : 'bg-[#0d9488]'}`}
-                  style={{ width: `${usedPct}%` }}
-                />
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-[#cbd5e1] text-xs">{usedPct}% usado</span>
-                {userProfile.plan !== 'partner' && (
-                  <a href="/dashboard" className="text-[#0d9488] text-[10px] font-bold uppercase tracking-wider hover:underline underline-offset-4">
-                    Mejorar plan →
-                  </a>
-                )}
-              </div>
+        {/* Step 3 */}
+        {currentStep === 3 && (
+          <div className="bg-white border border-[#f1f5f9] rounded-2xl p-6 space-y-5">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#0d9488] mb-1">Paso 3 de 3</p>
+              <h2 className="text-[#0f172a] font-black text-lg">¿Cuál es tu número de WhatsApp?</h2>
+              <p className="text-[#94a3b8] text-sm mt-1">El número donde tu agente atenderá a los clientes</p>
             </div>
-          )}
 
-          {/* Trust badges */}
-          <div className="bg-[#0f172a] rounded-3xl p-5">
-            <div className="space-y-3">
-              {[
-                { icon: '⚡', text: 'En marcha en menos de 10 min' },
-                { icon: '🔒', text: 'Pago seguro con Stripe' },
-                { icon: '✦', text: 'Cancela en cualquier momento' },
-              ].map(({ icon, text }) => (
-                <div key={text} className="flex items-center gap-3">
-                  <span className="text-sm">{icon}</span>
-                  <p className="text-white/50 text-xs">{text}</p>
-                </div>
-              ))}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">Número WhatsApp Business</label>
+              <input
+                type="tel"
+                value={whatsappNumber}
+                onChange={e => setWhatsappNumber(e.target.value)}
+                placeholder="+34 600 000 000"
+                className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm font-mono text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
+              />
+            </div>
+
+            {provisionError && (
+              <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3 flex items-start gap-2.5">
+                <AlertCircle size={15} className="text-red-500 flex-shrink-0 mt-0.5" />
+                <p className="text-red-600 text-sm">{provisionError}</p>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setCurrentStep(2)}
+                className="px-6 py-3.5 rounded-full bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#64748b] font-bold text-[12px] uppercase tracking-wider transition-all"
+              >
+                ← Atrás
+              </button>
+              <button
+                onClick={handleProvision}
+                disabled={provisioning || !whatsappNumber.trim()}
+                className="flex-1 py-3.5 rounded-full bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-[12px] uppercase tracking-wider transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {provisioning ? <><Loader2 size={14} className="animate-spin" />Activando...</> : 'Activar mi agente →'}
+              </button>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

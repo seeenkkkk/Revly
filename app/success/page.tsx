@@ -1,69 +1,116 @@
+'use client'
+
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { createBrowserSupabase } from '@/lib/supabase-browser'
 import Link from 'next/link'
+import { Loader2 } from 'lucide-react'
 
-const planLabels: Record<string, { name: string; emoji: string; color: string }> = {
-  essential: { name: 'Essential', emoji: '💬', color: 'text-gray-700' },
-  growth: { name: 'Growth & Marketing', emoji: '⚡', color: 'text-[#00C48C]' },
-  partner: { name: 'Partner AI', emoji: '🤖', color: 'text-[#0D1B2A]' },
-}
+function SuccessContent() {
+  const searchParams = useSearchParams()
+  const sessionId = searchParams.get('session_id')
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
 
-export default function SuccessPage({
-  searchParams,
-}: {
-  searchParams: { plan?: string }
-}) {
-  const planKey = searchParams.plan ?? 'essential'
-  const plan = planLabels[planKey] ?? planLabels.essential
+  useEffect(() => {
+    const provision = async () => {
+      try {
+        const supabase = createBrowserSupabase()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('No autenticado')
+        const res = await fetch('/api/provision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customer_id: user.id }),
+        })
+        if (!res.ok) throw new Error('Error al provisionar')
+        setStatus('success')
+      } catch {
+        setStatus('error')
+      }
+    }
+    provision()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId])
 
   return (
-    <main className="min-h-screen bg-[#F8F9FA] flex items-center justify-center px-6">
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 max-w-md w-full text-center">
-        {/* Icono de éxito */}
-        <div className="w-20 h-20 rounded-full bg-[#00C48C]/10 flex items-center justify-center mx-auto mb-6">
-          <svg
-            className="w-10 h-10 text-[#00C48C]"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
+    <div className="min-h-screen bg-[#0a0f1a] flex items-center justify-center px-4">
+      <style>{`
+        @keyframes popIn {
+          from { transform: scale(0); opacity: 0; }
+          to   { transform: scale(1); opacity: 1; }
+        }
+        .pop-in { animation: popIn 0.4s ease-out forwards; }
+      `}</style>
 
-        {/* Mensaje principal */}
-        <h1 className="text-2xl font-bold text-[#0D1B2A] mb-2">
-          ¡Pago completado! {plan.emoji}
-        </h1>
-        <p className={`text-lg font-semibold mb-4 ${plan.color}`}>Plan {plan.name} activado</p>
-        <p className="text-gray-400 text-sm mb-8 leading-relaxed">
-          Tu agente de WhatsApp está siendo configurado. En unos segundos
-          estará listo para empezar a vender. Ve al dashboard para
-          conectar tu número de WhatsApp.
-        </p>
+      <div className="bg-[#0d1117] rounded-2xl p-10 max-w-sm w-full text-center">
 
-        {/* Estado de activación */}
-        <div className="bg-[#00C48C]/5 border border-[#00C48C]/20 rounded-xl px-4 py-3 flex items-center gap-3 mb-8 text-left">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#00C48C] animate-pulse flex-shrink-0" />
-          <p className="text-sm text-[#00C48C] font-medium">
-            Agente activado — Ve a Configuración para conectar WhatsApp
-          </p>
-        </div>
+        {status === 'loading' && (
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 size={32} className="animate-spin text-[#0d9488]" />
+            <p className="text-white/40 text-sm">Activando tu agente...</p>
+          </div>
+        )}
 
-        {/* CTA */}
-        <Link
-          href="/dashboard/agentes"
-          className="block w-full bg-[#00C48C] hover:bg-[#00b07e] text-[#0D1B2A] font-bold py-3 rounded-xl transition-colors"
-        >
-          Ir al Dashboard →
-        </Link>
+        {status === 'success' && (
+          <>
+            {/* Animated checkmark */}
+            <div className="pop-in w-20 h-20 rounded-full bg-[#0d9488]/10 border border-[#0d9488]/20 flex items-center justify-center mx-auto mb-6">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0d9488" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
 
-        <Link
-          href="/dashboard/configuracion"
-          className="block mt-3 text-sm text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          Configurar WhatsApp ahora
-        </Link>
+            <h1 className="text-white font-black text-[24px] tracking-tight mb-2">¡Tu agente está listo!</h1>
+            <p className="text-white/40 text-sm leading-relaxed mb-8">
+              En unos minutos tu agente estará activo en WhatsApp.
+            </p>
+
+            <Link
+              href="/dashboard"
+              className="block w-full py-3.5 rounded-full bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-[12px] uppercase tracking-wider transition-all"
+            >
+              Ir a mi panel →
+            </Link>
+          </>
+        )}
+
+        {status === 'error' && (
+          <>
+            <div className="w-20 h-20 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-6">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </div>
+
+            <h1 className="text-white font-black text-[22px] tracking-tight mb-2">Hubo un problema</h1>
+            <p className="text-white/40 text-sm leading-relaxed mb-8">
+              Hubo un problema activando tu agente. Tu pago se procesó correctamente.
+            </p>
+
+            <button
+              onClick={() => { setStatus('loading'); window.location.reload() }}
+              className="w-full py-3.5 rounded-full bg-[#0f172a] hover:bg-[#1e293b] text-white font-black text-[12px] uppercase tracking-wider transition-all mb-3"
+            >
+              Reintentar
+            </button>
+            <Link
+              href="/dashboard"
+              className="block text-white/30 hover:text-white/60 text-sm transition-colors"
+            >
+              Ir al panel →
+            </Link>
+          </>
+        )}
       </div>
-    </main>
+    </div>
+  )
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0a0f1a]" />}>
+      <SuccessContent />
+    </Suspense>
   )
 }
