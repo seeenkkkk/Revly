@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Menu, X } from 'lucide-react'
 
-export default function LandingNav({ userEmail }: { userEmail?: string | null }) {
+export default function LandingNav({ userEmail: _userEmail }: { userEmail?: string | null }) { // eslint-disable-line @typescript-eslint/no-unused-vars
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -43,32 +43,18 @@ export default function LandingNav({ userEmail }: { userEmail?: string | null })
 
         {/* CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          {userEmail ? (
-            <>
-              <span className="text-[#64748b] text-sm">{userEmail}</span>
-              <Link
-                href="/dashboard/agentes"
-                className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold text-[11px] px-5 py-2.5 rounded-full uppercase tracking-wider transition-colors"
-              >
-                Dashboard →
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="text-[#64748b] hover:text-[#0f172a] text-[11px] font-semibold uppercase tracking-wider transition-colors"
-              >
-                Acceder
-              </Link>
-              <Link
-                href="/login"
-                className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold text-[11px] px-5 py-2.5 rounded-full uppercase tracking-wider transition-colors"
-              >
-                Empieza ahora
-              </Link>
-            </>
-          )}
+          <Link
+            href="/login"
+            className="text-[#64748b] hover:text-[#0f172a] text-[11px] font-semibold uppercase tracking-wider transition-colors"
+          >
+            Acceder
+          </Link>
+          <Link
+            href="/login"
+            className="bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold text-[11px] px-5 py-2.5 rounded-full uppercase tracking-wider transition-colors"
+          >
+            Empieza ahora
+          </Link>
         </div>
 
         {/* Mobile toggle */}
