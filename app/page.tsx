@@ -102,7 +102,7 @@ export default async function LandingPage() {
             {/* H1 — massive bold with italic accent */}
             <h1 className="text-[68px] sm:text-[84px] font-black leading-[1.0] tracking-tight text-[#0f172a] mb-8">
               Tu agente de ventas<br />
-              <em className="italic font-black bg-gradient-to-r from-[#0d9488] via-[#0f9d7e] to-[#059669] bg-clip-text text-transparent">
+              <em className="italic font-black bg-gradient-to-r from-[#0d9488] via-[#0f9d7e] to-[#059669] bg-clip-text text-transparent pb-2 inline-block">
                 en WhatsApp, 24/7
               </em>
             </h1>
