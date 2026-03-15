@@ -120,15 +120,15 @@ export default function Sidebar() {
   const badge = PLAN_BADGE[plan] ?? PLAN_BADGE.free
 
   return (
-    <aside className="fixed left-0 top-0 h-full bg-[#0a0f1a] flex flex-col z-40 border-r border-white/[0.05]" style={{ width: 220 }}>
+    <aside className="fixed left-0 top-0 h-full bg-[#0a0f1a] flex flex-col z-40" style={{ width: 200 }}>
 
       {/* LOGO */}
-      <div className="px-5 pt-6 pb-5">
+      <div className="px-5 pt-8 pb-7">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="relative w-7 h-7 flex-shrink-0">
+          <div className="relative w-8 h-8 flex-shrink-0">
             <Image src="/images/logo.png.png" alt="Revly" fill className="object-contain" />
           </div>
-          <span className="text-white font-black text-base tracking-tight">revly</span>
+          <span className="text-white font-black text-lg tracking-tight">revly</span>
         </Link>
       </div>
 
@@ -140,10 +140,10 @@ export default function Sidebar() {
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[12.5px] font-semibold transition-all duration-150 ${
                 isActive
                   ? 'bg-white/[0.08] text-white'
-                  : 'text-white/30 hover:text-white/70 hover:bg-white/[0.04]'
+                  : 'text-white/25 hover:text-white/70 hover:bg-white/[0.04]'
               }`}
             >
               <span className={`flex-shrink-0 ${isActive ? 'text-[#0d9488]' : 'text-white/20'}`}>
@@ -159,10 +159,10 @@ export default function Sidebar() {
       </nav>
 
       {/* BOTTOM */}
-      <div className="px-3 pb-5 pt-4 mt-4 border-t border-white/[0.05]">
+      <div className="px-3 pb-5 pt-4 mt-4">
         {/* User row */}
-        <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/[0.03] mb-2">
-          <div className="w-8 h-8 rounded-xl bg-[#0d9488]/20 border border-[#0d9488]/20 flex items-center justify-center flex-shrink-0">
+        <div className="flex items-center gap-3 px-3 py-3 mb-2">
+          <div className="w-7 h-7 rounded-xl bg-[#0d9488]/20 border border-[#0d9488]/20 flex items-center justify-center flex-shrink-0">
             <span className="text-[#0d9488] text-xs font-black">{displayName[0]?.toUpperCase() ?? 'U'}</span>
           </div>
           <div className="flex-1 min-w-0">
@@ -177,7 +177,7 @@ export default function Sidebar() {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-white/25 hover:text-white/60 hover:bg-white/[0.04] transition-all text-[12px] font-semibold"
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-white/15 hover:text-white/40 hover:bg-white/[0.04] transition-all text-[12px] font-semibold"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
