@@ -100,11 +100,11 @@ export default async function LandingPage() {
             </div>
 
             {/* H1 — massive bold with italic accent */}
-            <h1 className="text-[68px] sm:text-[84px] font-black leading-[1.0] tracking-tight text-[#0f172a] mb-8">
+            <h1 className="text-[68px] sm:text-[84px] font-black tracking-tight text-[#0f172a] mb-8" style={{ lineHeight: 1.05 }}>
               Tu agente de ventas<br />
-              <em className="italic font-black bg-gradient-to-r from-[#0d9488] via-[#0f9d7e] to-[#059669] bg-clip-text text-transparent pb-2 inline-block">
+              <span className="italic bg-gradient-to-r from-[#0d9488] via-[#0f9d7e] to-[#059669] bg-clip-text text-transparent" style={{ display: 'inline-block', padding: '4px 0 6px' }}>
                 en WhatsApp, 24/7
-              </em>
+              </span>
             </h1>
 
             <p className="text-[#64748b] text-lg leading-relaxed max-w-lg mb-12">
