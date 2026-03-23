@@ -80,7 +80,7 @@ export default function ConversacionesPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#fafafa] px-8 py-10">
+    <div className="min-h-screen bg-[#0f172a] px-8 py-10">
       <div className="max-w-4xl mx-auto">
 
         <div className="mb-8">
@@ -150,7 +150,7 @@ export default function ConversacionesPage() {
 
                 {/* Messages panel */}
                 {expandedId === conv.id && (
-                  <div className="border-t border-[#f1f5f9] bg-[#fafafa] px-5 py-4 max-h-80 overflow-y-auto">
+                  <div className="border-t border-[#f1f5f9] bg-[#0f172a] px-5 py-4 max-h-80 overflow-y-auto">
                     {loadingMessages === conv.id ? (
                       <div className="flex justify-center py-6">
                         <div className="w-5 h-5 rounded-full border-2 border-[#0d9488] border-t-transparent animate-spin" />

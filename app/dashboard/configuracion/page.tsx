@@ -114,13 +114,13 @@ export default function ConfiguracionPage() {
   const pct = limit > 0 ? Math.min(Math.round((used / limit) * 100), 100) : 0
 
   if (loading) return (
-    <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
       <Loader2 size={20} className="animate-spin text-[#0d9488]" />
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-[#fafafa] px-8 py-10">
+    <div className="min-h-screen bg-[#0f172a] px-8 py-10">
       <div className="max-w-4xl mx-auto space-y-8">
 
         <div>
@@ -205,7 +205,7 @@ export default function ConfiguracionPage() {
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
                   placeholder="Tu nombre"
-                  className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
+                  className="w-full bg-[#0f172a] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
                 />
               </div>
               <div>
@@ -215,7 +215,7 @@ export default function ConfiguracionPage() {
                   value={companyName}
                   onChange={e => setCompanyName(e.target.value)}
                   placeholder="Nombre de tu negocio"
-                  className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
+                  className="w-full bg-[#0f172a] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
                 />
               </div>
             </div>
@@ -227,7 +227,7 @@ export default function ConfiguracionPage() {
                 value={whatsappNumber}
                 onChange={e => setWhatsappNumber(e.target.value)}
                 placeholder="+34 600 000 000"
-                className="w-full bg-[#fafafa] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm font-mono text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
+                className="w-full bg-[#0f172a] border border-[#f1f5f9] rounded-2xl px-4 py-3 text-sm font-mono text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:bg-white transition-all"
               />
             </div>
 

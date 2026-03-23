@@ -78,7 +78,7 @@ const CHAT_MESSAGES = [
 
 export default function FuncionamientoPage() {
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-[#0f172a]">
 
       {/* HERO */}
       <div className="bg-[#0f172a] px-10 pt-10 pb-12">
@@ -103,7 +103,7 @@ export default function FuncionamientoPage() {
           <p className="text-[10px] font-bold uppercase tracking-widest text-[#94a3b8] mb-8">El proceso completo</p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
             {STEPS.map((step) => (
-              <div key={step.id} className="flex flex-col gap-4 p-5 rounded-2xl bg-[#fafafa] border border-[#f1f5f9]">
+              <div key={step.id} className="flex flex-col gap-4 p-5 rounded-2xl bg-[#0f172a] border border-[#f1f5f9]">
                 <div className="flex items-center gap-3">
                   <span className="w-7 h-7 rounded-full bg-[#0f172a] flex items-center justify-center text-white text-[10px] font-black flex-shrink-0">
                     {String(step.id).padStart(2, '0')}
@@ -154,7 +154,7 @@ export default function FuncionamientoPage() {
           </div>
 
           <div className="bg-white px-4 py-3 flex items-center gap-2 border-t border-[#f1f5f9]">
-            <div className="flex-1 bg-[#fafafa] border border-[#f1f5f9] rounded-full px-4 py-2 text-xs text-[#cbd5e1]">
+            <div className="flex-1 bg-[#0f172a] border border-[#f1f5f9] rounded-full px-4 py-2 text-xs text-[#cbd5e1]">
               El agente gestiona esto por ti...
             </div>
           </div>

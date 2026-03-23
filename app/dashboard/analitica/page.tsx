@@ -78,7 +78,7 @@ export default function AnaliticaPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#fafafa] px-8 py-10">
+    <div className="min-h-screen bg-[#0f172a] px-8 py-10">
       <div className="max-w-4xl mx-auto space-y-6">
 
         <div>
@@ -137,7 +137,7 @@ export default function AnaliticaPage() {
             </div>
 
             {loading ? (
-              <div className="h-48 bg-[#fafafa] rounded-2xl animate-pulse" />
+              <div className="h-48 bg-[#0f172a] rounded-2xl animate-pulse" />
             ) : (
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={dailyData} barSize={32}>

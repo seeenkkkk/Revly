@@ -87,7 +87,7 @@ export default async function DashboardPage() {
   const greeting = hour < 13 ? 'Buenos días' : hour < 20 ? 'Buenas tardes' : 'Buenas noches'
 
   return (
-    <div style={{ minHeight:'100vh', padding:'32px 36px' }}>
+    <div style={{ minHeight:'100vh', padding:'32px 36px', background:'#0f172a' }}>
       <style>{`
         @keyframes status-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
       `}</style>

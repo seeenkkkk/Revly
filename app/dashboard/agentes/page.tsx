@@ -312,7 +312,7 @@ export default function MiAgentePage() {
     : ag.agent_name.trim() !== "" && ag.system_prompt.trim() !== "";
 
   return (
-    <div style={{ padding: "2rem", maxWidth: 640 }}>
+    <div style={{ padding: "2rem", maxWidth: 640, minHeight: "100vh", background: "#0f172a" }}>
       <div style={{ marginBottom: 22 }}>
         <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "#111827" }}>Mi agente</h2>
         <p style={{ margin: "4px 0 0", fontSize: 14, color: "#6b7280" }}>Configura y activa tu agente de ventas en WhatsApp.</p>
