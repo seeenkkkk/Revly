@@ -1,38 +1,44 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = req.nextUrl
+export async function GET(request: Request) {
+  const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
 
-  const redirectTo = new URL('/dashboard/agentes', req.url)
-  const failUrl = new URL('/login?error=confirmation_failed', req.url)
+  if (code) {
+    const cookieStore = cookies()
+    const response = NextResponse.redirect(`${origin}/dashboard`)
 
-  if (!code) return NextResponse.redirect(failUrl)
-
-  // Build the redirect response first, then attach cookies to it
-  const response = NextResponse.redirect(redirectTo)
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return req.cookies.getAll()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            )
+          },
         },
-        setAll(cookiesToSet) {
-          // Write cookies directly onto the redirect response
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options)
-          })
-        },
-      },
+      }
+    )
+
+    const allCookies = cookieStore.getAll()
+    console.log('CALLBACK COOKIES:', allCookies.map(c => c.name))
+
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (error) {
+      console.error('AUTH CALLBACK ERROR:', JSON.stringify(error))
+      return NextResponse.redirect(`${origin}/login?error=confirmation_failed&msg=${encodeURIComponent(error.message)}`)
     }
-  )
 
-  const { error } = await supabase.auth.exchangeCodeForSession(code)
-  if (error) return NextResponse.redirect(failUrl)
+    return response
+  }
 
-  return response
+  return NextResponse.redirect(`${origin}/login?error=confirmation_failed`)
 }

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserSupabase } from '@/lib/supabase-browser'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Check } from 'lucide-react'
 
 function GoogleIcon() {
   return (
@@ -18,10 +18,16 @@ function GoogleIcon() {
   )
 }
 
+const BULLETS = [
+  'Responde leads en segundos, 24 horas al día',
+  'Califica y cierra ventas sin que tú intervengas',
+  'Configura tu agente en menos de 10 minutos',
+]
+
 function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/dashboard/agentes'
+  const redirectTo = searchParams.get('redirect') || '/dashboard'
   const confirmError = searchParams.get('error') === 'confirmation_failed'
 
   const [mode, setMode] = useState<'login' | 'signup'>('login')
@@ -40,9 +46,7 @@ function LoginContent() {
     const supabase = createBrowserSupabase()
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
     if (oauthError) {
       setError('No se pudo iniciar sesión con Google.')
@@ -64,14 +68,12 @@ function LoginContent() {
         setLoading(false)
         return
       }
-      router.push(redirect)
+      router.push(redirectTo)
     } else {
       const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       })
       if (signUpError) {
         setError(signUpError.message)
@@ -90,106 +92,182 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a] flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen flex">
 
-      {/* Logo above card */}
-      <Link href="/" className="flex items-center gap-2.5 mb-8">
-        <Image src="/images/logo.png.png" alt="Revly" width={32} height={32} className="h-8 w-auto" />
-        <span className="text-white font-black text-xl tracking-tight">revly</span>
-      </Link>
+      {/* ── LEFT PANEL — branding (hidden on mobile) ─────────────── */}
+      <div className="hidden lg:flex lg:w-1/2 bg-[#0f172a] flex-col justify-between p-12 relative overflow-hidden">
 
-      <div className="w-full max-w-sm bg-[#0d1117] rounded-2xl p-8">
+        {/* Background decoration */}
+        <div className="absolute top-[-80px] right-[-80px] w-[380px] h-[380px] bg-[#0d9488]/[0.08] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-[-60px] left-[-60px] w-[300px] h-[300px] bg-[#0d9488]/[0.05] rounded-full blur-3xl pointer-events-none" />
 
-        <h1 className="text-[22px] font-bold text-white mb-1 tracking-tight">
-          Bienvenido a Revly
-        </h1>
-        <p className="text-white/40 text-sm mb-7">
-          Gestiona tu agente de ventas en WhatsApp
-        </p>
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-3 relative z-10">
+          <div className="relative w-9 h-9 flex-shrink-0">
+            <Image src="/images/logo.png.png" alt="Revly" fill style={{ objectFit: 'contain' }} />
+          </div>
+          <span className="text-white font-black text-xl tracking-tight">revly</span>
+        </Link>
 
-        {/* Google button */}
-        <button
-          onClick={handleGoogle}
-          disabled={googleLoading || loading}
-          className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 hover:shadow-md rounded-xl px-4 py-3.5 text-sm font-semibold text-gray-800 transition-all disabled:opacity-60 mb-5"
-        >
-          {googleLoading
-            ? <Loader2 size={16} className="animate-spin text-gray-400" />
-            : <GoogleIcon />
-          }
-          {mode === 'login' ? 'Continuar con Google' : 'Registrarse con Google'}
-        </button>
+        {/* Center copy */}
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 bg-[#0d9488]/10 border border-[#0d9488]/20 rounded-full px-3 py-1.5 mb-8">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#0d9488] animate-pulse flex-shrink-0" />
+            <span className="text-[#0d9488] text-[10px] font-bold uppercase tracking-widest">
+              Para negocios locales
+            </span>
+          </div>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 h-px bg-white/[0.08]" />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-white/20">o con email</span>
-          <div className="flex-1 h-px bg-white/[0.08]" />
+          <h2 className="text-[40px] font-black leading-[1.1] tracking-tight text-white mb-6">
+            Tu agente WhatsApp<br />
+            <em className="italic text-[#0d9488]">que vende mientras<br />duermes.</em>
+          </h2>
+
+          <ul className="space-y-4 mt-8">
+            {BULLETS.map((bullet) => (
+              <li key={bullet} className="flex items-start gap-3">
+                <span className="w-5 h-5 rounded-full bg-[#0d9488]/15 border border-[#0d9488]/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Check size={11} className="text-[#0d9488]" strokeWidth={2.5} />
+                </span>
+                <span className="text-white/60 text-sm leading-relaxed">{bullet}</span>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              placeholder="tu@email.com"
-              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#0d9488] focus:bg-white/[0.08] transition-all"
-            />
-          </div>
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2">
-              Contraseña
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              minLength={6}
-              placeholder="••••••••"
-              className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#0d9488] focus:bg-white/[0.08] transition-all"
-            />
-          </div>
-
-          {error && <p className="text-red-400 text-xs font-medium">{error}</p>}
-          {success && <p className="text-[#0d9488] text-xs font-medium">{success}</p>}
-
-          <button
-            type="submit"
-            disabled={loading || googleLoading}
-            className="w-full py-3.5 rounded-full bg-[#0d9488] hover:bg-[#0f766e] text-white font-black text-[12px] uppercase tracking-wider transition-all disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
-          >
-            {loading && <Loader2 size={14} className="animate-spin" />}
-            {mode === 'login' ? 'Entrar →' : 'Crear cuenta →'}
-          </button>
-        </form>
-
-        <p className="text-center text-white/30 text-xs mt-5">
-          {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}{' '}
-          <button
-            onClick={switchMode}
-            className="text-[#0d9488] font-bold hover:text-[#0f766e] transition-colors"
-          >
-            {mode === 'login' ? 'Regístrate gratis' : 'Acceder'}
-          </button>
-        </p>
+        {/* Bottom quote */}
+        <div className="relative z-10 border-l-2 border-[#0d9488]/40 pl-4">
+          <p className="text-white/40 text-sm italic leading-relaxed">
+            &ldquo;En la primera semana cerré 3 ventas que yo ni había visto.&rdquo;
+          </p>
+          <p className="text-white/25 text-xs mt-1.5 font-medium">Carlos M. — Inmobiliaria Costa Sur</p>
+        </div>
       </div>
 
-      <p className="text-white/20 text-xs mt-8 text-center">
-        Al continuar aceptas nuestros términos de uso
-      </p>
+      {/* ── RIGHT PANEL — form ───────────────────────────────────── */}
+      <div className="w-full lg:w-1/2 bg-white flex flex-col items-center justify-center px-6 py-12">
+
+        {/* Mobile logo */}
+        <Link href="/" className="flex lg:hidden items-center gap-2.5 mb-10">
+          <div className="relative w-8 h-8 flex-shrink-0">
+            <Image src="/images/logo.png.png" alt="Revly" fill style={{ objectFit: 'contain' }} />
+          </div>
+          <span className="text-[#0f172a] font-black text-xl tracking-tight">revly</span>
+        </Link>
+
+        <div className="w-full max-w-sm">
+
+          {/* Heading */}
+          <div className="mb-8">
+            <h1 className="text-[26px] font-black text-[#0f172a] tracking-tight mb-1">
+              {mode === 'login' ? 'Bienvenido de nuevo' : 'Crea tu cuenta'}
+            </h1>
+            <p className="text-[#94a3b8] text-sm">
+              {mode === 'login'
+                ? 'Accede a tu panel de Revly'
+                : 'Empieza gratis, sin tarjeta'}
+            </p>
+          </div>
+
+          {/* Google button */}
+          <button
+            onClick={handleGoogle}
+            disabled={googleLoading || loading}
+            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-[#f8fafc] border border-[#e2e8f0] hover:border-[#cbd5e1] rounded-xl px-4 py-3.5 text-sm font-semibold text-[#0f172a] transition-all disabled:opacity-60 shadow-sm hover:shadow-md mb-5"
+          >
+            {googleLoading
+              ? <Loader2 size={16} className="animate-spin text-[#94a3b8]" />
+              : <GoogleIcon />
+            }
+            {mode === 'login' ? 'Continuar con Google' : 'Registrarse con Google'}
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex-1 h-px bg-[#f1f5f9]" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#cbd5e1]">o con email</span>
+            <div className="flex-1 h-px bg-[#f1f5f9]" />
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                placeholder="tu@email.com"
+                className="w-full bg-white border border-[#e2e8f0] rounded-xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">
+                Contraseña
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                minLength={6}
+                placeholder="••••••••"
+                className="w-full bg-white border border-[#e2e8f0] rounded-xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
+              />
+            </div>
+
+            {error && (
+              <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-lg px-3 py-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+                <p className="text-red-600 text-xs font-medium">{error}</p>
+              </div>
+            )}
+            {success && (
+              <div className="flex items-center gap-2 bg-[#f0fdfa] border border-[#99f6e4] rounded-lg px-3 py-2.5">
+                <Check size={12} className="text-[#0d9488] flex-shrink-0" />
+                <p className="text-[#0d9488] text-xs font-medium">{success}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading || googleLoading}
+              className="w-full py-3.5 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-sm transition-all disabled:opacity-60 flex items-center justify-center gap-2 mt-2 shadow-sm hover:shadow-[0_4px_16px_rgba(13,148,136,0.25)]"
+            >
+              {loading && <Loader2 size={14} className="animate-spin" />}
+              {mode === 'login' ? 'Entrar →' : 'Crear cuenta →'}
+            </button>
+          </form>
+
+          {/* Switch mode */}
+          <p className="text-center text-[#94a3b8] text-sm mt-6">
+            {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}{' '}
+            <button
+              onClick={switchMode}
+              className="text-[#0d9488] font-bold hover:text-[#0f766e] transition-colors"
+            >
+              {mode === 'login' ? 'Regístrate gratis' : 'Acceder'}
+            </button>
+          </p>
+
+          <p className="text-center text-[#cbd5e1] text-xs mt-8">
+            Al continuar aceptas nuestros{' '}
+            <Link href="/terms" className="underline hover:text-[#94a3b8] transition-colors">
+              términos de uso
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0a0f1a]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
       <LoginContent />
     </Suspense>
   )
