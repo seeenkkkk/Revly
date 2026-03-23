@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserSupabase } from '@/lib/supabase-browser'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Loader2, Check, Zap, Shield, TrendingUp } from 'lucide-react'
+import { Loader2, Check, ArrowRight } from 'lucide-react'
 
 function GoogleIcon() {
   return (
@@ -18,17 +18,79 @@ function GoogleIcon() {
   )
 }
 
-const BULLETS = [
-  { icon: Zap, text: 'Responde leads en segundos, 24 horas al día' },
-  { icon: TrendingUp, text: 'Califica y cierra ventas sin que tú intervengas' },
-  { icon: Shield, text: 'Configura tu agente en menos de 10 minutos' },
-]
-
-const STATS = [
-  { value: '3 min', label: 'Setup' },
-  { value: '24/7', label: 'Activo' },
-  { value: '10x', label: 'Más leads' },
-]
+// Mock phone showing WhatsApp conversation
+function PhoneMockup() {
+  return (
+    <div className="relative mx-auto" style={{ width: 220, filter: 'drop-shadow(0 32px 64px rgba(13,148,136,0.25))' }}>
+      {/* Phone frame */}
+      <div style={{
+        borderRadius: 32,
+        border: '1.5px solid rgba(13,148,136,0.3)',
+        background: 'rgba(13,148,136,0.04)',
+        backdropFilter: 'blur(8px)',
+        overflow: 'hidden',
+        boxShadow: '0 0 0 1px rgba(255,255,255,0.04) inset, 0 40px 80px rgba(0,0,0,0.4)',
+      }}>
+        {/* Status bar */}
+        <div style={{ background: 'rgba(13,148,136,0.12)', padding: '10px 16px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 9, fontWeight: 600 }}>9:41</span>
+          <div style={{ display: 'flex', gap: 3 }}>
+            {[3, 2.5, 2].map((h, i) => (
+              <div key={i} style={{ width: 2.5, height: h * 2.5, background: 'rgba(255,255,255,0.4)', borderRadius: 1, alignSelf: 'flex-end' }} />
+            ))}
+          </div>
+        </div>
+        {/* Chat header */}
+        <div style={{ background: 'rgba(13,148,136,0.15)', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid rgba(13,148,136,0.15)' }}>
+          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#0d9488,#2dd4bf)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#fff' }}>R</div>
+          <div>
+            <p style={{ color: '#fff', fontSize: 10, fontWeight: 700, margin: 0 }}>Revly Agent</p>
+            <p style={{ color: 'rgba(13,148,136,0.8)', fontSize: 8, margin: 0 }}>● en línea</p>
+          </div>
+        </div>
+        {/* Messages */}
+        <div style={{ padding: '10px 10px', display: 'flex', flexDirection: 'column', gap: 6, background: 'rgba(8,14,26,0.6)', minHeight: 200 }}>
+          {/* Incoming */}
+          <div style={{ alignSelf: 'flex-start', maxWidth: '80%' }}>
+            <div style={{ background: 'rgba(13,148,136,0.15)', border: '1px solid rgba(13,148,136,0.2)', borderRadius: '12px 12px 12px 3px', padding: '7px 10px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 9, margin: 0, lineHeight: 1.4 }}>Hola! Me interesa el piso en venta en Málaga 🏡</p>
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: 7, margin: '2px 0 0 4px' }}>10:23</p>
+          </div>
+          {/* Outgoing (agent) */}
+          <div style={{ alignSelf: 'flex-end', maxWidth: '82%' }}>
+            <div style={{ background: 'linear-gradient(135deg,rgba(13,148,136,0.35),rgba(13,148,136,0.2))', border: '1px solid rgba(13,148,136,0.3)', borderRadius: '12px 12px 3px 12px', padding: '7px 10px' }}>
+              <p style={{ color: '#fff', fontSize: 9, margin: 0, lineHeight: 1.4 }}>¡Buenas! Claro, ese piso tiene 3 hab y 95m². ¿Cuándo te viene bien verlo? 📅</p>
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: 7, margin: '2px 4px 0 0', textAlign: 'right' }}>10:23 ✓✓</p>
+          </div>
+          {/* Incoming */}
+          <div style={{ alignSelf: 'flex-start', maxWidth: '75%' }}>
+            <div style={{ background: 'rgba(13,148,136,0.15)', border: '1px solid rgba(13,148,136,0.2)', borderRadius: '12px 12px 12px 3px', padding: '7px 10px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 9, margin: 0, lineHeight: 1.4 }}>Mañana por la tarde me va genial!</p>
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: 7, margin: '2px 0 0 4px' }}>10:24</p>
+          </div>
+          {/* Outgoing */}
+          <div style={{ alignSelf: 'flex-end', maxWidth: '82%' }}>
+            <div style={{ background: 'linear-gradient(135deg,rgba(13,148,136,0.35),rgba(13,148,136,0.2))', border: '1px solid rgba(13,148,136,0.3)', borderRadius: '12px 12px 3px 12px', padding: '7px 10px' }}>
+              <p style={{ color: '#fff', fontSize: 9, margin: 0, lineHeight: 1.4 }}>Perfecto! Te confirmo cita para mañana 17:00h. ¡Hasta entonces! 🤝</p>
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: 7, margin: '2px 4px 0 0', textAlign: 'right' }}>10:24 ✓✓</p>
+          </div>
+          {/* Typing indicator */}
+          <div style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: 3, padding: '6px 10px', background: 'rgba(13,148,136,0.1)', border: '1px solid rgba(13,148,136,0.15)', borderRadius: '12px 12px 12px 3px' }}>
+            {[0, 0.2, 0.4].map((d, i) => (
+              <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: '#0d9488', animation: `bounce 1.2s ${d}s ease-in-out infinite` }} />
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Glow underneath */}
+      <div style={{ position: 'absolute', bottom: -20, left: '10%', right: '10%', height: 40, background: 'rgba(13,148,136,0.2)', filter: 'blur(20px)', borderRadius: '50%' }} />
+    </div>
+  )
+}
 
 function LoginContent() {
   const router = useRouter()
@@ -54,311 +116,298 @@ function LoginContent() {
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
-    if (oauthError) {
-      setError('No se pudo iniciar sesión con Google.')
-      setGoogleLoading(false)
-    }
+    if (oauthError) { setError('No se pudo iniciar sesión con Google.'); setGoogleLoading(false) }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
-    setSuccess(null)
+    setLoading(true); setError(null); setSuccess(null)
     const supabase = createBrowserSupabase()
-
     if (mode === 'login') {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-      if (signInError) {
-        setError('Email o contraseña incorrectos.')
-        setLoading(false)
-        return
-      }
+      if (signInError) { setError('Email o contraseña incorrectos.'); setLoading(false); return }
       router.push(redirectTo)
     } else {
       const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
+        email, password,
         options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       })
-      if (signUpError) {
-        setError(signUpError.message)
-        setLoading(false)
-        return
-      }
+      if (signUpError) { setError(signUpError.message); setLoading(false); return }
       setSuccess('Revisa tu email para confirmar tu cuenta antes de entrar.')
       setLoading(false)
     }
   }
 
-  const switchMode = () => {
-    setMode(mode === 'login' ? 'signup' : 'login')
-    setError(null)
-    setSuccess(null)
-  }
-
   return (
-    <div className="min-h-screen flex">
+    <>
+      <style>{`
+        @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-4px)} }
+        @keyframes float { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-10px)} }
+        @keyframes shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
+        @keyframes glow-pulse { 0%,100%{box-shadow:0 0 20px rgba(13,148,136,0.2)} 50%{box-shadow:0 0 40px rgba(13,148,136,0.4)} }
+        @keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        .shimmer-text {
+          background: linear-gradient(90deg, #2dd4bf 0%, #ffffff 30%, #0d9488 60%, #2dd4bf 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: shimmer 4s linear infinite;
+        }
+        .phone-float { animation: float 4s ease-in-out infinite; }
+        .input-focus:focus {
+          border-color: #0d9488 !important;
+          box-shadow: 0 0 0 3px rgba(13,148,136,0.12) !important;
+          outline: none;
+        }
+      `}</style>
 
-      {/* ── LEFT PANEL ─────────────────────────────────────────── */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #0a0f1e 0%, #0f172a 50%, #0a1628 100%)' }}>
+      <div className="min-h-screen flex">
 
-        {/* Animated orbs */}
-        <div className="absolute top-[-100px] right-[-80px] w-[450px] h-[450px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(13,148,136,0.12) 0%, transparent 70%)', animation: 'pulse 4s ease-in-out infinite' }} />
-        <div className="absolute bottom-[-80px] left-[-60px] w-[350px] h-[350px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(13,148,136,0.08) 0%, transparent 70%)', animation: 'pulse 6s ease-in-out infinite reverse' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(13,148,136,0.04) 0%, transparent 60%)' }} />
+        {/* ── LEFT ── */}
+        <div className="hidden lg:flex lg:w-[55%] flex-col justify-between p-14 relative overflow-hidden"
+          style={{ background: 'linear-gradient(145deg, #060d1a 0%, #0a1525 40%, #0d1a2e 100%)' }}>
 
-        {/* Grid pattern */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
-          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+          {/* Radial glow centers */}
+          <div style={{ position:'absolute', top:'15%', left:'60%', width:500, height:500, borderRadius:'50%', background:'radial-gradient(circle, rgba(13,148,136,0.1) 0%, transparent 65%)', pointerEvents:'none' }} />
+          <div style={{ position:'absolute', bottom:'10%', left:'5%', width:350, height:350, borderRadius:'50%', background:'radial-gradient(circle, rgba(13,148,136,0.07) 0%, transparent 65%)', pointerEvents:'none' }} />
 
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 relative z-10">
-          <div className="relative w-9 h-9 flex-shrink-0 rounded-xl overflow-hidden"
-            style={{ background: 'rgba(13,148,136,0.15)', border: '1px solid rgba(13,148,136,0.3)', padding: '6px' }}>
-            <Image src="/images/logo.png.png" alt="Revly" fill style={{ objectFit: 'contain' }} />
+          {/* Rotating ring */}
+          <div style={{
+            position:'absolute', top:'50%', right:'-80px',
+            width:320, height:320, borderRadius:'50%',
+            border:'1px solid rgba(13,148,136,0.08)',
+            transform:'translateY(-50%)',
+            animation:'spin-slow 30s linear infinite',
+            pointerEvents:'none'
+          }}>
+            <div style={{ position:'absolute', top:0, left:'50%', width:6, height:6, borderRadius:'50%', background:'#0d9488', transform:'translate(-50%,-50%)', boxShadow:'0 0 10px rgba(13,148,136,0.8)' }} />
           </div>
-          <span className="text-white font-black text-xl tracking-tight">revly</span>
-        </Link>
+          <div style={{
+            position:'absolute', top:'50%', right:'-30px',
+            width:220, height:220, borderRadius:'50%',
+            border:'1px solid rgba(13,148,136,0.05)',
+            transform:'translateY(-50%)',
+            animation:'spin-slow 20s linear infinite reverse',
+            pointerEvents:'none'
+          }} />
 
-        {/* Center copy */}
-        <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-8"
-            style={{ background: 'rgba(13,148,136,0.1)', border: '1px solid rgba(13,148,136,0.2)' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0d9488] flex-shrink-0"
-              style={{ animation: 'pulse 2s ease-in-out infinite', boxShadow: '0 0 6px rgba(13,148,136,0.8)' }} />
-            <span className="text-[#0d9488] text-[10px] font-bold uppercase tracking-widest">
-              Para negocios locales
-            </span>
+          {/* Grid */}
+          <div style={{ position:'absolute', inset:0, pointerEvents:'none', opacity:0.025, backgroundImage:'linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize:'40px 40px' }} />
+
+          {/* Logo */}
+          <Link href="/" style={{ display:'flex', alignItems:'center', gap:10, textDecoration:'none', position:'relative', zIndex:1 }}>
+            <div style={{ position:'relative', width:34, height:34, borderRadius:10, background:'rgba(13,148,136,0.12)', border:'1px solid rgba(13,148,136,0.3)', padding:5, flexShrink:0 }}>
+              <Image src="/images/logo.png.png" alt="Revly" fill style={{ objectFit:'contain', padding:3 }} />
+            </div>
+            <div>
+              <p style={{ color:'#fff', fontWeight:800, fontSize:17, letterSpacing:'-0.5px', margin:0, lineHeight:1.1 }}>revly</p>
+              <p style={{ color:'rgba(13,148,136,0.6)', fontSize:9, margin:0, letterSpacing:'0.08em', fontWeight:500 }}>FOR BUSINESS</p>
+            </div>
+          </Link>
+
+          {/* Center */}
+          <div style={{ position:'relative', zIndex:1 }}>
+            {/* Badge */}
+            <div style={{ display:'inline-flex', alignItems:'center', gap:7, borderRadius:99, padding:'5px 12px', marginBottom:28, background:'rgba(13,148,136,0.08)', border:'1px solid rgba(13,148,136,0.18)' }}>
+              <span style={{ width:6, height:6, borderRadius:'50%', background:'#0d9488', boxShadow:'0 0 8px rgba(13,148,136,1)', display:'inline-block', flexShrink:0 }} />
+              <span style={{ color:'#0d9488', fontSize:10, fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase' }}>Agente IA para negocios locales</span>
+            </div>
+
+            <h2 style={{ color:'#fff', fontSize:46, fontWeight:900, lineHeight:1.05, letterSpacing:'-1.5px', marginBottom:8, margin:'0 0 8px' }}>
+              Vende más,<br />trabaja menos.
+            </h2>
+            <p className="shimmer-text" style={{ fontSize:46, fontWeight:900, lineHeight:1.05, letterSpacing:'-1.5px', marginBottom:32 }}>
+              Tu WhatsApp,<br />en automático.
+            </p>
+
+            <p style={{ color:'rgba(255,255,255,0.35)', fontSize:14, lineHeight:1.7, marginBottom:40, maxWidth:360 }}>
+              Un agente de IA que responde, califica y cierra tus ventas en WhatsApp — las 24h, sin que tú tengas que estar.
+            </p>
+
+            {/* Phone mockup */}
+            <div className="phone-float">
+              <PhoneMockup />
+            </div>
           </div>
 
-          <h2 className="text-[42px] font-black leading-[1.05] tracking-tight text-white mb-8">
-            Tu agente WhatsApp<br />
-            <span className="italic" style={{ background: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #2dd4bf 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              que vende mientras<br />duermes.
-            </span>
-          </h2>
+          {/* Bottom quote */}
+          <div style={{ position:'relative', zIndex:1, padding:'14px 16px', borderRadius:14, background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.05)', borderLeft:'2.5px solid rgba(13,148,136,0.5)' }}>
+            <p style={{ color:'rgba(255,255,255,0.4)', fontSize:12.5, fontStyle:'italic', lineHeight:1.6, margin:0 }}>
+              &ldquo;En la primera semana cerré 3 ventas que yo ni había visto. El agente respondía mientras yo dormía.&rdquo;
+            </p>
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:10 }}>
+              <div style={{ width:24, height:24, borderRadius:'50%', background:'linear-gradient(135deg,rgba(13,148,136,0.3),rgba(13,148,136,0.1))', border:'1px solid rgba(13,148,136,0.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, fontWeight:700, color:'#2dd4bf' }}>C</div>
+              <p style={{ color:'rgba(255,255,255,0.22)', fontSize:11, margin:0, fontWeight:500 }}>Carlos M. — Inmobiliaria Costa Sur</p>
+            </div>
+          </div>
+        </div>
 
-          <ul className="space-y-3 mb-10">
-            {BULLETS.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-center gap-3">
-                <span className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(13,148,136,0.12)', border: '1px solid rgba(13,148,136,0.25)' }}>
-                  <Icon size={13} className="text-[#0d9488]" strokeWidth={2.2} />
-                </span>
-                <span className="text-white/60 text-sm leading-relaxed">{text}</span>
-              </li>
-            ))}
-          </ul>
+        {/* ── RIGHT ── */}
+        <div className="w-full lg:w-[45%] flex flex-col items-center justify-center px-8 py-12 relative"
+          style={{ background:'linear-gradient(160deg, #0d1525 0%, #0a1020 100%)' }}>
 
-          {/* Stats row */}
-          <div className="grid grid-cols-3 gap-3">
-            {STATS.map(({ value, label }) => (
-              <div key={label} className="rounded-xl p-3 text-center"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <p className="text-white font-black text-lg tracking-tight" style={{ color: '#2dd4bf' }}>{value}</p>
-                <p className="text-white/30 text-[10px] uppercase tracking-widest mt-0.5">{label}</p>
+          {/* Background noise */}
+          <div style={{ position:'absolute', inset:0, pointerEvents:'none', opacity:0.03, backgroundImage:'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize:'24px 24px' }} />
+          {/* Glow */}
+          <div style={{ position:'absolute', top:'20%', left:'50%', transform:'translateX(-50%)', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle, rgba(13,148,136,0.08) 0%, transparent 65%)', pointerEvents:'none' }} />
+
+          {/* Mobile logo */}
+          <Link href="/" className="flex lg:hidden items-center gap-2.5 mb-10" style={{ textDecoration:'none' }}>
+            <div style={{ position:'relative', width:32, height:32, borderRadius:8, background:'rgba(13,148,136,0.12)', border:'1px solid rgba(13,148,136,0.3)', padding:5 }}>
+              <Image src="/images/logo.png.png" alt="Revly" fill style={{ objectFit:'contain', padding:3 }} />
+            </div>
+            <span style={{ color:'#fff', fontWeight:800, fontSize:18, letterSpacing:'-0.4px' }}>revly</span>
+          </Link>
+
+          <div style={{ width:'100%', maxWidth:380, position:'relative', zIndex:1 }}>
+
+            {/* Card */}
+            <div style={{
+              background:'rgba(15,23,42,0.8)',
+              backdropFilter:'blur(24px)',
+              border:'1px solid rgba(13,148,136,0.18)',
+              borderRadius:20,
+              padding:'32px 28px',
+              boxShadow:'0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03) inset',
+            }}>
+
+              {/* Heading */}
+              <div style={{ marginBottom:24 }}>
+                <h1 style={{ color:'#fff', fontSize:24, fontWeight:800, letterSpacing:'-0.6px', margin:'0 0 4px' }}>
+                  {mode === 'login' ? 'Bienvenido de nuevo' : 'Crea tu cuenta gratis'}
+                </h1>
+                <p style={{ color:'rgba(255,255,255,0.35)', fontSize:13, margin:0 }}>
+                  {mode === 'login' ? 'Accede a tu panel de Revly' : 'Empieza sin tarjeta de crédito'}
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Bottom quote */}
-        <div className="relative z-10 rounded-xl p-4"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '2px solid rgba(13,148,136,0.5)' }}>
-          <p className="text-white/40 text-sm italic leading-relaxed">
-            &ldquo;En la primera semana cerré 3 ventas que yo ni había visto.&rdquo;
-          </p>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-[#0d9488]"
-              style={{ background: 'rgba(13,148,136,0.15)', border: '1px solid rgba(13,148,136,0.3)' }}>C</div>
-            <p className="text-white/25 text-xs font-medium">Carlos M. — Inmobiliaria Costa Sur</p>
-          </div>
-        </div>
-      </div>
+              {/* Google */}
+              <button
+                onClick={handleGoogle}
+                disabled={googleLoading || loading}
+                style={{
+                  width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:10,
+                  background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)',
+                  borderRadius:12, padding:'11px 16px', cursor:'pointer', transition:'all 0.2s',
+                  fontSize:13, fontWeight:600, color:'#fff', marginBottom:16,
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.1)'
+                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(13,148,136,0.4)'
+                  ;(e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(13,148,136,0.15)'
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'
+                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.1)'
+                  ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
+                }}
+              >
+                {googleLoading ? <Loader2 size={16} style={{ animation:'spin 1s linear infinite' }} /> : <GoogleIcon />}
+                {mode === 'login' ? 'Continuar con Google' : 'Registrarse con Google'}
+              </button>
 
-      {/* ── RIGHT PANEL ──────────────────────────────────────────── */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden"
-        style={{ background: 'linear-gradient(160deg, #f8fafc 0%, #ffffff 50%, #f0fdfa 100%)' }}>
+              {/* Divider */}
+              <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>
+                <div style={{ flex:1, height:1, background:'rgba(255,255,255,0.06)' }} />
+                <span style={{ color:'rgba(255,255,255,0.2)', fontSize:10, fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase' }}>o con email</span>
+                <div style={{ flex:1, height:1, background:'rgba(255,255,255,0.06)' }} />
+              </div>
 
-        {/* Subtle background orb */}
-        <div className="absolute top-[-100px] right-[-100px] w-[400px] h-[400px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(13,148,136,0.06) 0%, transparent 65%)' }} />
-        <div className="absolute bottom-[-80px] left-[-80px] w-[300px] h-[300px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(13,148,136,0.04) 0%, transparent 65%)' }} />
+              {/* Form */}
+              <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                <div>
+                  <label style={{ display:'block', fontSize:10, fontWeight:700, color:'rgba(255,255,255,0.35)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:6 }}>Email</label>
+                  <input
+                    type="email" value={email} onChange={e => setEmail(e.target.value)} required
+                    placeholder="tu@email.com"
+                    className="input-focus"
+                    style={{
+                      width:'100%', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)',
+                      borderRadius:10, padding:'10px 14px', fontSize:13, color:'#fff',
+                      outline:'none', transition:'all 0.2s', boxSizing:'border-box',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display:'block', fontSize:10, fontWeight:700, color:'rgba(255,255,255,0.35)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:6 }}>Contraseña</label>
+                  <input
+                    type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6}
+                    placeholder="••••••••"
+                    className="input-focus"
+                    style={{
+                      width:'100%', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)',
+                      borderRadius:10, padding:'10px 14px', fontSize:13, color:'#fff',
+                      outline:'none', transition:'all 0.2s', boxSizing:'border-box',
+                    }}
+                  />
+                </div>
 
-        {/* Mobile logo */}
-        <Link href="/" className="flex lg:hidden items-center gap-2.5 mb-10">
-          <div className="relative w-8 h-8 flex-shrink-0">
-            <Image src="/images/logo.png.png" alt="Revly" fill style={{ objectFit: 'contain' }} />
-          </div>
-          <span className="text-[#0f172a] font-black text-xl tracking-tight">revly</span>
-        </Link>
+                {error && (
+                  <div style={{ display:'flex', alignItems:'center', gap:8, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:10, padding:'9px 12px' }}>
+                    <span style={{ width:6, height:6, borderRadius:'50%', background:'#f87171', flexShrink:0 }} />
+                    <p style={{ color:'#fca5a5', fontSize:12, margin:0, fontWeight:500 }}>{error}</p>
+                  </div>
+                )}
+                {success && (
+                  <div style={{ display:'flex', alignItems:'center', gap:8, background:'rgba(13,148,136,0.08)', border:'1px solid rgba(13,148,136,0.2)', borderRadius:10, padding:'9px 12px' }}>
+                    <Check size={12} style={{ color:'#2dd4bf', flexShrink:0 }} />
+                    <p style={{ color:'#5eead4', fontSize:12, margin:0, fontWeight:500 }}>{success}</p>
+                  </div>
+                )}
 
-        <div className="w-full max-w-sm relative z-10">
+                <button
+                  type="submit"
+                  disabled={loading || googleLoading}
+                  style={{
+                    width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+                    background:'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
+                    border:'1px solid rgba(13,148,136,0.5)',
+                    borderRadius:12, padding:'12px 16px', cursor:'pointer',
+                    fontSize:13, fontWeight:700, color:'#fff', marginTop:4,
+                    boxShadow:'0 4px 24px rgba(13,148,136,0.35)',
+                    transition:'all 0.2s', opacity: loading || googleLoading ? 0.6 : 1,
+                  }}
+                  onMouseEnter={e => {
+                    if (!loading && !googleLoading) {
+                      (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 36px rgba(13,148,136,0.5)'
+                      ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 24px rgba(13,148,136,0.35)'
+                    ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
+                  }}
+                >
+                  {loading ? <Loader2 size={14} style={{ animation:'spin 1s linear infinite' }} /> : null}
+                  {mode === 'login' ? 'Entrar al panel' : 'Crear cuenta'}
+                  {!loading && <ArrowRight size={14} strokeWidth={2.5} />}
+                </button>
+              </form>
 
-          {/* Heading */}
-          <div className="mb-8">
-            <h1 className="text-[28px] font-black text-[#0f172a] tracking-tight mb-1">
-              {mode === 'login' ? 'Bienvenido de nuevo' : 'Crea tu cuenta'}
-            </h1>
-            <p className="text-[#94a3b8] text-sm">
-              {mode === 'login'
-                ? 'Accede a tu panel de Revly'
-                : 'Empieza gratis, sin tarjeta'}
+              <p style={{ textAlign:'center', color:'rgba(255,255,255,0.25)', fontSize:12, marginTop:18, marginBottom:0 }}>
+                {mode === 'login' ? '¿No tienes cuenta? ' : '¿Ya tienes cuenta? '}
+                <button onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(null); setSuccess(null) }}
+                  style={{ background:'none', border:'none', cursor:'pointer', color:'#2dd4bf', fontWeight:700, fontSize:12 }}>
+                  {mode === 'login' ? 'Regístrate gratis' : 'Iniciar sesión'}
+                </button>
+              </p>
+            </div>
+
+            <p style={{ textAlign:'center', color:'rgba(255,255,255,0.15)', fontSize:11, marginTop:20 }}>
+              Al continuar aceptas nuestros{' '}
+              <Link href="/terms" style={{ color:'rgba(255,255,255,0.25)', textDecoration:'underline' }}>términos de uso</Link>
             </p>
           </div>
-
-          {/* Google button */}
-          <button
-            onClick={handleGoogle}
-            disabled={googleLoading || loading}
-            className="w-full flex items-center justify-center gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold text-[#0f172a] transition-all disabled:opacity-60 mb-5 group"
-            style={{
-              background: 'white',
-              border: '1.5px solid #e2e8f0',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.borderColor = '#0d9488'
-              ;(e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(13,148,136,0.12), 0 1px 3px rgba(0,0,0,0.06)'
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.borderColor = '#e2e8f0'
-              ;(e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)'
-            }}
-          >
-            {googleLoading
-              ? <Loader2 size={16} className="animate-spin text-[#94a3b8]" />
-              : <GoogleIcon />
-            }
-            {mode === 'login' ? 'Continuar con Google' : 'Registrarse con Google'}
-          </button>
-
-          {/* Divider */}
-          <div className="flex items-center gap-3 mb-5">
-            <div className="flex-1 h-px bg-[#f1f5f9]" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#cbd5e1]">o con email</span>
-            <div className="flex-1 h-px bg-[#f1f5f9]" />
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                placeholder="tu@email.com"
-                className="w-full bg-white border rounded-xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] outline-none transition-all"
-                style={{ border: '1.5px solid #e2e8f0' }}
-                onFocus={e => {
-                  (e.currentTarget as HTMLElement).style.border = '1.5px solid #0d9488'
-                  ;(e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 3px rgba(13,148,136,0.08)'
-                }}
-                onBlur={e => {
-                  (e.currentTarget as HTMLElement).style.border = '1.5px solid #e2e8f0'
-                  ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
-                }}
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-widest text-[#94a3b8] mb-2">
-                Contraseña
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                minLength={6}
-                placeholder="••••••••"
-                className="w-full bg-white border rounded-xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] outline-none transition-all"
-                style={{ border: '1.5px solid #e2e8f0' }}
-                onFocus={e => {
-                  (e.currentTarget as HTMLElement).style.border = '1.5px solid #0d9488'
-                  ;(e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 3px rgba(13,148,136,0.08)'
-                }}
-                onBlur={e => {
-                  (e.currentTarget as HTMLElement).style.border = '1.5px solid #e2e8f0'
-                  ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
-                }}
-              />
-            </div>
-
-            {error && (
-              <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-3 py-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
-                <p className="text-red-600 text-xs font-medium">{error}</p>
-              </div>
-            )}
-            {success && (
-              <div className="flex items-center gap-2 bg-[#f0fdfa] border border-[#99f6e4] rounded-xl px-3 py-2.5">
-                <Check size={12} className="text-[#0d9488] flex-shrink-0" />
-                <p className="text-[#0d9488] text-xs font-medium">{success}</p>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading || googleLoading}
-              className="w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
-              style={{
-                background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
-                boxShadow: '0 4px 20px rgba(13,148,136,0.3), 0 1px 3px rgba(0,0,0,0.1)',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={e => {
-                if (!loading && !googleLoading) {
-                  (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 30px rgba(13,148,136,0.4), 0 2px 8px rgba(0,0,0,0.12)'
-                  ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'
-                }
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(13,148,136,0.3), 0 1px 3px rgba(0,0,0,0.1)'
-                ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
-              }}
-            >
-              {loading && <Loader2 size={14} className="animate-spin" />}
-              {mode === 'login' ? 'Entrar →' : 'Crear cuenta →'}
-            </button>
-          </form>
-
-          {/* Switch mode */}
-          <p className="text-center text-[#94a3b8] text-sm mt-6">
-            {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}{' '}
-            <button
-              onClick={switchMode}
-              className="text-[#0d9488] font-bold hover:text-[#0f766e] transition-colors"
-            >
-              {mode === 'login' ? 'Regístrate gratis' : 'Acceder'}
-            </button>
-          </p>
-
-          <p className="text-center text-[#cbd5e1] text-xs mt-8">
-            Al continuar aceptas nuestros{' '}
-            <Link href="/terms" className="underline hover:text-[#94a3b8] transition-colors">
-              términos de uso
-            </Link>
-          </p>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+    <Suspense fallback={<div className="min-h-screen" style={{ background:'#0a1020' }} />}>
       <LoginContent />
     </Suspense>
   )
