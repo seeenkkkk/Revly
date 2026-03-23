@@ -1,23 +1,15 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import Link from 'next/link'
 import { useRevlyStore } from '@/lib/store'
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Inicio',
-  '/dashboard/agentes': 'Mi agente',
+  '/dashboard/agentes': 'Mi Agente',
   '/dashboard/conversaciones': 'Conversaciones',
   '/dashboard/analitica': 'Resultados',
-  '/dashboard/configuracion': 'Plan y facturación',
   '/dashboard/ajustes': 'Ajustes',
-}
-
-const PLAN_BADGE: Record<string, string> = {
-  free: 'Plan gratuito',
-  essential: 'Starter',
-  growth: 'Growth',
-  partner: 'Enterprise',
+  '/dashboard/funcionamiento': 'Cómo funciona',
 }
 
 export default function TopBar() {
@@ -25,24 +17,44 @@ export default function TopBar() {
   const { userData } = useRevlyStore()
 
   const title = PAGE_TITLES[pathname] ?? 'Dashboard'
-  const plan = userData?.plan ?? 'free'
-  const showUpgrade = plan === 'free' || plan === 'essential'
+  const avatarLetter = userData?.email?.[0]?.toUpperCase() ?? 'U'
+  const displayName = userData?.email?.split('@')[0] ?? 'usuario'
 
   return (
-    <div className="h-14 bg-[#0d1117] border-b border-white/[0.04] flex items-center justify-between px-8 flex-shrink-0">
-      <p className="text-white font-bold text-sm">{title}</p>
+    <div
+      className="h-14 flex items-center justify-between px-8 flex-shrink-0"
+      style={{
+        background: 'rgba(15,23,42,0.8)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(13,148,136,0.15)',
+        position: 'sticky', top: 0, zIndex: 30,
+      }}
+    >
+      {/* Title */}
       <div className="flex items-center gap-3">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 bg-white/[0.06] px-3 py-1.5 rounded-full">
-          {PLAN_BADGE[plan] ?? PLAN_BADGE.free}
-        </span>
-        {showUpgrade && (
-          <Link
-            href="/dashboard/configuracion"
-            className="text-[10px] font-bold uppercase tracking-wider text-[#0d9488] hover:text-[#0f766e] bg-[#0d9488]/10 hover:bg-[#0d9488]/20 px-3 py-1.5 rounded-full transition-all"
+        <h1 className="text-white font-bold text-sm tracking-tight">{title}</h1>
+      </div>
+
+      {/* Right: avatar */}
+      <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-2.5 px-3 py-1.5 rounded-full"
+          style={{ background: 'rgba(13,148,136,0.08)', border: '1px solid rgba(13,148,136,0.15)' }}
+        >
+          <div
+            className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+            style={{
+              background: 'linear-gradient(135deg,rgba(13,148,136,0.3),rgba(13,148,136,0.15))',
+              border: '1px solid rgba(13,148,136,0.4)',
+              color: '#2dd4bf',
+            }}
           >
-            Upgrade →
-          </Link>
-        )}
+            {avatarLetter}
+          </div>
+          <span className="text-xs font-medium hidden sm:block" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            {displayName}
+          </span>
+        </div>
       </div>
     </div>
   )

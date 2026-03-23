@@ -1,12 +1,37 @@
 import Link from 'next/link'
 import { createServerSupabase } from '@/lib/supabase-server'
 import type { UserProfile, Conversation } from '@/lib/supabase'
+import { MessageCircle, Users, Zap, Bot, ArrowRight } from 'lucide-react'
 
-function WhatsAppIcon() {
+function StatCard({ icon: Icon, label, value, sub, color = '#0d9488' }: {
+  icon: React.ElementType; label: string; value: string | number; sub?: string; color?: string
+}) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-    </svg>
+    <div className="rounded-2xl p-6 relative overflow-hidden" style={{
+      background: 'rgba(15,23,42,0.75)',
+      backdropFilter: 'blur(16px)',
+      border: '1px solid rgba(13,148,136,0.15)',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.2)',
+    }}>
+      <div className="absolute top-0 right-0 w-24 h-24 rounded-full pointer-events-none" style={{
+        background: `radial-gradient(circle at 80% 20%, ${color}18 0%, transparent 70%)`,
+      }} />
+      <div className="flex items-start justify-between mb-4">
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{
+          background: `${color}15`, border: `1px solid ${color}25`,
+        }}>
+          <Icon size={17} style={{ color }} strokeWidth={1.8} />
+        </div>
+      </div>
+      <p className="text-white font-black text-3xl tabular-nums mb-0.5" style={{
+        background: 'linear-gradient(135deg,#ffffff,rgba(255,255,255,0.6))',
+        WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+      }}>
+        {value}
+      </p>
+      <p className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.45)' }}>{label}</p>
+      {sub && <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.2)' }}>{sub}</p>}
+    </div>
   )
 }
 
@@ -44,131 +69,114 @@ export default async function DashboardPage() {
   const pct = limit > 0 ? Math.min(Math.round((used / limit) * 100), 100) : 0
   const remaining = Math.max(limit - used, 0)
   const nearLimit = pct >= 80
+  const agentConfigured = (userProfile as unknown as Record<string, unknown>)?.agent_configured as boolean ?? false
+  const agentActive = (userProfile as unknown as Record<string, unknown>)?.agent_active as boolean ?? false
 
   return (
-    <div className="min-h-screen px-8 py-10" style={{ background: 'linear-gradient(160deg, #f8fafc 0%, #f0fdfa 100%)' }}>
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="px-8 py-8 min-h-screen">
+      <div className="max-w-4xl mx-auto space-y-7">
 
         {/* Greeting */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-[#0f172a] text-[30px] font-black tracking-tight">
+            <h1 className="text-white text-[28px] font-black tracking-tight mb-0.5">
               Hola, {greetingName} 👋
             </h1>
-            <p className="text-[#94a3b8] text-sm mt-0.5">Aquí tienes el resumen de hoy</p>
+            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>Aquí tienes el resumen de hoy</p>
           </div>
-          <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold"
-            style={{ background: 'rgba(13,148,136,0.08)', border: '1px solid rgba(13,148,136,0.15)', color: '#0d9488' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0d9488]" style={{ boxShadow: '0 0 4px rgba(13,148,136,0.8)', animation: 'pulse 2s infinite' }} />
-            Agente activo
+          {/* Agent status badge */}
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold" style={{
+            background: agentActive ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.08)',
+            border: `1px solid ${agentActive ? 'rgba(34,197,94,0.25)' : 'rgba(239,68,68,0.2)'}`,
+            color: agentActive ? '#4ade80' : '#f87171',
+          }}>
+            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{
+              background: agentActive ? '#4ade80' : '#f87171',
+              boxShadow: agentActive ? '0 0 6px rgba(74,222,128,0.8)' : '0 0 6px rgba(248,113,113,0.6)',
+              animation: agentActive ? 'pulse 2s infinite' : 'none',
+            }} />
+            {agentActive ? 'Agente activo' : 'Agente inactivo'}
           </div>
+        </div>
+
+        {/* Configure CTA — only if not configured */}
+        {!agentConfigured && (
+          <Link href="/dashboard/agentes" className="block rounded-2xl p-5 group transition-all" style={{
+            background: 'linear-gradient(135deg,rgba(13,148,136,0.15) 0%,rgba(13,148,136,0.06) 100%)',
+            border: '1px solid rgba(13,148,136,0.3)',
+            backdropFilter: 'blur(12px)',
+            boxShadow: '0 4px 20px rgba(13,148,136,0.1)',
+          }}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{
+                  background: 'rgba(13,148,136,0.2)', border: '1px solid rgba(13,148,136,0.35)',
+                }}>
+                  <Bot size={20} className="text-[#0d9488]" strokeWidth={1.8} />
+                </div>
+                <div>
+                  <p className="text-white font-bold text-sm">Configura tu agente WhatsApp</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                    Empieza a recibir y cerrar ventas automáticamente
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 text-[#0d9488] text-xs font-bold group-hover:gap-2.5 transition-all">
+                Configurar <ArrowRight size={13} strokeWidth={2.2} />
+              </div>
+            </div>
+          </Link>
+        )}
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-3 gap-4">
+          <StatCard icon={MessageCircle} label="Conversaciones hoy" value={convToday} sub="mensajes recibidos" />
+          <StatCard icon={Users} label="Leads captados" value={convWeek} sub="esta semana" color="#6366f1" />
+          <StatCard icon={Zap} label="Tasa de respuesta" value={convTotal > 0 ? '98%' : '—'} sub="tiempo medio < 2s" color="#f59e0b" />
         </div>
 
         {/* Progress card */}
-        <div className="rounded-2xl p-6 relative overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, #0d1525 0%, #0f172a 60%, #0a1628 100%)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)',
-            border: '1px solid rgba(255,255,255,0.05)',
-          }}>
-          {/* Background orb */}
-          <div className="absolute right-[-40px] top-[-40px] w-[200px] h-[200px] rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(13,148,136,0.12) 0%, transparent 70%)' }} />
-
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[#0d9488]"
-                  style={{ background: 'rgba(13,148,136,0.12)', border: '1px solid rgba(13,148,136,0.2)' }}>
-                  <WhatsAppIcon />
-                </div>
-                <span className="text-white/60 text-sm font-medium">Conversaciones del mes</span>
-              </div>
-              <span className="text-white text-sm font-black tabular-nums"
-                style={{ background: 'rgba(255,255,255,0.06)', padding: '4px 10px', borderRadius: 8 }}>
-                {used} / {limit}
+        <div className="rounded-2xl p-6 relative overflow-hidden" style={{
+          background: 'rgba(15,23,42,0.75)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(13,148,136,0.15)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.2)',
+        }}>
+          <div className="absolute right-0 top-0 w-48 h-48 rounded-full pointer-events-none" style={{
+            background: 'radial-gradient(circle at 90% 10%, rgba(13,148,136,0.1) 0%, transparent 65%)',
+          }} />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2.5">
+              <MessageCircle size={16} className="text-[#0d9488]" strokeWidth={1.8} />
+              <span className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                Conversaciones del mes
               </span>
             </div>
+            <span className="text-white text-sm font-black tabular-nums px-3 py-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.05)' }}>
+              {used} / {limit}
+            </span>
+          </div>
 
-            <div className="h-2 rounded-full overflow-hidden mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
-              <div
-                className="h-full rounded-full transition-all duration-700"
-                style={{
-                  width: `${pct}%`,
-                  background: nearLimit
-                    ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
-                    : 'linear-gradient(90deg, #0d9488, #2dd4bf)',
-                  boxShadow: nearLimit
-                    ? '0 0 8px rgba(245,158,11,0.4)'
-                    : '0 0 8px rgba(13,148,136,0.4)',
-                }}
-              />
-            </div>
+          <div className="h-2 rounded-full overflow-hidden mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div className="h-full rounded-full transition-all duration-700" style={{
+              width: `${pct}%`,
+              background: nearLimit
+                ? 'linear-gradient(90deg,#f59e0b,#ef4444)'
+                : 'linear-gradient(90deg,#0d9488,#2dd4bf)',
+              boxShadow: nearLimit ? '0 0 8px rgba(245,158,11,0.4)' : '0 0 8px rgba(13,148,136,0.4)',
+            }} />
+          </div>
 
-            <div className="flex items-center justify-between">
-              <p className="text-white/35 text-xs">{remaining} conversaciones restantes</p>
-              {nearLimit && (
-                <p className="text-amber-400/90 text-xs font-semibold flex items-center gap-1">
-                  ⚠ Cerca del límite
-                </p>
-              )}
-            </div>
+          <div className="flex items-center justify-between">
+            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
+              {remaining} conversaciones restantes
+            </p>
+            {nearLimit && (
+              <p className="text-xs font-semibold" style={{ color: '#fbbf24' }}>⚠ Cerca del límite</p>
+            )}
           </div>
         </div>
 
-        {/* Stats or empty state */}
-        {used === 0 ? (
-          <div className="rounded-2xl p-10 text-center relative overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, #0d1525 0%, #0f172a 100%)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-              border: '1px solid rgba(255,255,255,0.05)',
-            }}>
-            <div className="absolute inset-0 pointer-events-none"
-              style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(13,148,136,0.06) 0%, transparent 70%)' }} />
-            <div className="relative z-10">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#0d9488]"
-                style={{ background: 'rgba(13,148,136,0.1)', border: '1px solid rgba(13,148,136,0.2)' }}>
-                <WhatsAppIcon />
-              </div>
-              <p className="text-white/50 text-sm mb-1 font-medium">Tu agente está listo</p>
-              <p className="text-white/25 text-xs mb-6">Aún no ha tenido conversaciones. Actívalo para empezar.</p>
-              <Link
-                href="/dashboard/agentes"
-                className="inline-flex items-center gap-2 text-white text-sm font-bold px-6 py-3 rounded-full transition-all"
-                style={{
-                  background: 'linear-gradient(135deg, #0d9488, #0f766e)',
-                  boxShadow: '0 4px 16px rgba(13,148,136,0.35)',
-                }}
-              >
-                Activar mi agente →
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-4">
-            {[
-              { label: 'Hoy', value: convToday, icon: '☀️', sub: 'conversaciones' },
-              { label: 'Esta semana', value: convWeek, icon: '📅', sub: 'conversaciones' },
-              { label: 'Total', value: convTotal, icon: '🔥', sub: 'acumuladas' },
-            ].map(({ label, value, icon, sub }) => (
-              <div key={label} className="rounded-2xl p-6 relative overflow-hidden"
-                style={{
-                  background: 'linear-gradient(135deg, #0d1525 0%, #0f172a 100%)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-                  border: '1px solid rgba(255,255,255,0.05)',
-                }}>
-                <div className="absolute top-4 right-4 text-lg opacity-30">{icon}</div>
-                <p className="text-white font-black text-3xl tabular-nums mb-1"
-                  style={{ background: 'linear-gradient(135deg, #ffffff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                  {value}
-                </p>
-                <p className="text-white/50 text-[11px] uppercase tracking-wide font-medium">{label}</p>
-                <p className="text-white/20 text-[10px] mt-0.5">{sub}</p>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   )
