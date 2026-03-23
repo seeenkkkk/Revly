@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserSupabase } from '@/lib/supabase-browser'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Loader2, Check } from 'lucide-react'
+import { Loader2, Check, Zap, Shield, TrendingUp } from 'lucide-react'
 
 function GoogleIcon() {
   return (
@@ -19,9 +19,15 @@ function GoogleIcon() {
 }
 
 const BULLETS = [
-  'Responde leads en segundos, 24 horas al día',
-  'Califica y cierra ventas sin que tú intervengas',
-  'Configura tu agente en menos de 10 minutos',
+  { icon: Zap, text: 'Responde leads en segundos, 24 horas al día' },
+  { icon: TrendingUp, text: 'Califica y cierra ventas sin que tú intervengas' },
+  { icon: Shield, text: 'Configura tu agente en menos de 10 minutos' },
+]
+
+const STATS = [
+  { value: '3 min', label: 'Setup' },
+  { value: '24/7', label: 'Activo' },
+  { value: '10x', label: 'Más leads' },
 ]
 
 function LoginContent() {
@@ -94,16 +100,26 @@ function LoginContent() {
   return (
     <div className="min-h-screen flex">
 
-      {/* ── LEFT PANEL — branding (hidden on mobile) ─────────────── */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#0f172a] flex-col justify-between p-12 relative overflow-hidden">
+      {/* ── LEFT PANEL ─────────────────────────────────────────── */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #0a0f1e 0%, #0f172a 50%, #0a1628 100%)' }}>
 
-        {/* Background decoration */}
-        <div className="absolute top-[-80px] right-[-80px] w-[380px] h-[380px] bg-[#0d9488]/[0.08] rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-[-60px] left-[-60px] w-[300px] h-[300px] bg-[#0d9488]/[0.05] rounded-full blur-3xl pointer-events-none" />
+        {/* Animated orbs */}
+        <div className="absolute top-[-100px] right-[-80px] w-[450px] h-[450px] rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(13,148,136,0.12) 0%, transparent 70%)', animation: 'pulse 4s ease-in-out infinite' }} />
+        <div className="absolute bottom-[-80px] left-[-60px] w-[350px] h-[350px] rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(13,148,136,0.08) 0%, transparent 70%)', animation: 'pulse 6s ease-in-out infinite reverse' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(13,148,136,0.04) 0%, transparent 60%)' }} />
+
+        {/* Grid pattern */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
+          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 relative z-10">
-          <div className="relative w-9 h-9 flex-shrink-0">
+          <div className="relative w-9 h-9 flex-shrink-0 rounded-xl overflow-hidden"
+            style={{ background: 'rgba(13,148,136,0.15)', border: '1px solid rgba(13,148,136,0.3)', padding: '6px' }}>
             <Image src="/images/logo.png.png" alt="Revly" fill style={{ objectFit: 'contain' }} />
           </div>
           <span className="text-white font-black text-xl tracking-tight">revly</span>
@@ -111,41 +127,69 @@ function LoginContent() {
 
         {/* Center copy */}
         <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 bg-[#0d9488]/10 border border-[#0d9488]/20 rounded-full px-3 py-1.5 mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0d9488] animate-pulse flex-shrink-0" />
+          <div className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-8"
+            style={{ background: 'rgba(13,148,136,0.1)', border: '1px solid rgba(13,148,136,0.2)' }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#0d9488] flex-shrink-0"
+              style={{ animation: 'pulse 2s ease-in-out infinite', boxShadow: '0 0 6px rgba(13,148,136,0.8)' }} />
             <span className="text-[#0d9488] text-[10px] font-bold uppercase tracking-widest">
               Para negocios locales
             </span>
           </div>
 
-          <h2 className="text-[40px] font-black leading-[1.1] tracking-tight text-white mb-6">
+          <h2 className="text-[42px] font-black leading-[1.05] tracking-tight text-white mb-8">
             Tu agente WhatsApp<br />
-            <em className="italic text-[#0d9488]">que vende mientras<br />duermes.</em>
+            <span className="italic" style={{ background: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #2dd4bf 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              que vende mientras<br />duermes.
+            </span>
           </h2>
 
-          <ul className="space-y-4 mt-8">
-            {BULLETS.map((bullet) => (
-              <li key={bullet} className="flex items-start gap-3">
-                <span className="w-5 h-5 rounded-full bg-[#0d9488]/15 border border-[#0d9488]/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check size={11} className="text-[#0d9488]" strokeWidth={2.5} />
+          <ul className="space-y-3 mb-10">
+            {BULLETS.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-center gap-3">
+                <span className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(13,148,136,0.12)', border: '1px solid rgba(13,148,136,0.25)' }}>
+                  <Icon size={13} className="text-[#0d9488]" strokeWidth={2.2} />
                 </span>
-                <span className="text-white/60 text-sm leading-relaxed">{bullet}</span>
+                <span className="text-white/60 text-sm leading-relaxed">{text}</span>
               </li>
             ))}
           </ul>
+
+          {/* Stats row */}
+          <div className="grid grid-cols-3 gap-3">
+            {STATS.map(({ value, label }) => (
+              <div key={label} className="rounded-xl p-3 text-center"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <p className="text-white font-black text-lg tracking-tight" style={{ color: '#2dd4bf' }}>{value}</p>
+                <p className="text-white/30 text-[10px] uppercase tracking-widest mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Bottom quote */}
-        <div className="relative z-10 border-l-2 border-[#0d9488]/40 pl-4">
+        <div className="relative z-10 rounded-xl p-4"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '2px solid rgba(13,148,136,0.5)' }}>
           <p className="text-white/40 text-sm italic leading-relaxed">
             &ldquo;En la primera semana cerré 3 ventas que yo ni había visto.&rdquo;
           </p>
-          <p className="text-white/25 text-xs mt-1.5 font-medium">Carlos M. — Inmobiliaria Costa Sur</p>
+          <div className="flex items-center gap-2 mt-2">
+            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-[#0d9488]"
+              style={{ background: 'rgba(13,148,136,0.15)', border: '1px solid rgba(13,148,136,0.3)' }}>C</div>
+            <p className="text-white/25 text-xs font-medium">Carlos M. — Inmobiliaria Costa Sur</p>
+          </div>
         </div>
       </div>
 
-      {/* ── RIGHT PANEL — form ───────────────────────────────────── */}
-      <div className="w-full lg:w-1/2 bg-white flex flex-col items-center justify-center px-6 py-12">
+      {/* ── RIGHT PANEL ──────────────────────────────────────────── */}
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden"
+        style={{ background: 'linear-gradient(160deg, #f8fafc 0%, #ffffff 50%, #f0fdfa 100%)' }}>
+
+        {/* Subtle background orb */}
+        <div className="absolute top-[-100px] right-[-100px] w-[400px] h-[400px] rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(13,148,136,0.06) 0%, transparent 65%)' }} />
+        <div className="absolute bottom-[-80px] left-[-80px] w-[300px] h-[300px] rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(13,148,136,0.04) 0%, transparent 65%)' }} />
 
         {/* Mobile logo */}
         <Link href="/" className="flex lg:hidden items-center gap-2.5 mb-10">
@@ -155,11 +199,11 @@ function LoginContent() {
           <span className="text-[#0f172a] font-black text-xl tracking-tight">revly</span>
         </Link>
 
-        <div className="w-full max-w-sm">
+        <div className="w-full max-w-sm relative z-10">
 
           {/* Heading */}
           <div className="mb-8">
-            <h1 className="text-[26px] font-black text-[#0f172a] tracking-tight mb-1">
+            <h1 className="text-[28px] font-black text-[#0f172a] tracking-tight mb-1">
               {mode === 'login' ? 'Bienvenido de nuevo' : 'Crea tu cuenta'}
             </h1>
             <p className="text-[#94a3b8] text-sm">
@@ -173,7 +217,21 @@ function LoginContent() {
           <button
             onClick={handleGoogle}
             disabled={googleLoading || loading}
-            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-[#f8fafc] border border-[#e2e8f0] hover:border-[#cbd5e1] rounded-xl px-4 py-3.5 text-sm font-semibold text-[#0f172a] transition-all disabled:opacity-60 shadow-sm hover:shadow-md mb-5"
+            className="w-full flex items-center justify-center gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold text-[#0f172a] transition-all disabled:opacity-60 mb-5 group"
+            style={{
+              background: 'white',
+              border: '1.5px solid #e2e8f0',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.borderColor = '#0d9488'
+              ;(e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(13,148,136,0.12), 0 1px 3px rgba(0,0,0,0.06)'
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.borderColor = '#e2e8f0'
+              ;(e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)'
+            }}
           >
             {googleLoading
               ? <Loader2 size={16} className="animate-spin text-[#94a3b8]" />
@@ -201,7 +259,16 @@ function LoginContent() {
                 onChange={e => setEmail(e.target.value)}
                 required
                 placeholder="tu@email.com"
-                className="w-full bg-white border border-[#e2e8f0] rounded-xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
+                className="w-full bg-white border rounded-xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] outline-none transition-all"
+                style={{ border: '1.5px solid #e2e8f0' }}
+                onFocus={e => {
+                  (e.currentTarget as HTMLElement).style.border = '1.5px solid #0d9488'
+                  ;(e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 3px rgba(13,148,136,0.08)'
+                }}
+                onBlur={e => {
+                  (e.currentTarget as HTMLElement).style.border = '1.5px solid #e2e8f0'
+                  ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
+                }}
               />
             </div>
             <div>
@@ -215,18 +282,27 @@ function LoginContent() {
                 required
                 minLength={6}
                 placeholder="••••••••"
-                className="w-full bg-white border border-[#e2e8f0] rounded-xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/10 transition-all"
+                className="w-full bg-white border rounded-xl px-4 py-3 text-sm text-[#0f172a] placeholder-[#cbd5e1] outline-none transition-all"
+                style={{ border: '1.5px solid #e2e8f0' }}
+                onFocus={e => {
+                  (e.currentTarget as HTMLElement).style.border = '1.5px solid #0d9488'
+                  ;(e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 3px rgba(13,148,136,0.08)'
+                }}
+                onBlur={e => {
+                  (e.currentTarget as HTMLElement).style.border = '1.5px solid #e2e8f0'
+                  ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
+                }}
               />
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-lg px-3 py-2.5">
+              <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-3 py-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
                 <p className="text-red-600 text-xs font-medium">{error}</p>
               </div>
             )}
             {success && (
-              <div className="flex items-center gap-2 bg-[#f0fdfa] border border-[#99f6e4] rounded-lg px-3 py-2.5">
+              <div className="flex items-center gap-2 bg-[#f0fdfa] border border-[#99f6e4] rounded-xl px-3 py-2.5">
                 <Check size={12} className="text-[#0d9488] flex-shrink-0" />
                 <p className="text-[#0d9488] text-xs font-medium">{success}</p>
               </div>
@@ -235,7 +311,22 @@ function LoginContent() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full py-3.5 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold text-sm transition-all disabled:opacity-60 flex items-center justify-center gap-2 mt-2 shadow-sm hover:shadow-[0_4px_16px_rgba(13,148,136,0.25)]"
+              className="w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
+              style={{
+                background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
+                boxShadow: '0 4px 20px rgba(13,148,136,0.3), 0 1px 3px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={e => {
+                if (!loading && !googleLoading) {
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 30px rgba(13,148,136,0.4), 0 2px 8px rgba(0,0,0,0.12)'
+                  ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'
+                }
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(13,148,136,0.3), 0 1px 3px rgba(0,0,0,0.1)'
+                ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
+              }}
             >
               {loading && <Loader2 size={14} className="animate-spin" />}
               {mode === 'login' ? 'Entrar →' : 'Crear cuenta →'}
